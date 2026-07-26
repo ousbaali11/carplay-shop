@@ -33,7 +33,7 @@ export default async function AdminOrderDetail({ params }: { params: { id: strin
     : [];
 
   return (
-    <div style={{ display: "flex" }}>
+    <div className="admin-layout">
       <AdminSidebar active="commandes" />
       <div style={{ flex: 1, padding: "36px 40px", maxWidth: 760 }}>
         <p className="eyebrow">Commande</p>

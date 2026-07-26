@@ -8,7 +8,7 @@ export default async function AdminIntegrationsPage() {
   const settings = await getSettings();
 
   return (
-    <div style={{ display: "flex" }}>
+    <div className="admin-layout">
       <AdminSidebar active="integrations" />
       <div style={{ flex: 1, padding: "36px 40px" }}>
         <h1 style={{ fontSize: 26, marginBottom: 8 }}>Intégrations</h1>

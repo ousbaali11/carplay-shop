@@ -1,4 +1,5 @@
 import Link from "next/link";
+import HeaderNav from "./HeaderNav";
 
 export default function Header() {
   return (
@@ -15,13 +16,7 @@ export default function Header() {
             CarPlay<span style={{ color: "var(--cyan)" }}>Activ</span>
           </span>
         </Link>
-        <nav style={{ display: "flex", alignItems: "center", gap: 28 }}>
-          <Link href="/#produits" style={{ fontSize: 14, textDecoration: "none", color: "var(--text-muted)" }}>Produits</Link>
-          <Link href="/#comment-ca-marche" style={{ fontSize: 14, textDecoration: "none", color: "var(--text-muted)" }}>Comment ça marche</Link>
-          <Link href="/#contact" style={{ fontSize: 14, textDecoration: "none", color: "var(--text-muted)" }}>Contact</Link>
-          <Link href="/compte" style={{ fontSize: 14, textDecoration: "none", color: "var(--text-muted)" }}>Mon compte</Link>
-          <Link href="/#produits" className="btn btn-primary" style={{ padding: "10px 18px", fontSize: 14 }}>Commander</Link>
-        </nav>
+        <HeaderNav />
       </div>
     </header>
   );

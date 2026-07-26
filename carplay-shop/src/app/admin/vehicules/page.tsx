@@ -21,7 +21,7 @@ export default async function AdminVehiclesPage({ searchParams }: { searchParams
   });
 
   return (
-    <div style={{ display: "flex" }}>
+    <div className="admin-layout">
       <AdminSidebar active="vehicules" />
       <div style={{ flex: 1, padding: "36px 40px" }}>
         {searchParams.cree && (
@@ -35,8 +35,8 @@ export default async function AdminVehiclesPage({ searchParams }: { searchParams
           <h1 style={{ fontSize: 26 }}>Véhicules ({vehicles.length})</h1>
           <Link href="/admin/vehicules/nouveau" className="btn btn-primary">+ Ajouter un véhicule</Link>
         </div>
-
         <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+          <div className="table-scroll">
           <table>
             <thead>
               <tr>
@@ -83,7 +83,8 @@ export default async function AdminVehiclesPage({ searchParams }: { searchParams
                 </td></tr>
               )}
             </tbody>
-          </table>
+            </table>
+          </div>
         </div>
       </div>
     </div>

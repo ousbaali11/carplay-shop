@@ -9,7 +9,7 @@ export default async function AdminSettingsPage() {
   const settings = await getSettings();
 
   return (
-    <div style={{ display: "flex" }}>
+    <div className="admin-layout">
       <AdminSidebar active="parametres" />
       <div style={{ flex: 1, padding: "36px 40px" }}>
         <h1 style={{ fontSize: 26, marginBottom: 8 }}>Moyens de paiement</h1>

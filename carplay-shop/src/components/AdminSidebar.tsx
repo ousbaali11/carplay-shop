@@ -12,8 +12,8 @@ export default function AdminSidebar({ active }: { active: "commandes" | "vehicu
   ];
 
   return (
-    <aside style={{ width: 220, borderRight: "1px solid var(--line)", padding: "28px 20px", display: "flex", flexDirection: "column", gap: 24, minHeight: "100vh" }}>
-      <div>
+    <aside className="admin-sidebar" style={{ width: 220, borderRight: "1px solid var(--line)", padding: "28px 20px", display: "flex", flexDirection: "column", gap: 24, minHeight: "100vh" }}>
+      <div className="admin-eyebrow">
         <p className="eyebrow">Administration</p>
       </div>
       <nav style={{ display: "grid", gap: 6 }}>
@@ -34,7 +34,7 @@ export default function AdminSidebar({ active }: { active: "commandes" | "vehicu
           </Link>
         ))}
       </nav>
-      <div style={{ marginTop: "auto" }}>
+      <div className="admin-signout" style={{ marginTop: "auto" }}>
         <SignOutButton />
       </div>
     </aside>

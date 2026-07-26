@@ -24,7 +24,7 @@ export default async function HomePage() {
 
       {/* HERO */}
       <section style={{ padding: "80px 0 60px", borderBottom: "1px solid var(--line)" }}>
-        <div className="container" style={{ display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: 48, alignItems: "center" }}>
+        <div className="container hero-grid">
           <div>
             <p className="eyebrow">Activation Apple CarPlay & Android Auto</p>
             <h1 style={{ fontSize: 46, lineHeight: 1.08, margin: "16px 0" }}>
@@ -70,8 +70,7 @@ export default async function HomePage() {
         <div className="container">
           <p className="eyebrow">Deux formules</p>
           <h2 style={{ fontSize: 32, margin: "10px 0 40px" }}>Choisissez votre formule</h2>
-
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
+          <div className="two-col-grid">
             {/* Formule 1 */}
             <div className="card">
               <p className="eyebrow" style={{ color: "var(--text-muted)" }}>Formule 1</p>
@@ -121,7 +120,7 @@ export default async function HomePage() {
         <div className="container">
           <p className="eyebrow">Processus</p>
           <h2 style={{ fontSize: 32, margin: "10px 0 40px" }}>Comment ça marche</h2>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 20 }}>
+          <div className="four-col-grid">
             {[
               ["01", "Choisissez", "Sélectionnez une formule, puis la marque/modèle/année de votre voiture."],
               ["02", "Payez", "Par carte bancaire ou PayPal, en toute sécurité."],

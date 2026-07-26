@@ -159,3 +159,53 @@ th { color: var(--text-muted); font-weight: 500; font-family: var(--font-mono); 
   opacity: 1;
   transform: translateX(0);
 }
+/* ===== Responsive : mobile / tablette / desktop ===== */
+
+.desktop-nav { display: flex; align-items: center; gap: 28px; }
+.mobile-menu-btn { display: none; background: none; border: none; color: var(--text); cursor: pointer; padding: 6px; }
+.mobile-nav-panel { display: none; }
+
+.hero-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 48px; align-items: center; }
+.two-col-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.four-col-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.checkout-grid { display: grid; grid-template-columns: 1fr 380px; gap: 32px; }
+.table-scroll { overflow-x: auto; }
+.admin-layout { display: flex; }
+
+@media (max-width: 860px) {
+  .desktop-nav { display: none; }
+  .mobile-menu-btn { display: flex; }
+  .mobile-nav-panel.open {
+    display: flex; flex-direction: column; gap: 4px;
+    padding: 14px 24px 22px; border-top: 1px solid var(--line); background: var(--bg);
+  }
+  .hero-grid { grid-template-columns: 1fr; }
+  .four-col-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 720px) {
+  .two-col-grid { grid-template-columns: 1fr; }
+  .checkout-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 480px) {
+  .four-col-grid { grid-template-columns: 1fr; }
+  h1 { font-size: 32px !important; }
+}
+
+@media (max-width: 780px) {
+  .admin-layout { flex-direction: column; }
+  .admin-sidebar {
+    width: 100% !important;
+    min-height: auto !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    overflow-x: auto;
+    padding: 12px 16px !important;
+    gap: 10px !important;
+  }
+  .admin-sidebar .admin-eyebrow { display: none; }
+  .admin-sidebar nav { flex-direction: row !important; gap: 4px !important; }
+  .admin-sidebar .admin-signout { margin-top: 0 !important; margin-left: auto; }
+  .admin-sidebar nav a { white-space: nowrap; }
+}

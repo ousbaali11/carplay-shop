@@ -37,7 +37,7 @@ export default async function EditVehiclePage({ params, searchParams }: { params
   const afPhysicalCard = v.activationFiles.filter((f) => f.formula === "PHYSICAL_CARD");
 
   return (
-    <div style={{ display: "flex" }}>
+    <div className="admin-layout">
       <AdminSidebar active="vehicules" />
       <div style={{ flex: 1, padding: "36px 40px", maxWidth: 640 }}>
         <h1 style={{ fontSize: 26, marginBottom: 24 }}>{v.brand} {v.model} ({v.year})</h1>

@@ -59,6 +59,7 @@ export default async function AccountPage() {
           <p>Vous n'avez pas encore de commande.</p>
         ) : (
           <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+          <div className="table-scroll">
             <table>
               <thead>
                 <tr>
@@ -106,6 +107,7 @@ export default async function AccountPage() {
               </tbody>
             </table>
           </div>
+        </div>
         )}
 
         <h3 style={{ margin: "40px 0 14px" }}>Sécurité</h3>

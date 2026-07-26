@@ -91,7 +91,7 @@ export default function CheckoutClient({
   const paypalReady = paypalEnabled && !!paypalClientId;
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 380px", gap: 32 }}>
+    <div className="checkout-grid">
       <div>
         {step === "form" && (
           <form onSubmit={submitForm} className="card" style={{ display: "grid", gap: 16 }}>

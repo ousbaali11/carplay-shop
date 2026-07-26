@@ -29,7 +29,7 @@ export default async function AdminDashboard() {
   const toPrepare = orders.filter((o) => o.status === "PREPARING").length;
 
   return (
-    <div style={{ display: "flex" }}>
+    <div className="admin-layout">
       <AdminSidebar active="commandes" />
       <div style={{ flex: 1, padding: "36px 40px" }}>
         <h1 style={{ fontSize: 26, marginBottom: 24 }}>Commandes</h1>
@@ -48,8 +48,8 @@ export default async function AdminDashboard() {
             <p style={{ fontFamily: "var(--font-display)", fontSize: 26, marginTop: 8 }}>{toPrepare}</p>
           </div>
         </div>
-
         <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+          <div className="table-scroll">
           <table>
             <thead>
               <tr>
@@ -81,7 +81,8 @@ export default async function AdminDashboard() {
                 <tr><td colSpan={7} style={{ color: "var(--text-muted)", textAlign: "center", padding: 24 }}>Aucune commande pour le moment.</td></tr>
               )}
             </tbody>
-          </table>
+            </table>
+          </div>
         </div>
       </div>
     </div>
