@@ -19,9 +19,14 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
     const res = await signIn("credentials", { redirect: false, email, password });
+    if (res?.ok) {
+      // Rechargement complet (au lieu d'une navigation "douce") pour garantir
+      // que le nouveau cookie de session est bien pris en compte immédiatement.
+      window.location.href = "/compte";
+      return;
+    }
     setLoading(false);
-    if (res?.ok) router.push("/compte");
-    else setError("Email ou mot de passe incorrect.");
+    setError("Email ou mot de passe incorrect.");
   }
 
   return (

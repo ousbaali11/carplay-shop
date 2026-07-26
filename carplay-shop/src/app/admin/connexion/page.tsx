@@ -16,9 +16,12 @@ export default function AdminLoginPage() {
     setLoading(true);
     setError(null);
     const res = await signIn("credentials", { redirect: false, email, password });
+    if (res?.ok) {
+      window.location.href = "/admin";
+      return;
+    }
     setLoading(false);
-    if (res?.ok) router.push("/admin");
-    else setError("Identifiants incorrects.");
+    setError("Identifiants incorrects.");
   }
 
   return (

@@ -1,35 +1,41 @@
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 
-// Bloque l'accès à /admin/* si l'utilisateur n'est pas connecté avec le rôle ADMIN.
-// Bloque l'accès à /compte (espace client) si non connecté.
+// Toute la logique d'autorisation est gérée ici, dans la fonction middleware
+// elle-même (le callback "authorized" ci-dessous laisse toujours passer).
+// C'est volontaire : cela évite que next-auth redirige de son côté vers la
+// mauvaise page de connexion (ex: renvoyer un admin non connecté vers la
+// page de connexion CLIENT au lieu de la page de connexion ADMIN).
 export default withAuth(
   function middleware(req) {
     const token = req.nextauth.token as any;
     const path = req.nextUrl.pathname;
 
-    const isAdminArea = path.startsWith("/admin") && path !== "/admin/connexion";
+    const isAdminConnexion = path === "/admin/connexion";
+    const isAdminArea = path.startsWith("/admin");
+    const isCompteConnexion = path === "/compte/connexion" || path === "/compte/inscription";
+    const isCompteArea = path.startsWith("/compte");
 
-    if (isAdminArea && token?.role !== "ADMIN") {
+    // Zone admin (sauf la page de connexion admin elle-même)
+    if (isAdminArea && !isAdminConnexion && token?.role !== "ADMIN") {
       return NextResponse.redirect(new URL("/admin/connexion", req.url));
     }
-    // Un admin déjà connecté qui retombe sur la page de connexion est renvoyé
-    // directement vers le tableau de bord, pour éviter d'y rester bloqué.
-    if (path === "/admin/connexion" && token?.role === "ADMIN") {
+    // Un admin déjà connecté qui retombe sur la page de connexion admin
+    // est renvoyé directement vers le tableau de bord.
+    if (isAdminConnexion && token?.role === "ADMIN") {
       return NextResponse.redirect(new URL("/admin", req.url));
     }
+
+    // Zone client (sauf connexion/inscription)
+    if (isCompteArea && !isCompteConnexion && !token) {
+      return NextResponse.redirect(new URL("/compte/connexion", req.url));
+    }
+
     return NextResponse.next();
   },
   {
     callbacks: {
-      authorized: ({ token, req }) => {
-        const path = req.nextUrl.pathname;
-        // Les pages de connexion elles-mêmes restent publiques
-        if (path === "/admin/connexion" || path === "/compte/connexion" || path === "/compte/inscription") {
-          return true;
-        }
-        return !!token;
-      },
+      authorized: () => true,
     },
   }
 );

@@ -64,5 +64,5 @@ export async function POST(req: Request) {
   await createMany(activationFilesPhysicalCard, (buf, file, pos) =>
     prisma.vehicleActivationFile.create({ data: { vehicleId: vehicle.id, formula: "PHYSICAL_CARD", data: buf, fileName: file.name, position: pos } }), 0);
 
-  return NextResponse.redirect(new URL(`/admin/vehicules/${vehicle.id}?cree=1`, req.url), 303);
+  return NextResponse.redirect(new URL(`/admin/vehicules?cree=${encodeURIComponent(`${vehicle.brand} ${vehicle.model}`)}`, req.url), 303);
 }

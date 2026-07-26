@@ -29,9 +29,12 @@ export default function RegisterPage() {
       return;
     }
     const signInRes = await signIn("credentials", { redirect: false, email: form.email, password: form.password });
+    if (signInRes?.ok) {
+      window.location.href = "/compte";
+      return;
+    }
     setLoading(false);
-    if (signInRes?.ok) router.push("/compte");
-    else router.push("/compte/connexion");
+    router.push("/compte/connexion");
   }
 
   return (

@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import AdminSidebar from "@/components/AdminSidebar";
+import ToggleActiveButton from "@/components/ToggleActiveButton";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -8,7 +9,7 @@ function eur(cents: number) {
   return (cents / 100).toLocaleString("fr-FR", { style: "currency", currency: "EUR" });
 }
 
-export default async function AdminVehiclesPage() {
+export default async function AdminVehiclesPage({ searchParams }: { searchParams: { cree?: string } }) {
   const vehicles = await prisma.vehicle.findMany({
     orderBy: [{ brand: "asc" }, { model: "asc" }],
     include: {
@@ -23,6 +24,13 @@ export default async function AdminVehiclesPage() {
     <div style={{ display: "flex" }}>
       <AdminSidebar active="vehicules" />
       <div style={{ flex: 1, padding: "36px 40px" }}>
+        {searchParams.cree && (
+          <div className="card" style={{ borderColor: "var(--success)", marginBottom: 20, padding: "14px 18px" }}>
+            <span style={{ color: "var(--success)" }}>✓</span>{" "}
+            <span style={{ color: "var(--text)" }}>Véhicule "{decodeURIComponent(searchParams.cree)}" créé avec succès.</span>
+          </div>
+        )}
+
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
           <h1 style={{ fontSize: 26 }}>Véhicules ({vehicles.length})</h1>
           <Link href="/admin/vehicules/nouveau" className="btn btn-primary">+ Ajouter un véhicule</Link>
@@ -64,7 +72,7 @@ export default async function AdminVehiclesPage() {
                     {v._count.images} photo{v._count.images !== 1 ? "s" : ""}<br/>
                     F1: {filesOnlyCount} PDF, {afFilesOnly} fichier(s) · F2: {physicalCount} PDF, {afPhysical} fichier(s)
                   </td>
-                  <td>{v.active ? <span className="badge badge-paid">Visible</span> : <span className="badge badge-canceled">Masqué</span>}</td>
+                  <td><ToggleActiveButton vehicleId={v.id} active={v.active} /></td>
                   <td><Link href={`/admin/vehicules/${v.id}`} style={{ color: "var(--cyan)", fontSize: 13 }}>Modifier</Link></td>
                 </tr>
                 );

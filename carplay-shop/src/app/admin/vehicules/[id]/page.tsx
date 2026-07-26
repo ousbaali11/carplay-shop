@@ -20,7 +20,7 @@ function FileList({ files, vehicleId, kind }: { files: { id: string; fileName: s
   );
 }
 
-export default async function EditVehiclePage({ params }: { params: { id: string } }) {
+export default async function EditVehiclePage({ params, searchParams }: { params: { id: string }; searchParams: { enregistre?: string; cree?: string } }) {
   const v = await prisma.vehicle.findUnique({
     where: { id: params.id },
     include: {
@@ -41,6 +41,12 @@ export default async function EditVehiclePage({ params }: { params: { id: string
       <AdminSidebar active="vehicules" />
       <div style={{ flex: 1, padding: "36px 40px", maxWidth: 640 }}>
         <h1 style={{ fontSize: 26, marginBottom: 24 }}>{v.brand} {v.model} ({v.year})</h1>
+
+        {searchParams.enregistre && (
+          <div className="card" style={{ borderColor: "var(--success)", marginBottom: 20, padding: "14px 18px" }}>
+            <span style={{ color: "var(--success)" }}>✓</span> <span style={{ color: "var(--text)" }}>Modifications enregistrées.</span>
+          </div>
+        )}
 
         <form action={`/api/admin/vehicles/${v.id}`} method="POST" encType="multipart/form-data" className="card" style={{ display: "grid", gap: 14, marginBottom: 20 }}>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
