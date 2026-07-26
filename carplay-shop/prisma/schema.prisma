@@ -1,0 +1,195 @@
+// Schéma de la base de données.
+// Une seule base Postgres, utilisée en local ET en production (voir README, section "Tester en local").
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  ADMIN
+  CLIENT
+}
+
+enum Formula {
+  FILES_ONLY    // Formule 1 : fichiers seuls, envoyés par email
+  PHYSICAL_CARD // Formule 2 : carte mémoire envoyée par la poste + PDF par email
+}
+
+enum OrderStatus {
+  PENDING_PAYMENT
+  PAID
+  PREPARING
+  SHIPPED
+  CANCELED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  STRIPE
+  PAYPAL
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  firstName    String
+  lastName     String
+  phone        String?
+  role         Role     @default(CLIENT)
+  createdAt    DateTime @default(now())
+  orders       Order[]
+}
+
+// Réglages globaux du site (une seule ligne, id fixe "singleton").
+model Settings {
+  id            String   @id @default("singleton")
+  stripeEnabled Boolean  @default(true)
+  paypalEnabled Boolean  @default(true)
+  updatedAt     DateTime @updatedAt
+}
+
+// Une fiche par véhicule. Les photos sont communes aux deux formules ; les PDF et
+// les fichiers d'activation sont séparés par formule car les étapes et les fichiers
+// eux-mêmes diffèrent entre "fichiers seuls" et "carte physique".
+model Vehicle {
+  id          String  @id @default(cuid())
+  brand       String
+  model       String
+  year        String
+  description String?
+
+  priceFilesCents    Int
+  pricePhysicalCents Int
+
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  images          VehicleImage[]
+  pdfs            VehiclePdf[]
+  activationFiles VehicleActivationFile[]
+  orders          Order[]
+
+  @@index([brand, model])
+}
+
+model VehicleImage {
+  id        String   @id @default(cuid())
+  vehicleId String
+  vehicle   Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  data      Bytes
+  mimeType  String
+  fileName  String?
+  position  Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([vehicleId])
+}
+
+model VehiclePdf {
+  id        String   @id @default(cuid())
+  vehicleId String
+  vehicle   Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  formula   Formula
+  data      Bytes
+  fileName  String
+  title     String?
+  position  Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([vehicleId])
+  @@index([vehicleId, formula])
+}
+
+// Fichier(s) d'activation bootables, séparés par formule :
+// - FILES_ONLY     : livrés directement au client après paiement
+// - PHYSICAL_CARD  : jamais livrés au client, utilisés en interne par l'admin
+//                    pour préparer la carte mémoire physique à expédier
+model VehicleActivationFile {
+  id        String   @id @default(cuid())
+  vehicleId String
+  vehicle   Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  formula   Formula
+  data      Bytes
+  fileName  String
+  position  Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([vehicleId])
+  @@index([vehicleId, formula])
+}
+
+model Order {
+  id          String  @id @default(cuid())
+  orderNumber String  @unique
+  user        User?   @relation(fields: [userId], references: [id])
+  userId      String?
+
+  vehicle   Vehicle? @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
+  vehicleId String?
+
+  vehicleBrand String
+  vehicleModel String
+  vehicleYear  String
+
+  formula    Formula
+  priceCents Int
+
+  status        OrderStatus    @default(PENDING_PAYMENT)
+  paymentMethod PaymentMethod?
+  paymentRef    String?
+
+  email       String
+  firstName   String
+  lastName    String
+  phone       String
+  address     String?
+  addressComp String?
+  postalCode  String?
+  city        String?
+  country     String  @default("France")
+
+  trackingNumber String?
+  shippedAt      DateTime?
+
+  // Copies figées au moment du paiement : c'est CE contenu qui est livré au client,
+  // jamais le contenu "live" de la fiche véhicule (qui peut changer ensuite).
+  pdfs            OrderPdf[]
+  activationFiles OrderActivationFile[] // uniquement rempli pour la formule FILES_ONLY
+
+  downloadToken     String?   @unique
+  downloadExpiresAt DateTime?
+  downloadCount     Int       @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OrderPdf {
+  id       String  @id @default(cuid())
+  orderId  String
+  order    Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  data     Bytes
+  fileName String
+  title    String?
+  position Int     @default(0)
+
+  @@index([orderId])
+}
+
+model OrderActivationFile {
+  id       String @id @default(cuid())
+  orderId  String
+  order    Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  data     Bytes
+  fileName String
+  position Int    @default(0)
+
+  @@index([orderId])
+}
