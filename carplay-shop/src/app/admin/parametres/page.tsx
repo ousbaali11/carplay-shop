@@ -1,5 +1,6 @@
 import AdminSidebar from "@/components/AdminSidebar";
 import PaymentSettingsForm from "@/components/PaymentSettingsForm";
+import ContactSettingsForm from "@/components/ContactSettingsForm";
 import { getSettings } from "@/lib/orders";
 
 export const dynamic = "force-dynamic";
@@ -28,6 +29,13 @@ export default async function AdminSettingsPage() {
             tableau de bord, sans code supplémentaire.
           </p>
         </div>
+
+        <h1 style={{ fontSize: 26, margin: "40px 0 8px" }}>Coordonnées de contact</h1>
+        <p style={{ marginBottom: 24, maxWidth: 480 }}>
+          Affichées dans la section "Contactez-nous" de la page d'accueil. Modifiable
+          à tout moment, sans toucher au code.
+        </p>
+        <ContactSettingsForm initialContactEmail={settings.contactEmail} initialInstagramUrl={settings.instagramUrl} />
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { stripe } from "@/lib/stripe";
+import { getStripeClient } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
 import { getSettings } from "@/lib/orders";
 
@@ -8,9 +8,11 @@ export async function POST(req: Request) {
   if (!settings.stripeEnabled) {
     return NextResponse.json({ error: "Le paiement par carte bancaire est momentanément indisponible." }, { status: 403 });
   }
-  if (!process.env.STRIPE_SECRET_KEY) {
+
+  const stripe = await getStripeClient();
+  if (!stripe) {
     return NextResponse.json(
-      { error: "Stripe n'est pas configuré (STRIPE_SECRET_KEY manquant dans .env). Voir le README, partie A.7." },
+      { error: "Stripe n'est pas configuré. Va dans /admin/integrations pour ajouter ta clé secrète." },
       { status: 500 }
     );
   }

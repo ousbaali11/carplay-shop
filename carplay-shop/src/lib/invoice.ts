@@ -1,4 +1,5 @@
 import PDFDocument from "pdfkit";
+import { prisma } from "@/lib/prisma";
 
 function eur(cents: number) {
   return (cents / 100).toLocaleString("fr-FR", { style: "currency", currency: "EUR" });
@@ -6,7 +7,7 @@ function eur(cents: number) {
 
 // Génère la facture PDF entièrement à partir des données déjà en base (commande,
 // véhicule, prix, formule, date) — jamais uploadée à la main par l'admin.
-export function generateInvoicePdf(order: {
+export async function generateInvoicePdf(order: {
   orderNumber: string;
   createdAt: Date;
   firstName: string;
@@ -24,10 +25,10 @@ export function generateInvoicePdf(order: {
   priceCents: number;
   paymentMethod: string | null;
 }): Promise<Buffer> {
-  const companyName = process.env.COMPANY_NAME || "CarPlayActiv";
-  const companyAddress = process.env.COMPANY_ADDRESS || "";
-  const companyEmail = process.env.CONTACT_EMAIL || process.env.ADMIN_NOTIFICATION_EMAIL || "";
-
+  const settings = await prisma.settings.findUnique({ where: { id: "singleton" } });
+  const companyName = settings?.companyName || "CarPlayActiv";
+  const companyAddress = settings?.companyAddress || "";
+  const companyEmail = settings?.contactEmail || settings?.adminNotificationEmail || "";
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({ size: "A4", margin: 50 });
     const chunks: Buffer[] = [];

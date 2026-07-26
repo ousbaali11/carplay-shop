@@ -38,6 +38,7 @@ export default async function CheckoutPage({
           priceCents={priceCents}
           stripeEnabled={settings.stripeEnabled}
           paypalEnabled={settings.paypalEnabled}
+          paypalClientId={settings.paypalClientId || ""}
         />
       </section>
       <Footer />

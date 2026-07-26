@@ -143,3 +143,19 @@ th { color: var(--text-muted); font-weight: 500; font-family: var(--font-mono); 
 .badge-paid { background: #103a2c; color: var(--success); }
 .badge-shipped { background: #0a2e3c; color: var(--cyan); }
 .badge-canceled { background: #3a1010; color: var(--danger); }
+.vehicle-info-link {
+  transition: background 0.15s ease;
+  position: relative;
+}
+.vehicle-info-link:hover {
+  background: var(--bg-elevated);
+}
+.vehicle-info-link .order-hint {
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.vehicle-info-link:hover .order-hint {
+  opacity: 1;
+  transform: translateX(0);
+}

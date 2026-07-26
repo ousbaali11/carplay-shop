@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { stripe } from "@/lib/stripe";
+import { getStripeClient, getStripeWebhookSecret } from "@/lib/stripe";
 import { finalizeOrderPayment } from "@/lib/orders";
 import Stripe from "stripe";
 
@@ -11,9 +11,15 @@ export async function POST(req: Request) {
   const body = await req.text();
   const signature = req.headers.get("stripe-signature") as string;
 
+  const stripe = await getStripeClient();
+  const webhookSecret = await getStripeWebhookSecret();
+  if (!stripe || !webhookSecret) {
+    return NextResponse.json({ error: "Stripe n'est pas configuré côté serveur." }, { status: 500 });
+  }
+
   let event: Stripe.Event;
   try {
-    event = stripe.webhooks.constructEvent(body, signature, process.env.STRIPE_WEBHOOK_SECRET!);
+    event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
   } catch (err: any) {
     return NextResponse.json({ error: `Signature invalide: ${err.message}` }, { status: 400 });
   }

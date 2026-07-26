@@ -2,12 +2,14 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { prisma } from "@/lib/prisma";
+import { getSettings } from "@/lib/orders";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const contactEmail = process.env.NEXT_PUBLIC_CONTACT_EMAIL || "contact@tondomaine.fr";
-  const contactFacebook = process.env.NEXT_PUBLIC_CONTACT_FACEBOOK || "https://facebook.com/tapage";
+  const settings = await getSettings();
+  const contactEmail = settings.contactEmail;
+  const instagramUrl = settings.instagramUrl;
 
   let vehicleCount = 0;
   try {
@@ -149,10 +151,22 @@ export default async function HomePage() {
                 <p style={{ fontSize: 13 }}>{contactEmail}</p>
               </div>
             </a>
-            <a href={contactFacebook} target="_blank" rel="noopener noreferrer" className="card" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 12, minWidth: 220 }}>
-              <span style={{ fontSize: 22 }}>👍</span>
+            <a href={instagramUrl} target="_blank" rel="noopener noreferrer" className="card" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 12, minWidth: 220 }}>
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                <defs>
+                  <linearGradient id="ig-grad" x1="0" y1="24" x2="24" y2="0">
+                    <stop offset="0" stopColor="#FFDC80" />
+                    <stop offset="0.3" stopColor="#FCAF45" />
+                    <stop offset="0.6" stopColor="#E1306C" />
+                    <stop offset="1" stopColor="#833AB4" />
+                  </linearGradient>
+                </defs>
+                <rect x="2" y="2" width="20" height="20" rx="6" stroke="url(#ig-grad)" strokeWidth="2" />
+                <circle cx="12" cy="12" r="4.5" stroke="url(#ig-grad)" strokeWidth="2" />
+                <circle cx="17.2" cy="6.8" r="1.1" fill="url(#ig-grad)" />
+              </svg>
               <div>
-                <p style={{ color: "var(--text)", fontWeight: 600, fontSize: 14 }}>Facebook</p>
+                <p style={{ color: "var(--text)", fontWeight: 600, fontSize: 14 }}>Instagram</p>
                 <p style={{ fontSize: 13 }}>Notre page officielle</p>
               </div>
             </a>

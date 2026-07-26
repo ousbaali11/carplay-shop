@@ -1,9 +1,18 @@
-const PAYPAL_BASE =
-  process.env.PAYPAL_ENV === "live" ? "https://api-m.paypal.com" : "https://api-m.sandbox.paypal.com";
+import { prisma } from "@/lib/prisma";
 
-async function getAccessToken() {
-  const auth = Buffer.from(`${process.env.PAYPAL_CLIENT_ID}:${process.env.PAYPAL_CLIENT_SECRET}`).toString("base64");
-  const res = await fetch(`${PAYPAL_BASE}/v1/oauth2/token`, {
+async function getPaypalConfig() {
+  const settings = await prisma.settings.findUnique({ where: { id: "singleton" } });
+  if (!settings?.paypalClientId || !settings?.paypalClientSecret) return null;
+  return {
+    clientId: settings.paypalClientId,
+    clientSecret: settings.paypalClientSecret,
+    base: settings.paypalEnv === "live" ? "https://api-m.paypal.com" : "https://api-m.sandbox.paypal.com",
+  };
+}
+
+async function getAccessToken(clientId: string, clientSecret: string, base: string) {
+  const auth = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
+  const res = await fetch(`${base}/v1/oauth2/token`, {
     method: "POST",
     headers: {
       Authorization: `Basic ${auth}`,
@@ -16,9 +25,13 @@ async function getAccessToken() {
 }
 
 // Crée une commande PayPal pour le montant de la commande interne.
+// Renvoie null si PayPal n'est pas configuré.
 export async function createPaypalOrder(amountEur: number, orderNumber: string) {
-  const accessToken = await getAccessToken();
-  const res = await fetch(`${PAYPAL_BASE}/v2/checkout/orders`, {
+  const config = await getPaypalConfig();
+  if (!config) return null;
+
+  const accessToken = await getAccessToken(config.clientId, config.clientSecret, config.base);
+  const res = await fetch(`${config.base}/v2/checkout/orders`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -39,8 +52,11 @@ export async function createPaypalOrder(amountEur: number, orderNumber: string) 
 
 // Capture le paiement une fois que le client a validé sur PayPal.
 export async function capturePaypalOrder(paypalOrderId: string) {
-  const accessToken = await getAccessToken();
-  const res = await fetch(`${PAYPAL_BASE}/v2/checkout/orders/${paypalOrderId}/capture`, {
+  const config = await getPaypalConfig();
+  if (!config) return null;
+
+  const accessToken = await getAccessToken(config.clientId, config.clientSecret, config.base);
+  const res = await fetch(`${config.base}/v2/checkout/orders/${paypalOrderId}/capture`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${accessToken}`,

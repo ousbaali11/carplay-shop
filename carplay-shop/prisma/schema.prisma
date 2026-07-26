@@ -51,7 +51,28 @@ model Settings {
   id            String   @id @default("singleton")
   stripeEnabled Boolean  @default(true)
   paypalEnabled Boolean  @default(true)
-  updatedAt     DateTime @updatedAt
+  contactEmail  String   @default("contact@tondomaine.fr")
+  instagramUrl  String   @default("https://instagram.com/tapage")
+
+  // Stripe
+  stripeSecretKey    String?
+  stripeWebhookSecret String?
+
+  // PayPal
+  paypalClientId     String?
+  paypalClientSecret String?
+  paypalEnv          String  @default("sandbox") // "sandbox" ou "live"
+
+  // Resend (email transactionnel)
+  resendApiKey            String?
+  emailFrom                String  @default("commandes@tondomaine.fr")
+  adminNotificationEmail   String?
+
+  // Infos affichées sur les factures générées automatiquement
+  companyName    String  @default("CarPlayActiv")
+  companyAddress String?
+
+  updatedAt DateTime @updatedAt
 }
 
 // Une fiche par véhicule. Les photos sont communes aux deux formules ; les PDF et

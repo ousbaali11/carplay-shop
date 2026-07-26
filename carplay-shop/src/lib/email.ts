@@ -1,11 +1,22 @@
 import { Resend } from "resend";
+import { prisma } from "@/lib/prisma";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-const FROM = process.env.EMAIL_FROM || "commandes@tondomaine.fr";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
 function eur(cents: number) {
   return (cents / 100).toLocaleString("fr-FR", { style: "currency", currency: "EUR" });
+}
+
+// Construit le client Resend + les infos d'expéditeur à partir de la base
+// (réglables depuis /admin/integrations). Renvoie null si aucune clé n'est configurée.
+async function getEmailConfig() {
+  const settings = await prisma.settings.findUnique({ where: { id: "singleton" } });
+  if (!settings?.resendApiKey) return null;
+  return {
+    resend: new Resend(settings.resendApiKey),
+    from: settings.emailFrom || "commandes@tondomaine.fr",
+    adminEmail: settings.adminNotificationEmail,
+  };
 }
 
 // Email envoyé automatiquement dès que le paiement est confirmé.
@@ -20,14 +31,20 @@ export async function sendOrderConfirmationEmail(order: {
   isPhysical: boolean;
   invoicePdf: Buffer;
 }) {
+  const config = await getEmailConfig();
+  if (!config) {
+    console.error("Email non envoyé : Resend n'est pas configuré (voir /admin/integrations).");
+    return;
+  }
+
   const downloadUrl = `${SITE_URL}/telechargement/${order.downloadToken}`;
 
   const physicalNote = order.isPhysical
     ? `<p>Votre carte mémoire va être préparée puis expédiée par courrier. Vous recevrez un email avec le numéro de suivi dès son envoi. Le guide PDF est disponible dès maintenant.</p>`
     : `<p>Vos fichiers d'activation et votre guide PDF sont disponibles dès maintenant au lien ci-dessous.</p>`;
 
-  await resend.emails.send({
-    from: FROM,
+  await config.resend.emails.send({
+    from: config.from,
     to: order.email,
     subject: `Confirmation de commande ${order.orderNumber} — ${order.vehicleLabel}`,
     html: `
@@ -64,8 +81,14 @@ export async function sendShippingNotificationEmail(order: {
   orderNumber: string;
   trackingNumber?: string | null;
 }) {
-  await resend.emails.send({
-    from: FROM,
+  const config = await getEmailConfig();
+  if (!config) {
+    console.error("Email non envoyé : Resend n'est pas configuré (voir /admin/integrations).");
+    return;
+  }
+
+  await config.resend.emails.send({
+    from: config.from,
     to: order.email,
     subject: `Votre carte mémoire a été expédiée — ${order.orderNumber}`,
     html: `
@@ -88,11 +111,12 @@ export async function sendAdminNewOrderNotification(order: {
   vehicleLabel: string;
   isPhysical: boolean;
 }) {
-  const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL;
-  if (!adminEmail) return;
-  await resend.emails.send({
-    from: FROM,
-    to: adminEmail,
+  const config = await getEmailConfig();
+  if (!config?.adminEmail) return;
+
+  await config.resend.emails.send({
+    from: config.from,
+    to: config.adminEmail,
     subject: `Nouvelle commande ${order.orderNumber}${order.isPhysical ? " — carte à préparer" : ""}`,
     html: `<p>Nouvelle commande payée : ${order.orderNumber} (${order.vehicleLabel}).</p>
       ${order.isPhysical ? "<p><b>Action requise :</b> préparer et expédier la carte mémoire depuis le tableau de bord admin.</p>" : ""}`,

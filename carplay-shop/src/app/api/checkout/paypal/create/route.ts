@@ -8,9 +8,9 @@ export async function POST(req: Request) {
   if (!settings.paypalEnabled) {
     return NextResponse.json({ error: "PayPal est momentanément indisponible." }, { status: 403 });
   }
-  if (!process.env.PAYPAL_CLIENT_ID || !process.env.PAYPAL_CLIENT_SECRET) {
+  if (!settings.paypalClientId || !settings.paypalClientSecret) {
     return NextResponse.json(
-      { error: "PayPal n'est pas configuré (PAYPAL_CLIENT_ID/SECRET manquants dans .env). Voir le README, partie A.7." },
+      { error: "PayPal n'est pas configuré. Va dans /admin/integrations pour ajouter tes identifiants." },
       { status: 500 }
     );
   }

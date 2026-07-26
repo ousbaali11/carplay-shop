@@ -9,19 +9,20 @@ type Vehicle = { id: string; brand: string; model: string; year: string };
 function eur(cents: number) {
   return (cents / 100).toLocaleString("fr-FR", { style: "currency", currency: "EUR" });
 }
-
 export default function CheckoutClient({
   vehicle,
   formula,
   priceCents,
   stripeEnabled,
   paypalEnabled,
+  paypalClientId,
 }: {
   vehicle: Vehicle;
   formula: "FILES_ONLY" | "PHYSICAL_CARD";
   priceCents: number;
   stripeEnabled: boolean;
   paypalEnabled: boolean;
+  paypalClientId: string;
 }) {
   const router = useRouter();
   const isPhysical = formula === "PHYSICAL_CARD";
@@ -87,7 +88,6 @@ export default function CheckoutClient({
     }
   }
 
-  const paypalClientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || "";
   const paypalReady = paypalEnabled && !!paypalClientId;
 
   return (
@@ -216,7 +216,7 @@ export default function CheckoutClient({
               </PayPalScriptProvider>
             ) : paypalEnabled ? (
               <p style={{ fontSize: 12, color: "var(--text-muted)" }}>
-                PayPal est activé mais pas encore configuré (NEXT_PUBLIC_PAYPAL_CLIENT_ID manquant dans .env).
+                PayPal est activé mais pas encore configuré (identifiants manquants dans /admin/integrations).
               </p>
             ) : null}
 

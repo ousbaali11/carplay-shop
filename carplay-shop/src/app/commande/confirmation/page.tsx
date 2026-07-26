@@ -2,7 +2,7 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { prisma } from "@/lib/prisma";
-import { stripe } from "@/lib/stripe";
+import { getStripeClient } from "@/lib/stripe";
 import { finalizeOrderPayment } from "@/lib/orders";
 
 export const dynamic = "force-dynamic";
@@ -20,11 +20,14 @@ export default async function ConfirmationPage({
   // en test local — on vérifie directement auprès de Stripe si la session a bien été
   // payée, et on finalise la commande depuis ici. En production avec le webhook actif,
   // ceci ne fait rien de plus car la commande est déjà finalisée (idempotent).
-  if (order && order.status === "PENDING_PAYMENT" && searchParams.session_id) {
+if (order && order.status === "PENDING_PAYMENT" && searchParams.session_id) {
     try {
-      const session = await stripe.checkout.sessions.retrieve(searchParams.session_id);
-      if (session.payment_status === "paid") {
-        order = await finalizeOrderPayment(order.id, "STRIPE", (session.payment_intent as string) || session.id);
+      const stripe = await getStripeClient();
+      if (stripe) {
+        const session = await stripe.checkout.sessions.retrieve(searchParams.session_id);
+        if (session.payment_status === "paid") {
+          order = await finalizeOrderPayment(order.id, "STRIPE", (session.payment_intent as string) || session.id);
+        }
       }
     } catch {
       // Si la clé Stripe n'est pas configurée ou la session introuvable, on laisse
