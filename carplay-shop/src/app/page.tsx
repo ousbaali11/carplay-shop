@@ -10,7 +10,7 @@ export default async function HomePage() {
   const settings = await getSiteSettings();
   const contactEmail = settings.contactEmail;
   const instagramUrl = settings.instagramUrl;
-  const heroVideoSrc = settings.heroVideoUrl || (settings.heroVideoData ? "/api/hero-video" : null);
+  const heroVideoSrc = settings.heroVideoUrl || null;
 
   let vehicleCount = 0;
   try {
