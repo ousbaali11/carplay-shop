@@ -10,6 +10,7 @@ export default function BrandSettingsForm({ currentSiteName, currentLogoUrl }: {
   const [siteName, setSiteName] = useState(currentSiteName);
   const [logoUrl, setLogoUrl] = useState(currentLogoUrl);
   const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
@@ -44,6 +45,7 @@ export default function BrandSettingsForm({ currentSiteName, currentLogoUrl }: {
       const blob = await upload(file.name, file, {
         access: "public",
         handleUploadUrl: "/api/logo-upload",
+        onUploadProgress: (p) => setProgress(Math.round(p.percentage)),
       });
       setLogoUrl(blob.url);
       await save({ logoUrl: blob.url });
@@ -76,7 +78,7 @@ export default function BrandSettingsForm({ currentSiteName, currentLogoUrl }: {
       <div>
         <label>Logo (image — laisse vide pour garder le logo par défaut)</label>
         <input type="file" accept="image/png,image/jpeg,image/svg+xml,image/webp" disabled={busy} onChange={(e) => e.target.files?.[0] && handleLogoUpload(e.target.files[0])} />
-        {uploading && <p style={{ fontSize: 13, color: "var(--cyan)", marginTop: 6 }}>Envoi en cours...</p>}
+        {uploading && <p style={{ fontSize: 13, color: "var(--cyan)", marginTop: 6 }}>Envoi en cours... {progress}%</p>}
         {logoUrl && (
           <button onClick={removeLogo} className="btn btn-secondary" style={{ marginTop: 8, padding: "4px 10px", fontSize: 12 }} disabled={busy}>
             Revenir au logo par défaut
