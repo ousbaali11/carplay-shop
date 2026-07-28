@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { prisma } from "@/lib/prisma";
-import { getSettings } from "@/lib/orders";
+import { getPaymentSettings } from "@/lib/orders";
 import CheckoutClient from "./CheckoutClient";
 
 export const dynamic = "force-dynamic";
@@ -19,7 +19,7 @@ export default async function CheckoutPage({
   const vehicle = await prisma.vehicle.findUnique({ where: { id: vehicleId } });
   if (!vehicle || !vehicle.active) notFound();
 
-  const settings = await getSettings();
+  const settings = await getPaymentSettings();
   const priceCents = formula === "PHYSICAL_CARD" ? vehicle.pricePhysicalCents : vehicle.priceFilesCents;
 
   return (

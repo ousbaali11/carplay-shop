@@ -25,7 +25,7 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--bg)" }}>
+    <div style={{ minHeight: "calc(100vh - 72px)", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--bg)" }}>
       <form onSubmit={submit} className="card" style={{ width: 360, display: "grid", gap: 14 }}>
         <p className="eyebrow" style={{ marginBottom: -4 }}>Espace réservé</p>
         <h1 style={{ fontSize: 22 }}>Administration</h1>

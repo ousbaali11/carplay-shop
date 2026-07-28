@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { getStripeClient } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
-import { getSettings } from "@/lib/orders";
+import { getPaymentSettings } from "@/lib/orders";
 
 export async function POST(req: Request) {
-  const settings = await getSettings();
+  const settings = await getPaymentSettings();
   if (!settings.stripeEnabled) {
     return NextResponse.json({ error: "Le paiement par carte bancaire est momentanément indisponible." }, { status: 403 });
   }

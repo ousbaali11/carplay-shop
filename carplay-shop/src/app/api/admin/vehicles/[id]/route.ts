@@ -17,8 +17,6 @@ async function appendMany(files: File[], startPos: number, creator: (buf: Buffer
   }
 }
 
-// Met à jour les infos/prix, et AJOUTE (sans supprimer l'existant) les nouvelles
-// photos / PDF (par formule) / fichiers d'activation (par formule) envoyés ici.
 export async function POST(req: Request, { params }: { params: { id: string } }) {
   if (!(await requireAdmin())) return NextResponse.json({ error: "Non autorisé" }, { status: 403 });
   const vehicleId = params.id;
@@ -31,12 +29,12 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   const priceFilesEur = formData.get("priceFilesEur") as string;
   const pricePhysicalEur = formData.get("pricePhysicalEur") as string;
   const active = formData.get("active") === "on";
+  const activationLinkFilesOnly = ((formData.get("activationLinkFilesOnly") as string) || "").trim() || null;
+  const activationLinkPhysicalCard = ((formData.get("activationLinkPhysicalCard") as string) || "").trim() || null;
 
   const images = formData.getAll("images") as File[];
   const pdfsFilesOnly = formData.getAll("pdfsFilesOnly") as File[];
   const pdfsPhysicalCard = formData.getAll("pdfsPhysicalCard") as File[];
-  const activationFilesFilesOnly = formData.getAll("activationFilesFilesOnly") as File[];
-  const activationFilesPhysicalCard = formData.getAll("activationFilesPhysicalCard") as File[];
 
   await prisma.vehicle.update({
     where: { id: vehicleId },
@@ -48,6 +46,8 @@ export async function POST(req: Request, { params }: { params: { id: string } })
       priceFilesCents: Math.round(parseFloat(priceFilesEur || "0") * 100),
       pricePhysicalCents: Math.round(parseFloat(pricePhysicalEur || "0") * 100),
       active,
+      activationLinkFilesOnly,
+      activationLinkPhysicalCard,
     },
   });
 
@@ -62,14 +62,6 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   const pdfPhysicalCount = await prisma.vehiclePdf.count({ where: { vehicleId, formula: "PHYSICAL_CARD" } });
   await appendMany(pdfsPhysicalCard, pdfPhysicalCount, (buf, file, pos) =>
     prisma.vehiclePdf.create({ data: { vehicleId, formula: "PHYSICAL_CARD", data: buf, fileName: file.name, position: pos } }));
-
-  const afFilesOnlyCount = await prisma.vehicleActivationFile.count({ where: { vehicleId, formula: "FILES_ONLY" } });
-  await appendMany(activationFilesFilesOnly, afFilesOnlyCount, (buf, file, pos) =>
-    prisma.vehicleActivationFile.create({ data: { vehicleId, formula: "FILES_ONLY", data: buf, fileName: file.name, position: pos } }));
-
-  const afPhysicalCount = await prisma.vehicleActivationFile.count({ where: { vehicleId, formula: "PHYSICAL_CARD" } });
-  await appendMany(activationFilesPhysicalCard, afPhysicalCount, (buf, file, pos) =>
-    prisma.vehicleActivationFile.create({ data: { vehicleId, formula: "PHYSICAL_CARD", data: buf, fileName: file.name, position: pos } }));
 
   return NextResponse.redirect(new URL(`/admin/vehicules/${vehicleId}?enregistre=1`, req.url), 303);
 }

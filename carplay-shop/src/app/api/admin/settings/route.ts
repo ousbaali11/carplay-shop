@@ -11,7 +11,7 @@ export async function POST(req: Request) {
 
   const { stripeEnabled, paypalEnabled } = await req.json();
 
-  await prisma.settings.upsert({
+  await prisma.paymentSettings.upsert({
     where: { id: "singleton" },
     update: { stripeEnabled: !!stripeEnabled, paypalEnabled: !!paypalEnabled },
     create: { id: "singleton", stripeEnabled: !!stripeEnabled, paypalEnabled: !!paypalEnabled },

@@ -14,7 +14,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Champs manquants" }, { status: 400 });
   }
 
-  await prisma.settings.upsert({
+  await prisma.siteSettings.upsert({
     where: { id: "singleton" },
     update: { contactEmail, instagramUrl },
     create: { id: "singleton", contactEmail, instagramUrl },

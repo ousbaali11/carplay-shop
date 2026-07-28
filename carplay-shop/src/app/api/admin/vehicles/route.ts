@@ -17,8 +17,6 @@ async function createMany(files: File[], creator: (buf: Buffer, file: File, pos:
   }
 }
 
-// Création d'une nouvelle fiche véhicule. Photos communes aux deux formules ;
-// PDF et fichiers d'activation séparés par formule (étapes et fichiers différents).
 export async function POST(req: Request) {
   if (!(await requireAdmin())) return NextResponse.json({ error: "Non autorisé" }, { status: 403 });
 
@@ -30,12 +28,12 @@ export async function POST(req: Request) {
   const priceFilesEur = formData.get("priceFilesEur") as string;
   const pricePhysicalEur = formData.get("pricePhysicalEur") as string;
   const active = formData.get("active") === "on";
+  const activationLinkFilesOnly = ((formData.get("activationLinkFilesOnly") as string) || "").trim() || null;
+  const activationLinkPhysicalCard = ((formData.get("activationLinkPhysicalCard") as string) || "").trim() || null;
 
   const images = formData.getAll("images") as File[];
   const pdfsFilesOnly = formData.getAll("pdfsFilesOnly") as File[];
   const pdfsPhysicalCard = formData.getAll("pdfsPhysicalCard") as File[];
-  const activationFilesFilesOnly = formData.getAll("activationFilesFilesOnly") as File[];
-  const activationFilesPhysicalCard = formData.getAll("activationFilesPhysicalCard") as File[];
 
   const vehicle = await prisma.vehicle.create({
     data: {
@@ -46,6 +44,8 @@ export async function POST(req: Request) {
       priceFilesCents: Math.round(parseFloat(priceFilesEur || "0") * 100),
       pricePhysicalCents: Math.round(parseFloat(pricePhysicalEur || "0") * 100),
       active,
+      activationLinkFilesOnly,
+      activationLinkPhysicalCard,
     },
   });
 
@@ -57,12 +57,6 @@ export async function POST(req: Request) {
 
   await createMany(pdfsPhysicalCard, (buf, file, pos) =>
     prisma.vehiclePdf.create({ data: { vehicleId: vehicle.id, formula: "PHYSICAL_CARD", data: buf, fileName: file.name, position: pos } }), 0);
-
-  await createMany(activationFilesFilesOnly, (buf, file, pos) =>
-    prisma.vehicleActivationFile.create({ data: { vehicleId: vehicle.id, formula: "FILES_ONLY", data: buf, fileName: file.name, position: pos } }), 0);
-
-  await createMany(activationFilesPhysicalCard, (buf, file, pos) =>
-    prisma.vehicleActivationFile.create({ data: { vehicleId: vehicle.id, formula: "PHYSICAL_CARD", data: buf, fileName: file.name, position: pos } }), 0);
 
   return NextResponse.redirect(new URL(`/admin/vehicules?cree=${encodeURIComponent(`${vehicle.brand} ${vehicle.model}`)}`, req.url), 303);
 }

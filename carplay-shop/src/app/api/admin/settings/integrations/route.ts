@@ -5,8 +5,8 @@ import { prisma } from "@/lib/prisma";
 
 // Les champs secrets ne sont mis à jour QUE si une nouvelle valeur non vide est
 // envoyée (un champ laissé vide dans le formulaire = "je ne change pas ce secret").
-// La valeur en clair n'est jamais renvoyée au navigateur ailleurs que juste après
-// la saisie par l'admin lui-même.
+// Répartit les champs entre PaymentSettings (Stripe/PayPal) et SiteSettings
+// (Resend, société) — deux tables propres et séparées en base.
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
   if ((session?.user as any)?.role !== "ADMIN") {
@@ -14,36 +14,48 @@ export async function POST(req: Request) {
   }
 
   const body = await req.json();
-  const data: any = {};
 
-  // Champs secrets : uniquement si renseignés
-  const secretFields = ["stripeSecretKey", "stripeWebhookSecret", "paypalClientSecret", "resendApiKey"];
-  for (const field of secretFields) {
+  const paymentData: any = {};
+  const siteData: any = {};
+
+  const paymentSecretFields = ["stripeSecretKey", "stripeWebhookSecret", "paypalClientSecret"];
+  for (const field of paymentSecretFields) {
     if (typeof body[field] === "string" && body[field].trim() !== "") {
-      data[field] = body[field].trim();
+      paymentData[field] = body[field].trim();
     }
   }
-
-  // Champs non secrets : toujours mis à jour s'ils sont présents dans la requête
-  const plainFields = [
-    "paypalClientId",
-    "paypalEnv",
-    "emailFrom",
-    "adminNotificationEmail",
-    "companyName",
-    "companyAddress",
-  ];
-  for (const field of plainFields) {
+  const paymentPlainFields = ["paypalClientId", "paypalEnv"];
+  for (const field of paymentPlainFields) {
     if (typeof body[field] === "string") {
-      data[field] = body[field].trim();
+      paymentData[field] = body[field].trim();
     }
   }
 
-  await prisma.settings.upsert({
-    where: { id: "singleton" },
-    update: data,
-    create: { id: "singleton", ...data },
-  });
+  if (typeof body.resendApiKey === "string" && body.resendApiKey.trim() !== "") {
+    siteData.resendApiKey = body.resendApiKey.trim();
+  }
+  const sitePlainFields = ["emailFrom", "adminNotificationEmail", "companyName", "companyAddress"];
+  for (const field of sitePlainFields) {
+    if (typeof body[field] === "string") {
+      siteData[field] = body[field].trim();
+    }
+  }
+
+  if (Object.keys(paymentData).length > 0) {
+    await prisma.paymentSettings.upsert({
+      where: { id: "singleton" },
+      update: paymentData,
+      create: { id: "singleton", ...paymentData },
+    });
+  }
+
+  if (Object.keys(siteData).length > 0) {
+    await prisma.siteSettings.upsert({
+      where: { id: "singleton" },
+      update: siteData,
+      create: { id: "singleton", ...siteData },
+    });
+  }
 
   return NextResponse.json({ success: true });
 }

@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-// Sert un PDF précis parmi ceux livrés avec la commande (copie figée au paiement).
 export async function GET(req: Request, { params }: { params: { token: string; pdfId: string } }) {
   const order = await prisma.order.findUnique({ where: { downloadToken: params.token } });
 
@@ -15,7 +14,11 @@ export async function GET(req: Request, { params }: { params: { token: string; p
   if (!pdf) {
     return NextResponse.json({ error: "Fichier introuvable" }, { status: 404 });
   }
+  if (pdf.downloaded) {
+    return NextResponse.json({ error: "Ce PDF a déjà été téléchargé et ne peut l'être qu'une seule fois." }, { status: 403 });
+  }
 
+  await prisma.orderPdf.update({ where: { id: pdf.id }, data: { downloaded: true, downloadedAt: new Date() } });
   await prisma.order.update({ where: { id: order!.id }, data: { downloadCount: { increment: 1 } } });
 
   return new NextResponse(pdf.data as any, {

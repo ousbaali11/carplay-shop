@@ -2,11 +2,12 @@ import { prisma } from "@/lib/prisma";
 import AdminSidebar from "@/components/AdminSidebar";
 import DeleteVehicleButton from "@/components/DeleteVehicleButton";
 import DeleteFileButton from "@/components/DeleteFileButton";
+import NavActions from "@/components/NavActions";
 import { notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
-function FileList({ files, vehicleId, kind }: { files: { id: string; fileName: string; title?: string | null }[]; vehicleId: string; kind: "pdfs" | "activation-files" }) {
+function FileList({ files, vehicleId, kind }: { files: { id: string; fileName: string; title?: string | null }[]; vehicleId: string; kind: "pdfs" }) {
   if (files.length === 0) return null;
   return (
     <ul style={{ margin: "0 0 10px", padding: 0, listStyle: "none", display: "grid", gap: 6 }}>
@@ -26,20 +27,18 @@ export default async function EditVehiclePage({ params, searchParams }: { params
     include: {
       images: { orderBy: { position: "asc" } },
       pdfs: { orderBy: { position: "asc" } },
-      activationFiles: { orderBy: { position: "asc" } },
     },
   });
   if (!v) notFound();
 
   const pdfsFilesOnly = v.pdfs.filter((p) => p.formula === "FILES_ONLY");
   const pdfsPhysicalCard = v.pdfs.filter((p) => p.formula === "PHYSICAL_CARD");
-  const afFilesOnly = v.activationFiles.filter((f) => f.formula === "FILES_ONLY");
-  const afPhysicalCard = v.activationFiles.filter((f) => f.formula === "PHYSICAL_CARD");
 
   return (
     <div className="admin-layout">
       <AdminSidebar active="vehicules" />
       <div style={{ flex: 1, padding: "36px 40px", maxWidth: 640 }}>
+        <NavActions cancelHref="/admin/vehicules" />
         <h1 style={{ fontSize: 26, marginBottom: 24 }}>{v.brand} {v.model} ({v.year})</h1>
 
         {searchParams.enregistre && (
@@ -80,7 +79,6 @@ export default async function EditVehiclePage({ params, searchParams }: { params
             </div>
           </div>
 
-          {/* Photos communes */}
           <div>
             <label>Photos actuelles ({v.images.length}) — communes aux deux formules</label>
             {v.images.length > 0 && (
@@ -98,7 +96,6 @@ export default async function EditVehiclePage({ params, searchParams }: { params
             <input name="images" type="file" accept="image/*" multiple />
           </div>
 
-          {/* Formule 1 */}
           <div style={{ borderTop: "2px solid var(--cyan)", paddingTop: 14 }}>
             <p className="eyebrow" style={{ marginBottom: 10 }}>Formule 1 — Fichiers seuls</p>
 
@@ -106,12 +103,10 @@ export default async function EditVehiclePage({ params, searchParams }: { params
             <FileList files={pdfsFilesOnly} vehicleId={v.id} kind="pdfs" />
             <input name="pdfsFilesOnly" type="file" accept="application/pdf" multiple style={{ marginBottom: 12 }} />
 
-            <label style={{ fontSize: 13 }}>Fichier(s) d'activation livrés au client ({afFilesOnly.length})</label>
-            <FileList files={afFilesOnly} vehicleId={v.id} kind="activation-files" />
-            <input name="activationFilesFilesOnly" type="file" multiple />
+            <label style={{ fontSize: 13 }}>Lien vers le fichier d'activation (ex: Google Drive), livré au client</label>
+            <input name="activationLinkFilesOnly" type="url" defaultValue={v.activationLinkFilesOnly || ""} placeholder="https://drive.google.com/..." />
           </div>
 
-          {/* Formule 2 */}
           <div style={{ borderTop: "2px solid var(--amber)", paddingTop: 14 }}>
             <p className="eyebrow" style={{ marginBottom: 10, color: "var(--amber)" }}>Formule 2 — Carte physique</p>
 
@@ -119,9 +114,8 @@ export default async function EditVehiclePage({ params, searchParams }: { params
             <FileList files={pdfsPhysicalCard} vehicleId={v.id} kind="pdfs" />
             <input name="pdfsPhysicalCard" type="file" accept="application/pdf" multiple style={{ marginBottom: 12 }} />
 
-            <label style={{ fontSize: 13 }}>Fichier(s) d'activation usage interne ({afPhysicalCard.length}) — jamais livrés au client</label>
-            <FileList files={afPhysicalCard} vehicleId={v.id} kind="activation-files" />
-            <input name="activationFilesPhysicalCard" type="file" multiple />
+            <label style={{ fontSize: 13 }}>Lien vers le fichier d'activation — usage interne admin uniquement, jamais livré au client</label>
+            <input name="activationLinkPhysicalCard" type="url" defaultValue={v.activationLinkPhysicalCard || ""} placeholder="https://drive.google.com/..." />
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: 8, borderTop: "1px solid var(--line)", paddingTop: 14 }}>

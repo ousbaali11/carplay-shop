@@ -44,28 +44,53 @@ model User {
   role         Role     @default(CLIENT)
   createdAt    DateTime @default(now())
   orders       Order[]
+
+  // "Mot de passe oublié" : token temporaire envoyé par email, à usage unique.
+  resetToken       String?   @unique
+  resetTokenExpiry DateTime?
 }
 
 // Réglages globaux du site (une seule ligne, id fixe "singleton").
-model Settings {
-  id            String   @id @default("singleton")
-  stripeEnabled Boolean  @default(true)
-  paypalEnabled Boolean  @default(true)
-  contactEmail  String   @default("contact@tondomaine.fr")
-  instagramUrl  String   @default("https://instagram.com/tapage")
+// Tout ce qui concerne l'encaissement des paiements, séparé du reste des réglages
+// du site pour rester une table propre et ciblée.
+model PaymentSettings {
+  id            String  @id @default("singleton")
+  stripeEnabled Boolean @default(true)
+  paypalEnabled Boolean @default(true)
 
-  // Stripe
-  stripeSecretKey    String?
+  stripeSecretKey     String?
   stripeWebhookSecret String?
 
-  // PayPal
   paypalClientId     String?
   paypalClientSecret String?
   paypalEnv          String  @default("sandbox") // "sandbox" ou "live"
 
+  updatedAt DateTime @updatedAt
+}
+
+// Tout le reste des réglages du site : contact, identité visuelle, vidéo
+// d'accueil, email transactionnel, infos société pour les factures.
+model SiteSettings {
+  id           String @id @default("singleton")
+  contactEmail String @default("contact@tondomaine.fr")
+  instagramUrl String @default("https://instagram.com/tapage")
+
+  // Si false : aucune facture n'est générée ni jointe par email, et le lien
+  // "Facture" disparaît de l'espace client et de la page de téléchargement.
+  // L'admin garde quand même accès à la facture depuis /admin/commandes/[id].
+  invoicesEnabled Boolean @default(true)
+
+  // Identité visuelle (logo + nom), modifiable par l'admin. Si logoUrl est vide,
+  // un logo par défaut (SVG intégré) est utilisé à la place.
+  siteName String  @default("CarPlayActiv")
+  logoUrl  String?
+
+  // Vidéo de la page d'accueil (à la place de l'animation par défaut).
+  heroVideoUrl String?
+
   // Resend (email transactionnel)
-  resendApiKey            String?
-  emailFrom                String  @default("commandes@tondomaine.fr")
+  resendApiKey           String?
+  emailFrom               String  @default("commandes@tondomaine.fr")
   adminNotificationEmail   String?
 
   // Infos affichées sur les factures générées automatiquement
@@ -88,14 +113,20 @@ model Vehicle {
   priceFilesCents    Int
   pricePhysicalCents Int
 
+  // Liens externes (ex: Google Drive) vers les fichiers d'activation, un par
+  // formule car les fichiers diffèrent. FilesOnly est livré au client (via une
+  // passerelle à usage unique) ; PhysicalCard reste réservé à l'admin, pour
+  // préparer la carte.
+  activationLinkFilesOnly    String?
+  activationLinkPhysicalCard String?
+
   active    Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  images          VehicleImage[]
-  pdfs            VehiclePdf[]
-  activationFiles VehicleActivationFile[]
-  orders          Order[]
+  images VehicleImage[]
+  pdfs   VehiclePdf[]
+  orders Order[]
 
   @@index([brand, model])
 }
@@ -132,20 +163,6 @@ model VehiclePdf {
 // - FILES_ONLY     : livrés directement au client après paiement
 // - PHYSICAL_CARD  : jamais livrés au client, utilisés en interne par l'admin
 //                    pour préparer la carte mémoire physique à expédier
-model VehicleActivationFile {
-  id        String   @id @default(cuid())
-  vehicleId String
-  vehicle   Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
-  formula   Formula
-  data      Bytes
-  fileName  String
-  position  Int      @default(0)
-  createdAt DateTime @default(now())
-
-  @@index([vehicleId])
-  @@index([vehicleId, formula])
-}
-
 model Order {
   id          String  @id @default(cuid())
   orderNumber String  @unique
@@ -181,8 +198,14 @@ model Order {
 
   // Copies figées au moment du paiement : c'est CE contenu qui est livré au client,
   // jamais le contenu "live" de la fiche véhicule (qui peut changer ensuite).
-  pdfs            OrderPdf[]
-  activationFiles OrderActivationFile[] // uniquement rempli pour la formule FILES_ONLY
+  pdfs OrderPdf[]
+
+  // Lien d'activation livré au client (formule FILES_ONLY uniquement), figé au
+  // paiement. À usage unique : une fois ouvert via la passerelle sécurisée, il
+  // ne peut plus être réutilisé (anti-fraude).
+  activationLink       String?
+  activationLinkUsed   Boolean   @default(false)
+  activationLinkUsedAt DateTime?
 
   downloadToken     String?   @unique
   downloadExpiresAt DateTime?
@@ -201,16 +224,10 @@ model OrderPdf {
   title    String?
   position Int     @default(0)
 
-  @@index([orderId])
-}
-
-model OrderActivationFile {
-  id       String @id @default(cuid())
-  orderId  String
-  order    Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  data     Bytes
-  fileName String
-  position Int    @default(0)
+  // À usage unique lui aussi : un PDF déjà téléchargé une fois ne peut plus
+  // l'être une seconde fois (anti-fraude).
+  downloaded   Boolean   @default(false)
+  downloadedAt DateTime?
 
   @@index([orderId])
 }

@@ -7,7 +7,12 @@ import { prisma } from "@/lib/prisma";
 // Le rôle (CLIENT / ADMIN) est stocké en base et injecté dans la session,
 // c'est lui qui détermine l'accès à /admin (voir middleware.ts).
 export const authOptions: NextAuthOptions = {
-  session: { strategy: "jwt" },
+  session: {
+    strategy: "jwt",
+    // Reste connecté 30 jours, jusqu'à déconnexion volontaire (comportement
+    // standard, comme Gmail/Amazon). Change juste ce nombre de jours si besoin.
+    maxAge: 30 * 24 * 60 * 60,
+  },
   pages: {
     signIn: "/compte/connexion",
   },

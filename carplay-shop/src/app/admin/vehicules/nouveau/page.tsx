@@ -48,16 +48,16 @@ export default function NewVehiclePage() {
             <p className="eyebrow" style={{ marginBottom: 10 }}>Formule 1 — Fichiers seuls</p>
             <label style={{ fontSize: 13 }}>Guides PDF de cette formule</label>
             <input name="pdfsFilesOnly" type="file" accept="application/pdf" multiple style={{ marginBottom: 10 }} />
-            <label style={{ fontSize: 13 }}>Fichier(s) d'activation livrés au client pour cette formule</label>
-            <input name="activationFilesFilesOnly" type="file" multiple />
+            <label style={{ fontSize: 13 }}>Lien vers le fichier d'activation (ex: Google Drive), livré au client</label>
+            <input name="activationLinkFilesOnly" type="url" placeholder="https://drive.google.com/..." />
           </div>
 
           <div style={{ borderTop: "2px solid var(--amber)", paddingTop: 14 }}>
             <p className="eyebrow" style={{ marginBottom: 10, color: "var(--amber)" }}>Formule 2 — Carte physique</p>
             <label style={{ fontSize: 13 }}>Guides PDF de cette formule</label>
             <input name="pdfsPhysicalCard" type="file" accept="application/pdf" multiple style={{ marginBottom: 10 }} />
-            <label style={{ fontSize: 13 }}>Fichier(s) d'activation à usage interne (pour préparer la carte, jamais livrés au client)</label>
-            <input name="activationFilesPhysicalCard" type="file" multiple />
+            <label style={{ fontSize: 13 }}>Lien vers le fichier d'activation — usage interne admin uniquement, jamais livré au client</label>
+            <input name="activationLinkPhysicalCard" type="url" placeholder="https://drive.google.com/..." />
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: 8, borderTop: "1px solid var(--line)", paddingTop: 14 }}>

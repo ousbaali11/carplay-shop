@@ -25,12 +25,9 @@ export default async function AdminOrderDetail({ params }: { params: { id: strin
 
   const isPhysical = order.formula === "PHYSICAL_CARD";
 
-  const sourceFiles = isPhysical && order.vehicleId
-    ? await prisma.vehicleActivationFile.findMany({
-        where: { vehicleId: order.vehicleId, formula: "PHYSICAL_CARD" },
-        orderBy: { position: "asc" },
-      })
-    : [];
+  const vehicle = order.vehicleId
+    ? await prisma.vehicle.findUnique({ where: { id: order.vehicleId } })
+    : null;
 
   return (
     <div className="admin-layout">
@@ -71,21 +68,33 @@ export default async function AdminOrderDetail({ params }: { params: { id: strin
           <div className="card" style={{ marginBottom: 20 }}>
             <p className="eyebrow" style={{ marginBottom: 10 }}>Préparation de la carte</p>
             <p style={{ fontSize: 14, marginBottom: 12 }}>
-              Fichier(s) source du véhicule pour préparer la carte mémoire physique.
+              Lien source du véhicule pour préparer la carte mémoire physique (usage interne, jamais transmis au client).
             </p>
-            {sourceFiles.length > 0 ? (
-              <div style={{ display: "grid", gap: 8 }}>
-                {sourceFiles.map((f) => (
-                  <a key={f.id} href={`/api/admin/orders/${order.id}/fichier-source/${f.id}`} className="btn btn-secondary" style={{ justifySelf: "start" }}>
-                    Télécharger : {f.fileName}
-                  </a>
-                ))}
-              </div>
+            {vehicle?.activationLinkPhysicalCard ? (
+              <a href={vehicle.activationLinkPhysicalCard} target="_blank" rel="noopener noreferrer" className="btn btn-secondary" style={{ justifySelf: "start" }}>
+                Ouvrir le lien source ↗
+              </a>
             ) : (
               <p style={{ fontSize: 13, color: "var(--amber)" }}>
-                Aucun fichier d'activation "carte physique" n'a été ajouté pour ce véhicule.
+                Aucun lien d'activation "carte physique" n'a été configuré pour ce véhicule.
               </p>
             )}
+          </div>
+        )}
+
+        {!isPhysical && (
+          <div className="card" style={{ marginBottom: 20 }}>
+            <p className="eyebrow" style={{ marginBottom: 10 }}>Lien d'activation (client)</p>
+            <p style={{ fontSize: 14 }}>
+              Statut :{" "}
+              {order.activationLinkUsed ? (
+                <span style={{ color: "var(--amber)" }}>déjà téléchargé le {order.activationLinkUsedAt?.toLocaleDateString("fr-FR")}</span>
+              ) : order.activationLink ? (
+                <span style={{ color: "var(--success)" }}>pas encore téléchargé</span>
+              ) : (
+                <span style={{ color: "var(--text-muted)" }}>aucun lien n'était configuré au moment du paiement</span>
+              )}
+            </p>
           </div>
         )}
 

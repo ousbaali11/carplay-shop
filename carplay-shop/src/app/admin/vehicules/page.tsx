@@ -15,7 +15,6 @@ export default async function AdminVehiclesPage({ searchParams }: { searchParams
     include: {
       images: { orderBy: { position: "asc" }, take: 1 },
       pdfs: true,
-      activationFiles: true,
       _count: { select: { images: true } },
     },
   });
@@ -53,8 +52,6 @@ export default async function AdminVehiclesPage({ searchParams }: { searchParams
               {vehicles.map((v) => {
                 const filesOnlyCount = v.pdfs.filter((p) => p.formula === "FILES_ONLY").length;
                 const physicalCount = v.pdfs.filter((p) => p.formula === "PHYSICAL_CARD").length;
-                const afFilesOnly = v.activationFiles.filter((f) => f.formula === "FILES_ONLY").length;
-                const afPhysical = v.activationFiles.filter((f) => f.formula === "PHYSICAL_CARD").length;
                 return (
                 <tr key={v.id}>
                   <td>
@@ -70,7 +67,7 @@ export default async function AdminVehiclesPage({ searchParams }: { searchParams
                   <td>{eur(v.pricePhysicalCents)}</td>
                   <td style={{ fontSize: 12 }}>
                     {v._count.images} photo{v._count.images !== 1 ? "s" : ""}<br/>
-                    F1: {filesOnlyCount} PDF, {afFilesOnly} fichier(s) · F2: {physicalCount} PDF, {afPhysical} fichier(s)
+                    F1: {filesOnlyCount} PDF, lien {v.activationLinkFilesOnly ? "✓" : "✗"} · F2: {physicalCount} PDF, lien {v.activationLinkPhysicalCard ? "✓" : "✗"}
                   </td>
                   <td><ToggleActiveButton vehicleId={v.id} active={v.active} /></td>
                   <td><Link href={`/admin/vehicules/${v.id}`} style={{ color: "var(--cyan)", fontSize: 13 }}>Modifier</Link></td>

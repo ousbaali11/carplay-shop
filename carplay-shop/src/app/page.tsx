@@ -2,14 +2,15 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { prisma } from "@/lib/prisma";
-import { getSettings } from "@/lib/orders";
+import { getSiteSettings } from "@/lib/orders";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const settings = await getSettings();
+  const settings = await getSiteSettings();
   const contactEmail = settings.contactEmail;
   const instagramUrl = settings.instagramUrl;
+  const heroVideoSrc = settings.heroVideoUrl || (settings.heroVideoData ? "/api/hero-video" : null);
 
   let vehicleCount = 0;
   try {
@@ -44,23 +45,33 @@ export default async function HomePage() {
               </p>
             )}
           </div>
-
-          {/* Signature visuelle : écran d'autoradio qui "boot" sur CarPlay */}
+          {/* Vidéo si configurée par l'admin, sinon animation par défaut */}
           <div className="card" style={{ padding: 0, overflow: "hidden" }}>
-            <svg viewBox="0 0 480 300" width="100%" style={{ display: "block" }}>
-              <rect width="480" height="300" fill="#06080a" />
-              <rect x="20" y="20" width="440" height="230" rx="14" fill="#0c1013" stroke="#242a31" strokeWidth="2" />
-              <rect x="36" y="36" width="408" height="198" rx="6" fill="#0a0d10" />
-              <circle cx="240" cy="135" r="46" fill="none" stroke="#00c2ce" strokeWidth="2.5" opacity="0.9" />
-              <path d="M240 100 L258 128 L222 128 Z" fill="#00c2ce" />
-              <rect x="222" y="130" width="36" height="26" rx="4" fill="#00c2ce" />
-              <text x="240" y="200" fill="#8891a0" fontFamily="IBM Plex Mono" fontSize="11" textAnchor="middle" letterSpacing="2">
-                CARPLAY ACTIVÉ
-              </text>
-              <rect x="50" y="264" width="380" height="6" rx="3" fill="#1c2027" />
-              <rect x="50" y="264" width="260" height="6" rx="3" fill="#00c2ce" />
-              <circle cx="440" cy="50" r="4" fill="#3ddc84" />
-            </svg>
+            {heroVideoSrc ? (
+              <video
+                src={heroVideoSrc}
+                autoPlay
+                muted
+                loop
+                playsInline
+                style={{ display: "block", width: "100%", aspectRatio: "480 / 300", objectFit: "cover" }}
+              />
+            ) : (
+              <svg viewBox="0 0 480 300" width="100%" style={{ display: "block" }}>
+                <rect width="480" height="300" fill="#06080a" />
+                <rect x="20" y="20" width="440" height="230" rx="14" fill="#0c1013" stroke="#242a31" strokeWidth="2" />
+                <rect x="36" y="36" width="408" height="198" rx="6" fill="#0a0d10" />
+                <circle cx="240" cy="135" r="46" fill="none" stroke="#00c2ce" strokeWidth="2.5" opacity="0.9" />
+                <path d="M240 100 L258 128 L222 128 Z" fill="#00c2ce" />
+                <rect x="222" y="130" width="36" height="26" rx="4" fill="#00c2ce" />
+                <text x="240" y="200" fill="#8891a0" fontFamily="IBM Plex Mono" fontSize="11" textAnchor="middle" letterSpacing="2">
+                  CARPLAY ACTIVÉ
+                </text>
+                <rect x="50" y="264" width="380" height="6" rx="3" fill="#1c2027" />
+                <rect x="50" y="264" width="260" height="6" rx="3" fill="#00c2ce" />
+                <circle cx="440" cy="50" r="4" fill="#3ddc84" />
+              </svg>
+            )}
           </div>
         </div>
       </section>

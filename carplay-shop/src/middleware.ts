@@ -13,7 +13,14 @@ export default withAuth(
 
     const isAdminConnexion = path === "/admin/connexion";
     const isAdminArea = path.startsWith("/admin");
-    const isCompteConnexion = path === "/compte/connexion" || path === "/compte/inscription";
+
+    const publicComptePages = [
+      "/compte/connexion",
+      "/compte/inscription",
+      "/compte/mot-de-passe-oublie",
+      "/compte/reinitialiser-mot-de-passe",
+    ];
+    const isCompteConnexion = publicComptePages.includes(path);
     const isCompteArea = path.startsWith("/compte");
 
     // Zone admin (sauf la page de connexion admin elle-même)
@@ -26,8 +33,10 @@ export default withAuth(
       return NextResponse.redirect(new URL("/admin", req.url));
     }
 
-    // Zone client (sauf connexion/inscription)
-    if (isCompteArea && !isCompteConnexion && !token) {
+    // Zone client (sauf connexion/inscription/mot de passe oublié) : un compte
+    // ADMIN n'y est pas reconnu comme connecté (comptes admin et client
+    // volontairement séparés), il doit se connecter avec un vrai compte client.
+    if (isCompteArea && !isCompteConnexion && (!token || token.role !== "CLIENT")) {
       return NextResponse.redirect(new URL("/compte/connexion", req.url));
     }
 

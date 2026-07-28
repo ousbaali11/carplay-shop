@@ -25,7 +25,7 @@ export async function generateInvoicePdf(order: {
   priceCents: number;
   paymentMethod: string | null;
 }): Promise<Buffer> {
-  const settings = await prisma.settings.findUnique({ where: { id: "singleton" } });
+  const settings = await prisma.siteSettings.findUnique({ where: { id: "singleton" } });
   const companyName = settings?.companyName || "CarPlayActiv";
   const companyAddress = settings?.companyAddress || "";
   const companyEmail = settings?.contactEmail || settings?.adminNotificationEmail || "";

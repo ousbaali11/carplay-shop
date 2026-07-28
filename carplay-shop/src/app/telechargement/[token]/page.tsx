@@ -1,6 +1,7 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { prisma } from "@/lib/prisma";
+import { getSiteSettings } from "@/lib/orders";
 
 export const dynamic = "force-dynamic";
 
@@ -9,13 +10,13 @@ export default async function DownloadPage({ params }: { params: { token: string
     where: { downloadToken: params.token },
     include: {
       pdfs: { orderBy: { position: "asc" } },
-      activationFiles: { orderBy: { position: "asc" } },
     },
   });
 
   const expired = order?.downloadExpiresAt ? new Date() > order.downloadExpiresAt : true;
   const valid = order && !expired && ["PAID", "PREPARING", "SHIPPED"].includes(order.status);
   const isPhysical = order?.formula === "PHYSICAL_CARD";
+  const { invoicesEnabled } = await getSiteSettings();
 
   return (
     <>
@@ -31,28 +32,45 @@ export default async function DownloadPage({ params }: { params: { token: string
               Vos fichiers sont prêts. Ce lien reste valable jusqu'au{" "}
               {order!.downloadExpiresAt!.toLocaleDateString("fr-FR")}.
               {isPhysical && " Votre carte mémoire vous sera envoyée par courrier séparément."}
+              {" "}Chaque fichier ne peut être téléchargé qu'une seule fois.
             </p>
             <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "center" }}>
-              {order!.pdfs.map((pdf) => (
-                <a key={pdf.id} href={`/api/download/${params.token}/pdf/${pdf.id}`} className="btn btn-primary" style={{ width: 300 }}>
-                  Télécharger : {pdf.title || pdf.fileName}
-                </a>
-              ))}
+              {order!.pdfs.map((pdf) =>
+                pdf.downloaded ? (
+                  <div key={pdf.id} className="card" style={{ width: 300, padding: 12, textAlign: "left" }}>
+                    <p style={{ fontSize: 14, color: "var(--text-muted)" }}>
+                      {pdf.title || pdf.fileName} — <span style={{ color: "var(--amber)" }}>déjà téléchargé</span>
+                    </p>
+                  </div>
+                ) : (
+                  <a key={pdf.id} href={`/api/download/${params.token}/pdf/${pdf.id}`} className="btn btn-primary" style={{ width: 300 }}>
+                    Télécharger : {pdf.title || pdf.fileName}
+                  </a>
+                )
+              )}
               {order!.pdfs.length === 0 && (
                 <p style={{ fontSize: 13, color: "var(--text-muted)" }}>Aucun guide PDF n'a encore été ajouté pour ce véhicule.</p>
               )}
-              {!isPhysical && order!.activationFiles?.length > 0 && (
-                <>
-                  {order!.activationFiles.map((f: any) => (
-                    <a key={f.id} href={`/api/download/${params.token}/activation/${f.id}`} className="btn btn-amber" style={{ width: 300 }}>
-                      Télécharger : {f.fileName}
-                    </a>
-                  ))}
-                </>
+
+              {!isPhysical && order!.activationLink && (
+                order!.activationLinkUsed ? (
+                  <div className="card" style={{ width: 300, padding: 12, textAlign: "left" }}>
+                    <p style={{ fontSize: 14, color: "var(--text-muted)" }}>
+                      Fichier d'activation — <span style={{ color: "var(--amber)" }}>déjà téléchargé</span>
+                    </p>
+                  </div>
+                ) : (
+                  <a href={`/telechargement/${params.token}/fichier`} className="btn btn-amber" style={{ width: 300 }}>
+                    Télécharger le fichier d'activation
+                  </a>
+                )
               )}
-              <a href={`/api/download/${params.token}/facture`} className="btn btn-secondary" style={{ width: 300 }}>
-                Télécharger ma facture
-              </a>
+
+              {invoicesEnabled && (
+                <a href={`/api/download/${params.token}/facture`} className="btn btn-secondary" style={{ width: 300 }}>
+                  Télécharger ma facture
+                </a>
+              )}
             </div>
           </>
         ) : (

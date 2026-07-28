@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getSiteSettings } from "@/lib/orders";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Link from "next/link";
@@ -29,6 +30,7 @@ export default async function AccountPage() {
   const orders = userId
     ? await prisma.order.findMany({ where: { userId }, orderBy: { createdAt: "desc" } })
     : [];
+  const { invoicesEnabled } = await getSiteSettings();
 
   return (
     <>
@@ -69,7 +71,7 @@ export default async function AccountPage() {
                   <th>Montant</th>
                   <th>Statut</th>
                   <th>Fichiers</th>
-                  <th>Facture</th>
+                  {invoicesEnabled && <th>Facture</th>}
                 </tr>
               </thead>
               <tbody>
@@ -92,15 +94,17 @@ export default async function AccountPage() {
                           <span style={{ color: "var(--text-muted)", fontSize: 13 }}>—</span>
                         )}
                       </td>
-                      <td>
-                        {canDownload ? (
-                          <a href={`/api/download/${o.downloadToken}/facture`} style={{ color: "var(--cyan)", fontSize: 13 }}>
-                            Télécharger
-                          </a>
-                        ) : (
-                          <span style={{ color: "var(--text-muted)", fontSize: 13 }}>—</span>
-                        )}
-                      </td>
+                      {invoicesEnabled && (
+                        <td>
+                          {canDownload ? (
+                            <a href={`/api/download/${o.downloadToken}/facture`} style={{ color: "var(--cyan)", fontSize: 13 }}>
+                              Télécharger
+                            </a>
+                          ) : (
+                            <span style={{ color: "var(--text-muted)", fontSize: 13 }}>—</span>
+                          )}
+                        </td>
+                      )}
                     </tr>
                   );
                 })}

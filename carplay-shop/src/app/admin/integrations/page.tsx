@@ -1,11 +1,12 @@
 import AdminSidebar from "@/components/AdminSidebar";
 import IntegrationsSettingsForm from "@/components/IntegrationsSettingsForm";
-import { getSettings } from "@/lib/orders";
+import { getPaymentSettings, getSiteSettings } from "@/lib/orders";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminIntegrationsPage() {
-  const settings = await getSettings();
+  const payment = await getPaymentSettings();
+  const site = await getSiteSettings();
 
   return (
     <div className="admin-layout">
@@ -18,16 +19,16 @@ export default async function AdminIntegrationsPage() {
           pour ne pas les changer.
         </p>
         <IntegrationsSettingsForm
-          stripeSecretKeySet={!!settings.stripeSecretKey}
-          stripeWebhookSecretSet={!!settings.stripeWebhookSecret}
-          paypalClientId={settings.paypalClientId || ""}
-          paypalClientSecretSet={!!settings.paypalClientSecret}
-          paypalEnv={settings.paypalEnv}
-          resendApiKeySet={!!settings.resendApiKey}
-          emailFrom={settings.emailFrom}
-          adminNotificationEmail={settings.adminNotificationEmail || ""}
-          companyName={settings.companyName}
-          companyAddress={settings.companyAddress || ""}
+          stripeSecretKeySet={!!payment.stripeSecretKey}
+          stripeWebhookSecretSet={!!payment.stripeWebhookSecret}
+          paypalClientId={payment.paypalClientId || ""}
+          paypalClientSecretSet={!!payment.paypalClientSecret}
+          paypalEnv={payment.paypalEnv}
+          resendApiKeySet={!!site.resendApiKey}
+          emailFrom={site.emailFrom}
+          adminNotificationEmail={site.adminNotificationEmail || ""}
+          companyName={site.companyName}
+          companyAddress={site.companyAddress || ""}
         />
       </div>
     </div>

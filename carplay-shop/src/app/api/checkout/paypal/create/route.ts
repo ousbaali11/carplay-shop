@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createPaypalOrder } from "@/lib/paypal";
-import { getSettings } from "@/lib/orders";
+import { getPaymentSettings } from "@/lib/orders";
 
 export async function POST(req: Request) {
-  const settings = await getSettings();
+  const settings = await getPaymentSettings();
   if (!settings.paypalEnabled) {
     return NextResponse.json({ error: "PayPal est momentanément indisponible." }, { status: 403 });
   }

@@ -10,7 +10,7 @@ function eur(cents: number) {
 // Construit le client Resend + les infos d'expéditeur à partir de la base
 // (réglables depuis /admin/integrations). Renvoie null si aucune clé n'est configurée.
 async function getEmailConfig() {
-  const settings = await prisma.settings.findUnique({ where: { id: "singleton" } });
+  const settings = await prisma.siteSettings.findUnique({ where: { id: "singleton" } });
   if (!settings?.resendApiKey) return null;
   return {
     resend: new Resend(settings.resendApiKey),
@@ -29,7 +29,7 @@ export async function sendOrderConfirmationEmail(order: {
   priceCents: number;
   downloadToken: string;
   isPhysical: boolean;
-  invoicePdf: Buffer;
+  invoicePdf: Buffer | null;
 }) {
   const config = await getEmailConfig();
   if (!config) {
@@ -50,7 +50,7 @@ export async function sendOrderConfirmationEmail(order: {
     html: `
       <div style="font-family: sans-serif; max-width: 560px; margin: auto;">
         <h2>Merci pour votre commande, ${order.firstName} !</h2>
-        <p>Votre paiement a bien été confirmé. Votre facture est jointe à cet email.</p>
+        <p>Votre paiement a bien été confirmé.${order.invoicePdf ? " Votre facture est jointe à cet email." : ""}</p>
         <table style="width:100%; border-collapse: collapse; margin: 16px 0;">
           <tr><td style="padding:6px 0; color:#666;">N° de commande</td><td style="text-align:right;">${order.orderNumber}</td></tr>
           <tr><td style="padding:6px 0; color:#666;">Véhicule</td><td style="text-align:right;">${order.vehicleLabel}</td></tr>
@@ -65,12 +65,14 @@ export async function sendOrderConfirmationEmail(order: {
         <p style="font-size:12px; color:#999;">Ce lien est personnel et valable 30 jours. Ne le partagez pas.</p>
       </div>
     `,
-    attachments: [
-      {
-        filename: `facture-${order.orderNumber}.pdf`,
-        content: order.invoicePdf,
-      },
-    ],
+    attachments: order.invoicePdf
+      ? [
+          {
+            filename: `facture-${order.orderNumber}.pdf`,
+            content: order.invoicePdf,
+          },
+        ]
+      : undefined,
   });
 }
 
@@ -120,5 +122,33 @@ export async function sendAdminNewOrderNotification(order: {
     subject: `Nouvelle commande ${order.orderNumber}${order.isPhysical ? " — carte à préparer" : ""}`,
     html: `<p>Nouvelle commande payée : ${order.orderNumber} (${order.vehicleLabel}).</p>
       ${order.isPhysical ? "<p><b>Action requise :</b> préparer et expédier la carte mémoire depuis le tableau de bord admin.</p>" : ""}`,
+  });
+}
+// Email envoyé quand un client demande à réinitialiser son mot de passe.
+export async function sendPasswordResetEmail(user: { email: string; firstName: string; resetUrl: string }) {
+  const config = await getEmailConfig();
+  if (!config) {
+    console.error("Email non envoyé : Resend n'est pas configuré (voir /admin/integrations).");
+    return;
+  }
+
+  await config.resend.emails.send({
+    from: config.from,
+    to: user.email,
+    subject: "Réinitialisation de votre mot de passe",
+    html: `
+      <div style="font-family: sans-serif; max-width: 560px; margin: auto;">
+        <h2>Bonjour ${user.firstName},</h2>
+        <p>Vous avez demandé à réinitialiser votre mot de passe. Cliquez sur le bouton ci-dessous (valable 1 heure) :</p>
+        <p style="margin-top:24px;">
+          <a href="${user.resetUrl}" style="background:#111; color:#fff; padding:12px 20px; text-decoration:none; border-radius:6px; display:inline-block;">
+            Réinitialiser mon mot de passe
+          </a>
+        </p>
+        <p style="font-size:12px; color:#999; margin-top:24px;">
+          Si vous n'êtes pas à l'origine de cette demande, ignorez simplement cet email : votre mot de passe ne changera pas.
+        </p>
+      </div>
+    `,
   });
 }

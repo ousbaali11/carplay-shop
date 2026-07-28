@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 
 async function getPaypalConfig() {
-  const settings = await prisma.settings.findUnique({ where: { id: "singleton" } });
+  const settings = await prisma.paymentSettings.findUnique({ where: { id: "singleton" } });
   if (!settings?.paypalClientId || !settings?.paypalClientSecret) return null;
   return {
     clientId: settings.paypalClientId,
