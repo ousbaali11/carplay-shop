@@ -20,14 +20,13 @@ function eur(cents: number) {
 }
 
 export default async function AdminOrderDetail({ params }: { params: { id: string } }) {
-  const order = await prisma.order.findUnique({ where: { id: params.id } });
+  const order = await prisma.order.findUnique({
+    where: { id: params.id },
+    include: { activationLinks: { orderBy: { position: "asc" } } },
+  });
   if (!order) notFound();
 
   const isPhysical = order.formula === "PHYSICAL_CARD";
-
-  const vehicle = order.vehicleId
-    ? await prisma.vehicle.findUnique({ where: { id: order.vehicleId } })
-    : null;
 
   return (
     <div className="admin-layout">
@@ -64,37 +63,25 @@ export default async function AdminOrderDetail({ params }: { params: { id: strin
           </div>
         )}
 
-        {isPhysical && ["PREPARING", "SHIPPED"].includes(order.status) && (
-          <div className="card" style={{ marginBottom: 20 }}>
-            <p className="eyebrow" style={{ marginBottom: 10 }}>Préparation de la carte</p>
-            <p style={{ fontSize: 14, marginBottom: 12 }}>
-              Lien source du véhicule pour préparer la carte mémoire physique (usage interne, jamais transmis au client).
-            </p>
-            {vehicle?.activationLinkPhysicalCard ? (
-              <a href={vehicle.activationLinkPhysicalCard} target="_blank" rel="noopener noreferrer" className="btn btn-secondary" style={{ justifySelf: "start" }}>
-                Ouvrir le lien source ↗
-              </a>
-            ) : (
-              <p style={{ fontSize: 13, color: "var(--amber)" }}>
-                Aucun lien d'activation "carte physique" n'a été configuré pour ce véhicule.
-              </p>
-            )}
-          </div>
-        )}
-
         {!isPhysical && (
           <div className="card" style={{ marginBottom: 20 }}>
-            <p className="eyebrow" style={{ marginBottom: 10 }}>Lien d'activation (client)</p>
-            <p style={{ fontSize: 14 }}>
-              Statut :{" "}
-              {order.activationLinkUsed ? (
-                <span style={{ color: "var(--amber)" }}>déjà téléchargé le {order.activationLinkUsedAt?.toLocaleDateString("fr-FR")}</span>
-              ) : order.activationLink ? (
-                <span style={{ color: "var(--success)" }}>pas encore téléchargé</span>
-              ) : (
-                <span style={{ color: "var(--text-muted)" }}>aucun lien n'était configuré au moment du paiement</span>
-              )}
-            </p>
+            <p className="eyebrow" style={{ marginBottom: 10 }}>Liens d'activation (client) — {order.activationLinks.length}</p>
+            {order.activationLinks.length === 0 ? (
+              <p style={{ fontSize: 13, color: "var(--text-muted)" }}>Aucun lien n'était configuré au moment du paiement.</p>
+            ) : (
+              <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "grid", gap: 6 }}>
+                {order.activationLinks.map((l, i) => (
+                  <li key={l.id} style={{ fontSize: 14 }}>
+                    Lien #{i + 1} :{" "}
+                    {l.used ? (
+                      <span style={{ color: "var(--amber)" }}>déjà téléchargé le {l.usedAt?.toLocaleDateString("fr-FR")}</span>
+                    ) : (
+                      <span style={{ color: "var(--success)" }}>pas encore téléchargé</span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         )}
 

@@ -17,6 +17,13 @@ async function appendMany(files: File[], startPos: number, creator: (buf: Buffer
   }
 }
 
+function parseLinks(raw: string): string[] {
+  return raw
+    .split("\n")
+    .map((l) => l.trim())
+    .filter((l) => l.length > 0);
+}
+
 export async function POST(req: Request, { params }: { params: { id: string } }) {
   if (!(await requireAdmin())) return NextResponse.json({ error: "Non autorisé" }, { status: 403 });
   const vehicleId = params.id;
@@ -29,8 +36,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   const priceFilesEur = formData.get("priceFilesEur") as string;
   const pricePhysicalEur = formData.get("pricePhysicalEur") as string;
   const active = formData.get("active") === "on";
-  const activationLinkFilesOnly = ((formData.get("activationLinkFilesOnly") as string) || "").trim() || null;
-  const activationLinkPhysicalCard = ((formData.get("activationLinkPhysicalCard") as string) || "").trim() || null;
+  const newLinks = parseLinks((formData.get("activationLinks") as string) || "");
 
   const images = formData.getAll("images") as File[];
   const pdfsFilesOnly = formData.getAll("pdfsFilesOnly") as File[];
@@ -46,8 +52,6 @@ export async function POST(req: Request, { params }: { params: { id: string } })
       priceFilesCents: Math.round(parseFloat(priceFilesEur || "0") * 100),
       pricePhysicalCents: Math.round(parseFloat(pricePhysicalEur || "0") * 100),
       active,
-      activationLinkFilesOnly,
-      activationLinkPhysicalCard,
     },
   });
 
@@ -62,6 +66,12 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   const pdfPhysicalCount = await prisma.vehiclePdf.count({ where: { vehicleId, formula: "PHYSICAL_CARD" } });
   await appendMany(pdfsPhysicalCard, pdfPhysicalCount, (buf, file, pos) =>
     prisma.vehiclePdf.create({ data: { vehicleId, formula: "PHYSICAL_CARD", data: buf, fileName: file.name, position: pos } }));
+
+  const linksCount = await prisma.vehicleActivationLink.count({ where: { vehicleId } });
+  let pos = linksCount;
+  for (const url of newLinks) {
+    await prisma.vehicleActivationLink.create({ data: { vehicleId, url, position: pos++ } });
+  }
 
   return NextResponse.redirect(new URL(`/admin/vehicules/${vehicleId}?enregistre=1`, req.url), 303);
 }

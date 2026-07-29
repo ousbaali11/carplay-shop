@@ -30,7 +30,7 @@ export default async function AdminApparencePage() {
         <p style={{ marginBottom: 24, maxWidth: 480 }}>
           Affichées dans la section "Contactez-nous" de la page d'accueil.
         </p>
-        <ContactSettingsForm initialContactEmail={settings.contactEmail} initialInstagramUrl={settings.instagramUrl} />
+        <ContactSettingsForm initialContactEmail={settings.contactEmail} initialInstagramUrl={settings.instagramUrl} initialWhatsappUrl={settings.whatsappUrl || ""} />
 
         <h1 style={{ fontSize: 26, margin: "40px 0 8px" }}>Facturation</h1>
         <p style={{ marginBottom: 24, maxWidth: 480 }}>

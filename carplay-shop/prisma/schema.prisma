@@ -74,6 +74,7 @@ model SiteSettings {
   id           String @id @default("singleton")
   contactEmail String @default("contact@tondomaine.fr")
   instagramUrl String @default("https://instagram.com/tapage")
+  whatsappUrl  String?
 
   // Si false : aucune facture n'est générée ni jointe par email, et le lien
   // "Facture" disparaît de l'espace client et de la page de téléchargement.
@@ -103,6 +104,7 @@ model SiteSettings {
 // Une fiche par véhicule. Les photos sont communes aux deux formules ; les PDF et
 // les fichiers d'activation sont séparés par formule car les étapes et les fichiers
 // eux-mêmes diffèrent entre "fichiers seuls" et "carte physique".
+
 model Vehicle {
   id          String  @id @default(cuid())
   brand       String
@@ -113,22 +115,27 @@ model Vehicle {
   priceFilesCents    Int
   pricePhysicalCents Int
 
-  // Liens externes (ex: Google Drive) vers les fichiers d'activation, un par
-  // formule car les fichiers diffèrent. FilesOnly est livré au client (via une
-  // passerelle à usage unique) ; PhysicalCard reste réservé à l'admin, pour
-  // préparer la carte.
-  activationLinkFilesOnly    String?
-  activationLinkPhysicalCard String?
-
   active    Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  images VehicleImage[]
-  pdfs   VehiclePdf[]
-  orders Order[]
+  images          VehicleImage[]
+  pdfs            VehiclePdf[]
+  activationLinks VehicleActivationLink[]
+  orders          Order[]
 
   @@index([brand, model])
+}
+
+model VehicleActivationLink {
+  id        String   @id @default(cuid())
+  vehicleId String
+  vehicle   Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  url       String
+  position  Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([vehicleId])
 }
 
 model VehicleImage {
@@ -203,9 +210,7 @@ model Order {
   // Lien d'activation livré au client (formule FILES_ONLY uniquement), figé au
   // paiement. À usage unique : une fois ouvert via la passerelle sécurisée, il
   // ne peut plus être réutilisé (anti-fraude).
-  activationLink       String?
-  activationLinkUsed   Boolean   @default(false)
-  activationLinkUsedAt DateTime?
+  activationLinks OrderActivationLink[]
 
   downloadToken     String?   @unique
   downloadExpiresAt DateTime?
@@ -213,6 +218,18 @@ model Order {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model OrderActivationLink {
+  id       String    @id @default(cuid())
+  orderId  String
+  order    Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  url      String
+  position Int       @default(0)
+  used     Boolean   @default(false)
+  usedAt   DateTime?
+
+  @@index([orderId])
 }
 
 model OrderPdf {

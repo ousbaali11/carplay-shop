@@ -6,13 +6,16 @@ import { useRouter } from "next/navigation";
 export default function ContactSettingsForm({
   initialContactEmail,
   initialInstagramUrl,
+  initialWhatsappUrl,
 }: {
   initialContactEmail: string;
   initialInstagramUrl: string;
+  initialWhatsappUrl: string;
 }) {
   const router = useRouter();
   const [contactEmail, setContactEmail] = useState(initialContactEmail);
   const [instagramUrl, setInstagramUrl] = useState(initialInstagramUrl);
+  const [whatsappUrl, setWhatsappUrl] = useState(initialWhatsappUrl);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -24,7 +27,7 @@ export default function ContactSettingsForm({
     const res = await fetch("/api/admin/settings/contact", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ contactEmail, instagramUrl }),
+      body: JSON.stringify({ contactEmail, instagramUrl, whatsappUrl }),
     });
     setSaving(false);
     if (res.ok) {
@@ -45,6 +48,10 @@ export default function ContactSettingsForm({
       <div>
         <label>Lien de la page Instagram</label>
         <input type="url" value={instagramUrl} onChange={(e) => setInstagramUrl(e.target.value)} placeholder="https://instagram.com/..." />
+      </div>
+      <div>
+        <label>Lien WhatsApp (laisse vide pour masquer le bouton)</label>
+        <input type="url" value={whatsappUrl} onChange={(e) => setWhatsappUrl(e.target.value)} placeholder="https://wa.me/33612345678" />
       </div>
       {error && <p style={{ color: "var(--danger)", fontSize: 13 }}>{error}</p>}
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>

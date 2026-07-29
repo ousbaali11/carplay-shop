@@ -15,6 +15,7 @@ export default async function AdminVehiclesPage({ searchParams }: { searchParams
     include: {
       images: { orderBy: { position: "asc" }, take: 1 },
       pdfs: true,
+      activationLinks: true,
       _count: { select: { images: true } },
     },
   });
@@ -67,7 +68,7 @@ export default async function AdminVehiclesPage({ searchParams }: { searchParams
                   <td>{eur(v.pricePhysicalCents)}</td>
                   <td style={{ fontSize: 12 }}>
                     {v._count.images} photo{v._count.images !== 1 ? "s" : ""}<br/>
-                    F1: {filesOnlyCount} PDF, lien {v.activationLinkFilesOnly ? "✓" : "✗"} · F2: {physicalCount} PDF, lien {v.activationLinkPhysicalCard ? "✓" : "✗"}
+                    F1: {filesOnlyCount} PDF, {v.activationLinks.length} lien(s) · F2: {physicalCount} PDF
                   </td>
                   <td><ToggleActiveButton vehicleId={v.id} active={v.active} /></td>
                   <td><Link href={`/admin/vehicules/${v.id}`} style={{ color: "var(--cyan)", fontSize: 13 }}>Modifier</Link></td>

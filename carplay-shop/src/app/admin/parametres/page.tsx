@@ -22,10 +22,10 @@ export default async function AdminPaymentPage() {
           <p className="eyebrow" style={{ marginBottom: 10 }}>Ajouter un autre moyen de paiement</p>
           <p style={{ fontSize: 13 }}>
             Chaque moyen de paiement (Mollie, Lyra/PayZen, Alma, Apple Pay, Google Pay...)
-            nécessite sa propre intégration technique — ce n'est pas un réglage à cocher.
-            Dis-moi lequel tu veux ajouter et je le développe. À savoir : Stripe permet déjà
-            d'activer Apple Pay, Google Pay et d'autres moyens directement depuis son
-            tableau de bord, sans code supplémentaire.
+    	    nécessite une intégration technique spécifique. Cela inclut la configuration du
+            compte marchand, l’ajout des clés API, la mise en place des webhooks et
+    	    l’adaptation du backend. Ce ne sont pas des options activables automatiquement :
+            chaque fournisseur fonctionne différemment et demande une implémentation dédiée.
           </p>
         </div>
       </div>

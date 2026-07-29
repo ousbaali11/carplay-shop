@@ -9,15 +9,15 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Non autorisé" }, { status: 403 });
   }
 
-  const { contactEmail, instagramUrl } = await req.json();
+  const { contactEmail, instagramUrl, whatsappUrl } = await req.json();
   if (!contactEmail || !instagramUrl) {
     return NextResponse.json({ error: "Champs manquants" }, { status: 400 });
   }
 
   await prisma.siteSettings.upsert({
     where: { id: "singleton" },
-    update: { contactEmail, instagramUrl },
-    create: { id: "singleton", contactEmail, instagramUrl },
+    update: { contactEmail, instagramUrl, whatsappUrl: whatsappUrl || null },
+    create: { id: "singleton", contactEmail, instagramUrl, whatsappUrl: whatsappUrl || null },
   });
 
   return NextResponse.json({ success: true });

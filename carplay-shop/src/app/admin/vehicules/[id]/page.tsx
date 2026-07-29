@@ -21,12 +21,27 @@ function FileList({ files, vehicleId, kind }: { files: { id: string; fileName: s
   );
 }
 
+function LinkList({ links, vehicleId }: { links: { id: string; url: string }[]; vehicleId: string }) {
+  if (links.length === 0) return null;
+  return (
+    <ul style={{ margin: "0 0 10px", padding: 0, listStyle: "none", display: "grid", gap: 6 }}>
+      {links.map((l) => (
+        <li key={l.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, fontSize: 13, background: "var(--bg-elevated)", padding: "6px 10px", borderRadius: 6 }}>
+          <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{l.url}</span>
+          <DeleteFileButton url={`/api/admin/vehicles/${vehicleId}/activation-links/${l.id}`} />
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 export default async function EditVehiclePage({ params, searchParams }: { params: { id: string }; searchParams: { enregistre?: string; cree?: string } }) {
   const v = await prisma.vehicle.findUnique({
     where: { id: params.id },
     include: {
       images: { orderBy: { position: "asc" } },
       pdfs: { orderBy: { position: "asc" } },
+      activationLinks: { orderBy: { position: "asc" } },
     },
   });
   if (!v) notFound();
@@ -103,8 +118,10 @@ export default async function EditVehiclePage({ params, searchParams }: { params
             <FileList files={pdfsFilesOnly} vehicleId={v.id} kind="pdfs" />
             <input name="pdfsFilesOnly" type="file" accept="application/pdf" multiple style={{ marginBottom: 12 }} />
 
-            <label style={{ fontSize: 13 }}>Lien vers le fichier d'activation (ex: Google Drive), livré au client</label>
-            <input name="activationLinkFilesOnly" type="url" defaultValue={v.activationLinkFilesOnly || ""} placeholder="https://drive.google.com/..." />
+            <label style={{ fontSize: 13 }}>Liens d'activation actuels ({v.activationLinks.length})</label>
+            <LinkList links={v.activationLinks} vehicleId={v.id} />
+            <label style={{ fontSize: 12 }}>Ajouter d'autres liens (un par ligne)</label>
+            <textarea name="activationLinks" rows={3} placeholder={"https://drive.google.com/lien-1\nhttps://drive.google.com/lien-2"} />
           </div>
 
           <div style={{ borderTop: "2px solid var(--amber)", paddingTop: 14 }}>
@@ -112,10 +129,7 @@ export default async function EditVehiclePage({ params, searchParams }: { params
 
             <label style={{ fontSize: 13 }}>PDF de cette formule ({pdfsPhysicalCard.length})</label>
             <FileList files={pdfsPhysicalCard} vehicleId={v.id} kind="pdfs" />
-            <input name="pdfsPhysicalCard" type="file" accept="application/pdf" multiple style={{ marginBottom: 12 }} />
-
-            <label style={{ fontSize: 13 }}>Lien vers le fichier d'activation — usage interne admin uniquement, jamais livré au client</label>
-            <input name="activationLinkPhysicalCard" type="url" defaultValue={v.activationLinkPhysicalCard || ""} placeholder="https://drive.google.com/..." />
+            <input name="pdfsPhysicalCard" type="file" accept="application/pdf" multiple />
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: 8, borderTop: "1px solid var(--line)", paddingTop: 14 }}>

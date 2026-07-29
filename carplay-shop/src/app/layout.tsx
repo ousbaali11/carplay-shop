@@ -3,9 +3,9 @@ import "./globals.css";
 import Providers from "@/components/Providers";
 
 export const metadata: Metadata = {
-  title: "CarPlay Activation — Débloquez Apple CarPlay & Android Auto",
+  title: "CarPlay Activation — Débloquez CarPlay & Android Auto",
   description:
-    "Activez Apple CarPlay et Android Auto sur votre véhicule. Fichiers d'activation + carte mémoire prête à l'emploi, livrés avec guide PDF pas à pas.",
+    "Activez CarPlay Android Auto sur votre véhicule. Fichiers d'activation + carte mémoire prête à l'emploi, livrés avec guide PDF pas à pas.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

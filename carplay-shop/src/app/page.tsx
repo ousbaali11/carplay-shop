@@ -10,6 +10,7 @@ export default async function HomePage() {
   const settings = await getSiteSettings();
   const contactEmail = settings.contactEmail;
   const instagramUrl = settings.instagramUrl;
+  const whatsappUrl = settings.whatsappUrl;
   const heroVideoSrc = settings.heroVideoUrl || null;
 
   let vehicleCount = 0;
@@ -27,7 +28,7 @@ export default async function HomePage() {
       <section style={{ padding: "80px 0 60px", borderBottom: "1px solid var(--line)" }}>
         <div className="container hero-grid">
           <div>
-            <p className="eyebrow">Activation Apple CarPlay & Android Auto</p>
+            <p className="eyebrow">Activation CarPlay & Android Auto</p>
             <h1 style={{ fontSize: 46, lineHeight: 1.08, margin: "16px 0" }}>
               Débloquez CarPlay sur votre écran d'origine, sans changer d'autoradio.
             </h1>
@@ -45,6 +46,7 @@ export default async function HomePage() {
               </p>
             )}
           </div>
+
           {/* Vidéo si configurée par l'admin, sinon animation par défaut */}
           <div className="card" style={{ padding: 0, overflow: "hidden" }}>
             {heroVideoSrc ? (
@@ -81,6 +83,7 @@ export default async function HomePage() {
         <div className="container">
           <p className="eyebrow">Deux formules</p>
           <h2 style={{ fontSize: 32, margin: "10px 0 40px" }}>Choisissez votre formule</h2>
+
           <div className="two-col-grid">
             {/* Formule 1 */}
             <div className="card">
@@ -153,16 +156,30 @@ export default async function HomePage() {
         <div className="container">
           <p className="eyebrow">Une question ?</p>
           <h2 style={{ fontSize: 32, margin: "10px 0 24px" }}>Contactez-nous</h2>
-          <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-            <a href={`mailto:${contactEmail}`} className="card" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 12, minWidth: 220 }}>
-              <span style={{ fontSize: 22 }}>✉️</span>
-              <div>
-                <p style={{ color: "var(--text)", fontWeight: 600, fontSize: 14 }}>Email</p>
-                <p style={{ fontSize: 13 }}>{contactEmail}</p>
-              </div>
+          <div style={{ display: "flex", gap: 16, flexWrap: "wrap", alignItems: "center" }}>
+            <a
+              href={`mailto:${contactEmail}`}
+              aria-label="Nous écrire par email"
+              title={contactEmail}
+              className="card"
+              style={{ width: 56, height: 56, padding: 0, display: "flex", alignItems: "center", justifyContent: "center" }}
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <rect x="2" y="4" width="20" height="16" rx="3" stroke="var(--cyan)" strokeWidth="2" />
+                <path d="M3 6.5L12 13L21 6.5" stroke="var(--cyan)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
             </a>
-            <a href={instagramUrl} target="_blank" rel="noopener noreferrer" className="card" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 12, minWidth: 220 }}>
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+
+            <a
+              href={instagramUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Notre Instagram"
+              title="Instagram"
+              className="card"
+              style={{ width: 56, height: 56, padding: 0, display: "flex", alignItems: "center", justifyContent: "center" }}
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                 <defs>
                   <linearGradient id="ig-grad" x1="0" y1="24" x2="24" y2="0">
                     <stop offset="0" stopColor="#FFDC80" />
@@ -175,11 +192,32 @@ export default async function HomePage() {
                 <circle cx="12" cy="12" r="4.5" stroke="url(#ig-grad)" strokeWidth="2" />
                 <circle cx="17.2" cy="6.8" r="1.1" fill="url(#ig-grad)" />
               </svg>
-              <div>
-                <p style={{ color: "var(--text)", fontWeight: 600, fontSize: 14 }}>Instagram</p>
-                <p style={{ fontSize: 13 }}>Notre page officielle</p>
-              </div>
             </a>
+
+            {whatsappUrl && (
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Nous écrire sur WhatsApp"
+                title="WhatsApp"
+                className="card"
+                style={{ width: 56, height: 56, padding: 0, display: "flex", alignItems: "center", justifyContent: "center" }}
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M12 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.35 5.07L2 22l5.1-1.33A9.94 9.94 0 0012 22c5.52 0 10-4.48 10-10S17.52 2 12 2z"
+                    stroke="#25D366"
+                    strokeWidth="2"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M8.5 8.7c.15-.4.5-.4.8-.4h.5c.2 0 .45 0 .6.4.2.5.6 1.5.65 1.6.05.1.1.25 0 .4-.1.15-.15.25-.3.4l-.4.45c-.15.15-.3.3-.15.6.15.3.7 1.15 1.5 1.85.9.8 1.6 1.05 1.9 1.2.3.15.5.1.65-.05.2-.2.45-.5.7-.8.2-.2.4-.25.65-.15.3.1 1.5.7 1.75.85.25.1.4.2.45.3.1.15.1.75-.15 1.4-.25.65-1.45 1.3-2 1.35-.5.05-1.05.1-3.4-.9-2.9-1.25-4.75-4.2-4.9-4.4-.15-.2-1.2-1.6-1.2-3.05 0-1.45.75-2.15 1-2.45z"
+                    fill="#25D366"
+                  />
+                </svg>
+              </a>
+            )}
           </div>
         </div>
       </section>

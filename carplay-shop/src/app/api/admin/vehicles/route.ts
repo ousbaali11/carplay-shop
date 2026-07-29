@@ -17,6 +17,13 @@ async function createMany(files: File[], creator: (buf: Buffer, file: File, pos:
   }
 }
 
+function parseLinks(raw: string): string[] {
+  return raw
+    .split("\n")
+    .map((l) => l.trim())
+    .filter((l) => l.length > 0);
+}
+
 export async function POST(req: Request) {
   if (!(await requireAdmin())) return NextResponse.json({ error: "Non autorisé" }, { status: 403 });
 
@@ -28,8 +35,7 @@ export async function POST(req: Request) {
   const priceFilesEur = formData.get("priceFilesEur") as string;
   const pricePhysicalEur = formData.get("pricePhysicalEur") as string;
   const active = formData.get("active") === "on";
-  const activationLinkFilesOnly = ((formData.get("activationLinkFilesOnly") as string) || "").trim() || null;
-  const activationLinkPhysicalCard = ((formData.get("activationLinkPhysicalCard") as string) || "").trim() || null;
+  const activationLinks = parseLinks((formData.get("activationLinks") as string) || "");
 
   const images = formData.getAll("images") as File[];
   const pdfsFilesOnly = formData.getAll("pdfsFilesOnly") as File[];
@@ -44,8 +50,6 @@ export async function POST(req: Request) {
       priceFilesCents: Math.round(parseFloat(priceFilesEur || "0") * 100),
       pricePhysicalCents: Math.round(parseFloat(pricePhysicalEur || "0") * 100),
       active,
-      activationLinkFilesOnly,
-      activationLinkPhysicalCard,
     },
   });
 
@@ -57,6 +61,11 @@ export async function POST(req: Request) {
 
   await createMany(pdfsPhysicalCard, (buf, file, pos) =>
     prisma.vehiclePdf.create({ data: { vehicleId: vehicle.id, formula: "PHYSICAL_CARD", data: buf, fileName: file.name, position: pos } }), 0);
+
+  let pos = 0;
+  for (const url of activationLinks) {
+    await prisma.vehicleActivationLink.create({ data: { vehicleId: vehicle.id, url, position: pos++ } });
+  }
 
   return NextResponse.redirect(new URL(`/admin/vehicules?cree=${encodeURIComponent(`${vehicle.brand} ${vehicle.model}`)}`, req.url), 303);
 }

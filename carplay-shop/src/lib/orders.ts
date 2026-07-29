@@ -9,7 +9,7 @@ import { PaymentMethod } from "@prisma/client";
 export async function finalizeOrderPayment(orderId: string, method: PaymentMethod, paymentRef: string) {
  const order = await prisma.order.findUnique({
     where: { id: orderId },
-    include: { vehicle: { include: { pdfs: true } } },
+    include: { vehicle: { include: { pdfs: true, activationLinks: true } } },
   });
   if (!order) throw new Error("Commande introuvable");
   if (order.status !== "PENDING_PAYMENT") {
@@ -35,9 +35,11 @@ export async function finalizeOrderPayment(orderId: string, method: PaymentMetho
           .filter((p) => p.formula === order.formula)
           .map((p) => ({ data: p.data, fileName: p.fileName, title: p.title, position: p.position })),
       },
-      activationLink: isPhysical ? null : order.vehicle.activationLinkFilesOnly,
-      activationLinkUsed: false,
-      activationLinkUsedAt: null,
+      activationLinks: isPhysical
+        ? undefined
+        : {
+            create: order.vehicle.activationLinks.map((l) => ({ url: l.url, position: l.position })),
+          },
     },
     include: { pdfs: true },
   });

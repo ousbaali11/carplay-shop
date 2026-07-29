@@ -48,16 +48,14 @@ export default function NewVehiclePage() {
             <p className="eyebrow" style={{ marginBottom: 10 }}>Formule 1 — Fichiers seuls</p>
             <label style={{ fontSize: 13 }}>Guides PDF de cette formule</label>
             <input name="pdfsFilesOnly" type="file" accept="application/pdf" multiple style={{ marginBottom: 10 }} />
-            <label style={{ fontSize: 13 }}>Lien vers le fichier d'activation (ex: Google Drive), livré au client</label>
-            <input name="activationLinkFilesOnly" type="url" placeholder="https://drive.google.com/..." />
+            <label style={{ fontSize: 13 }}>Liens d'activation (Google Drive...), un par ligne — livrés au client</label>
+            <textarea name="activationLinks" rows={3} placeholder={"https://drive.google.com/lien-1\nhttps://drive.google.com/lien-2"} />
           </div>
 
           <div style={{ borderTop: "2px solid var(--amber)", paddingTop: 14 }}>
             <p className="eyebrow" style={{ marginBottom: 10, color: "var(--amber)" }}>Formule 2 — Carte physique</p>
-            <label style={{ fontSize: 13 }}>Guides PDF de cette formule</label>
-            <input name="pdfsPhysicalCard" type="file" accept="application/pdf" multiple style={{ marginBottom: 10 }} />
-            <label style={{ fontSize: 13 }}>Lien vers le fichier d'activation — usage interne admin uniquement, jamais livré au client</label>
-            <input name="activationLinkPhysicalCard" type="url" placeholder="https://drive.google.com/..." />
+            <label style={{ fontSize: 13 }}>Guides PDF de cette formule (la préparation du fichier bootable se fait entièrement en interne, aucun lien à saisir ici)</label>
+            <input name="pdfsPhysicalCard" type="file" accept="application/pdf" multiple />
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: 8, borderTop: "1px solid var(--line)", paddingTop: 14 }}>

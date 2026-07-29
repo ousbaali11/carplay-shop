@@ -10,6 +10,7 @@ export default async function DownloadPage({ params }: { params: { token: string
     where: { downloadToken: params.token },
     include: {
       pdfs: { orderBy: { position: "asc" } },
+      activationLinks: { orderBy: { position: "asc" } },
     },
   });
 
@@ -52,16 +53,16 @@ export default async function DownloadPage({ params }: { params: { token: string
                 <p style={{ fontSize: 13, color: "var(--text-muted)" }}>Aucun guide PDF n'a encore été ajouté pour ce véhicule.</p>
               )}
 
-              {!isPhysical && order!.activationLink && (
-                order!.activationLinkUsed ? (
-                  <div className="card" style={{ width: 300, padding: 12, textAlign: "left" }}>
+              {!isPhysical && order!.activationLinks.map((link, i) =>
+                link.used ? (
+                  <div key={link.id} className="card" style={{ width: 300, padding: 12, textAlign: "left" }}>
                     <p style={{ fontSize: 14, color: "var(--text-muted)" }}>
-                      Fichier d'activation — <span style={{ color: "var(--amber)" }}>déjà téléchargé</span>
+                      Fichier d'activation {order!.activationLinks.length > 1 ? `#${i + 1}` : ""} — <span style={{ color: "var(--amber)" }}>déjà téléchargé</span>
                     </p>
                   </div>
                 ) : (
-                  <a href={`/telechargement/${params.token}/fichier`} className="btn btn-amber" style={{ width: 300 }}>
-                    Télécharger le fichier d'activation
+                  <a key={link.id} href={`/telechargement/${params.token}/fichier/${link.id}`} className="btn btn-amber" style={{ width: 300 }}>
+                    Télécharger le fichier d'activation {order!.activationLinks.length > 1 ? `#${i + 1}` : ""}
                   </a>
                 )
               )}
