@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import PasswordInput from "@/components/PasswordInput";
 
 type Props = {
   stripeSecretKeySet: boolean;
@@ -20,8 +21,7 @@ function SecretField({ label, placeholderWhenSet, value, onChange, help }: { lab
   return (
     <div>
       <label>{label} {placeholderWhenSet && <span style={{ color: "var(--success)", fontSize: 12 }}>· déjà configuré</span>}</label>
-      <input
-        type="password"
+      <PasswordInput
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholderWhenSet ? "•••••••••••••••• (laisser vide pour ne pas changer)" : "Non configuré"}

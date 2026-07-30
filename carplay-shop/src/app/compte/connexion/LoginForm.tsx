@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { signIn, getSession } from "next-auth/react";
+import PasswordInput from "@/components/PasswordInput";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -40,7 +41,7 @@ export default function LoginForm() {
         </div>
         <div>
           <label>Mot de passe</label>
-          <input required type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+          <PasswordInput required value={password} onChange={(e) => setPassword(e.target.value)} />
         </div>
         {error && <p style={{ color: "var(--danger)", fontSize: 14 }}>{error}</p>}
         <button className="btn btn-primary" disabled={loading}>{loading ? "Connexion..." : "Se connecter"}</button>

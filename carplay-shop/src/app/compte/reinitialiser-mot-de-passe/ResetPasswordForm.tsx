@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import PasswordInput from "@/components/PasswordInput";
 
 export default function ResetPasswordForm({ token }: { token: string }) {
   const router = useRouter();
@@ -64,11 +65,11 @@ export default function ResetPasswordForm({ token }: { token: string }) {
       <form onSubmit={submit} className="card" style={{ display: "grid", gap: 14 }}>
         <div>
           <label>Nouveau mot de passe (8 caractères min.)</label>
-          <input required type="password" minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} />
+          <PasswordInput required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} />
         </div>
         <div>
           <label>Confirmer le mot de passe</label>
-          <input required type="password" minLength={8} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+          <PasswordInput required minLength={8} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
         </div>
         {error && <p style={{ color: "var(--danger)", fontSize: 14 }}>{error}</p>}
         <button className="btn btn-primary" disabled={loading}>{loading ? "..." : "Réinitialiser mon mot de passe"}</button>
