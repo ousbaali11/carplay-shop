@@ -128,7 +128,7 @@ function VehicleCard({ v, formula }: { v: Vehicle; formula: string }) {
       <Link href={`/checkout?vehicule=${v.id}&formule=${formula}`} className="vehicle-info-link" style={{ padding: 16, textDecoration: "none", display: "block" }}>
         <p style={{ color: "var(--text)", fontWeight: 600, fontSize: 15 }}>{v.brand} {v.model}</p>
         <p className="mono" style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 8 }}>{v.year}</p>
-        {v.description && <p style={{ fontSize: 13, marginBottom: 10 }}>{v.description}</p>}
+        {v.description && <p style={{ fontSize: 13, marginBottom: 10, whiteSpace: "pre-wrap" }}>{v.description}</p>}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <p style={{ color: "var(--cyan)", fontWeight: 700, fontFamily: "var(--font-display)" }}>{eur(v.priceCents)}</p>
           <span className="order-hint" style={{ fontSize: 12, color: "var(--cyan)", fontWeight: 600 }}>Commander →</span>
