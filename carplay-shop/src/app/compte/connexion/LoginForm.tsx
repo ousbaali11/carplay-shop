@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { signIn } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -16,7 +16,14 @@ export default function LoginForm() {
     setError(null);
     const res = await signIn("credentials", { redirect: false, email, password });
     if (res?.ok) {
-      window.location.href = "/compte";
+      // Détecte le rôle du compte qui vient de se connecter : un compte admin
+      // n'est jamais traité comme un compte client, il repart directement vers
+      // le panel admin plutôt que vers l'espace client.
+      const session = await getSession();
+      const role = (session?.user as any)?.role;
+      // Rechargement complet (au lieu d'une navigation "douce") pour garantir
+      // que le nouveau cookie de session est bien pris en compte immédiatement.
+      window.location.href = role === "ADMIN" ? "/admin" : "/compte";
       return;
     }
     setLoading(false);
