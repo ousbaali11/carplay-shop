@@ -13,7 +13,7 @@ export default async function ActivationLinkGatePage({ params }: { params: { tok
 
   const expired = order?.downloadExpiresAt ? new Date() > order.downloadExpiresAt : true;
   const validOrder =
-    order && !expired && order.formula === "FILES_ONLY" && ["PAID", "PREPARING", "SHIPPED"].includes(order.status);
+    order && !expired && order.formula === "FILES_ONLY" && ["PAID", "PREPARING", "SHIPPED", "COMPLETED"].includes(order.status);
 
   if (!validOrder) {
     return (

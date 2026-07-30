@@ -25,6 +25,7 @@ enum OrderStatus {
   PAID
   PREPARING
   SHIPPED
+  COMPLETED
   CANCELED
   REFUNDED
 }
@@ -85,6 +86,8 @@ model SiteSettings {
   // un logo par défaut (SVG intégré) est utilisé à la place.
   siteName String  @default("CarPlayActiv")
   logoUrl  String?
+  // Hauteur d'affichage du logo, en pixels (largeur automatique, proportionnelle).
+  logoHeight Int @default(38)
 
   // Vidéo de la page d'accueil (à la place de l'animation par défaut).
   heroVideoUrl String?
@@ -104,7 +107,6 @@ model SiteSettings {
 // Une fiche par véhicule. Les photos sont communes aux deux formules ; les PDF et
 // les fichiers d'activation sont séparés par formule car les étapes et les fichiers
 // eux-mêmes diffèrent entre "fichiers seuls" et "carte physique".
-
 model Vehicle {
   id          String  @id @default(cuid())
   brand       String
@@ -121,7 +123,17 @@ model Vehicle {
 
   images          VehicleImage[]
   pdfs            VehiclePdf[]
+  // Liens externes (ex: Google Drive) vers les fichiers d'activation — pour la
+  // formule "fichiers seuls" uniquement. La formule "carte physique" n'a besoin
+  // d'aucun lien : la carte est préparée entièrement en interne.
   activationLinks VehicleActivationLink[]
+
+  // Type d'activation partagé entre véhicules (ex: "MST2 Volkswagen Delphi").
+  // Ses PDF sont communs aux deux formules et envoyés en plus des fichiers
+  // propres à chaque véhicule. Optionnel : une fiche véhicule peut n'en avoir aucun.
+  activationTypeId String?
+  activationType    ActivationType? @relation(fields: [activationTypeId], references: [id], onDelete: SetNull)
+
   orders          Order[]
 
   @@index([brand, model])
@@ -136,6 +148,30 @@ model VehicleActivationLink {
   createdAt DateTime @default(now())
 
   @@index([vehicleId])
+}
+
+// Bibliothèque de guides d'activation réutilisables (ex: "MST2 Volkswagen Delphi").
+// Une fiche véhicule peut en sélectionner un ; ses PDF sont alors envoyés en plus
+// des fichiers propres au véhicule, pour les deux formules.
+model ActivationType {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+
+  pdfs     ActivationTypePdf[]
+  vehicles Vehicle[]
+}
+
+model ActivationTypePdf {
+  id               String         @id @default(cuid())
+  activationTypeId String
+  activationType   ActivationType @relation(fields: [activationTypeId], references: [id], onDelete: Cascade)
+  data             Bytes
+  fileName         String
+  position         Int            @default(0)
+  createdAt        DateTime       @default(now())
+
+  @@index([activationTypeId])
 }
 
 model VehicleImage {
@@ -207,9 +243,8 @@ model Order {
   // jamais le contenu "live" de la fiche véhicule (qui peut changer ensuite).
   pdfs OrderPdf[]
 
-  // Lien d'activation livré au client (formule FILES_ONLY uniquement), figé au
-  // paiement. À usage unique : une fois ouvert via la passerelle sécurisée, il
-  // ne peut plus être réutilisé (anti-fraude).
+  // Liens d'activation livrés au client (formule FILES_ONLY uniquement), figés
+  // au paiement. Chacun est à usage unique.
   activationLinks OrderActivationLink[]
 
   downloadToken     String?   @unique

@@ -2,7 +2,6 @@ import { prisma } from "@/lib/prisma";
 import AdminSidebar from "@/components/AdminSidebar";
 import DeleteVehicleButton from "@/components/DeleteVehicleButton";
 import DeleteFileButton from "@/components/DeleteFileButton";
-import NavActions from "@/components/NavActions";
 import { notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
@@ -36,24 +35,26 @@ function LinkList({ links, vehicleId }: { links: { id: string; url: string }[]; 
 }
 
 export default async function EditVehiclePage({ params, searchParams }: { params: { id: string }; searchParams: { enregistre?: string; cree?: string } }) {
-  const v = await prisma.vehicle.findUnique({
-    where: { id: params.id },
-    include: {
-      images: { orderBy: { position: "asc" } },
-      pdfs: { orderBy: { position: "asc" } },
-      activationLinks: { orderBy: { position: "asc" } },
-    },
-  });
+  const [v, activationTypes] = await Promise.all([
+    prisma.vehicle.findUnique({
+      where: { id: params.id },
+      include: {
+        images: { orderBy: { position: "asc" } },
+        pdfs: { orderBy: { position: "asc" } },
+        activationLinks: { orderBy: { position: "asc" } },
+      },
+    }),
+    prisma.activationType.findMany({ orderBy: { name: "asc" } }),
+  ]);
   if (!v) notFound();
 
   const pdfsFilesOnly = v.pdfs.filter((p) => p.formula === "FILES_ONLY");
-  const pdfsPhysicalCard = v.pdfs.filter((p) => p.formula === "PHYSICAL_CARD");
 
   return (
     <div className="admin-layout">
       <AdminSidebar active="vehicules" />
       <div style={{ flex: 1, padding: "36px 40px", maxWidth: 640 }}>
-        <NavActions cancelHref="/admin/vehicules" />
+        
         <h1 style={{ fontSize: 26, marginBottom: 24 }}>{v.brand} {v.model} ({v.year})</h1>
 
         {searchParams.enregistre && (
@@ -111,10 +112,23 @@ export default async function EditVehiclePage({ params, searchParams }: { params
             <input name="images" type="file" accept="image/*" multiple />
           </div>
 
+          <div>
+            <label>Activation (guide commun, optionnel — commun aux deux formules)</label>
+            <select name="activationTypeId" defaultValue={v.activationTypeId || ""}>
+              <option value="">Aucun</option>
+              {activationTypes.map((t) => (
+                <option key={t.id} value={t.id}>{t.name}</option>
+              ))}
+            </select>
+            <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 4 }}>
+              Liste gérée depuis l'onglet "Activations" du menu admin.
+            </p>
+          </div>
+
           <div style={{ borderTop: "2px solid var(--cyan)", paddingTop: 14 }}>
             <p className="eyebrow" style={{ marginBottom: 10 }}>Formule 1 — Fichiers seuls</p>
 
-            <label style={{ fontSize: 13 }}>PDF de cette formule ({pdfsFilesOnly.length})</label>
+            <label style={{ fontSize: 13 }}>Guides Carte SD ({pdfsFilesOnly.length})</label>
             <FileList files={pdfsFilesOnly} vehicleId={v.id} kind="pdfs" />
             <input name="pdfsFilesOnly" type="file" accept="application/pdf" multiple style={{ marginBottom: 12 }} />
 
@@ -126,10 +140,10 @@ export default async function EditVehiclePage({ params, searchParams }: { params
 
           <div style={{ borderTop: "2px solid var(--amber)", paddingTop: 14 }}>
             <p className="eyebrow" style={{ marginBottom: 10, color: "var(--amber)" }}>Formule 2 — Carte physique</p>
-
-            <label style={{ fontSize: 13 }}>PDF de cette formule ({pdfsPhysicalCard.length})</label>
-            <FileList files={pdfsPhysicalCard} vehicleId={v.id} kind="pdfs" />
-            <input name="pdfsPhysicalCard" type="file" accept="application/pdf" multiple />
+            <p style={{ fontSize: 13 }}>
+              La préparation du fichier bootable se fait entièrement en interne, aucun lien à saisir
+              ici, et un guide pour l'installer sera envoyé automatiquement.
+            </p>
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: 8, borderTop: "1px solid var(--line)", paddingTop: 14 }}>

@@ -1,10 +1,16 @@
 import AdminSidebar from "@/components/AdminSidebar";
+import { prisma } from "@/lib/prisma";
 
-export default function NewVehiclePage() {
+export const dynamic = "force-dynamic";
+
+export default async function NewVehiclePage() {
+  const activationTypes = await prisma.activationType.findMany({ orderBy: { name: "asc" } });
+
   return (
     <div className="admin-layout">
       <AdminSidebar active="vehicules" />
       <div style={{ flex: 1, padding: "36px 40px", maxWidth: 640 }}>
+      
         <h1 style={{ fontSize: 26, marginBottom: 24 }}>Ajouter un véhicule</h1>
 
         <form action="/api/admin/vehicles" method="POST" encType="multipart/form-data" className="card" style={{ display: "grid", gap: 14 }}>
@@ -44,9 +50,22 @@ export default function NewVehiclePage() {
             <input name="images" type="file" accept="image/*" multiple />
           </div>
 
+          <div>
+            <label>Activation (guide commun, optionnel — communs aux deux formules)</label>
+            <select name="activationTypeId" defaultValue="">
+              <option value="">Aucun</option>
+              {activationTypes.map((t) => (
+                <option key={t.id} value={t.id}>{t.name}</option>
+              ))}
+            </select>
+            <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 4 }}>
+              Liste gérée depuis l'onglet "Activations" du menu admin.
+            </p>
+          </div>
+
           <div style={{ borderTop: "2px solid var(--cyan)", paddingTop: 14, marginTop: 4 }}>
             <p className="eyebrow" style={{ marginBottom: 10 }}>Formule 1 — Fichiers seuls</p>
-            <label style={{ fontSize: 13 }}>Guides PDF de cette formule</label>
+            <label style={{ fontSize: 13 }}>Guides Carte SD</label>
             <input name="pdfsFilesOnly" type="file" accept="application/pdf" multiple style={{ marginBottom: 10 }} />
             <label style={{ fontSize: 13 }}>Liens d'activation (Google Drive...), un par ligne — livrés au client</label>
             <textarea name="activationLinks" rows={3} placeholder={"https://drive.google.com/lien-1\nhttps://drive.google.com/lien-2"} />
@@ -54,8 +73,10 @@ export default function NewVehiclePage() {
 
           <div style={{ borderTop: "2px solid var(--amber)", paddingTop: 14 }}>
             <p className="eyebrow" style={{ marginBottom: 10, color: "var(--amber)" }}>Formule 2 — Carte physique</p>
-            <label style={{ fontSize: 13 }}>Guides PDF de cette formule (la préparation du fichier bootable se fait entièrement en interne, aucun lien à saisir ici)</label>
-            <input name="pdfsPhysicalCard" type="file" accept="application/pdf" multiple />
+            <p style={{ fontSize: 13 }}>
+              La préparation du fichier bootable se fait entièrement en interne, aucun lien à saisir
+              ici, et un guide pour l'installer sera envoyé automatiquement.
+            </p>
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: 8, borderTop: "1px solid var(--line)", paddingTop: 14 }}>

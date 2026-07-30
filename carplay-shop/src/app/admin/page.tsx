@@ -1,17 +1,10 @@
 import { prisma } from "@/lib/prisma";
 import AdminSidebar from "@/components/AdminSidebar";
+import InlineStatusSelect from "@/components/InlineStatusSelect";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
-const statusLabel: Record<string, { label: string; cls: string }> = {
-  PENDING_PAYMENT: { label: "En attente", cls: "badge-pending" },
-  PAID: { label: "Payée", cls: "badge-paid" },
-  PREPARING: { label: "À préparer", cls: "badge-pending" },
-  SHIPPED: { label: "Expédiée", cls: "badge-shipped" },
-  CANCELED: { label: "Annulée", cls: "badge-canceled" },
-  REFUNDED: { label: "Remboursée", cls: "badge-canceled" },
-};
 
 function eur(cents: number) {
   return (cents / 100).toLocaleString("fr-FR", { style: "currency", currency: "EUR" });
@@ -64,7 +57,6 @@ export default async function AdminDashboard() {
             </thead>
             <tbody>
               {orders.map((o) => {
-                const s = statusLabel[o.status];
                 return (
                   <tr key={o.id}>
                     <td className="mono">{o.orderNumber}</td>
@@ -72,7 +64,7 @@ export default async function AdminDashboard() {
                     <td>{o.vehicleBrand} {o.vehicleModel} ({o.vehicleYear})</td>
                     <td style={{ fontSize: 13 }}>{o.formula === "PHYSICAL_CARD" ? "Carte" : "Fichiers"}</td>
                     <td>{eur(o.priceCents)}</td>
-                    <td><span className={`badge ${s.cls}`}>{s.label}</span></td>
+                    <td><InlineStatusSelect orderId={o.id} status={o.status} /></td>
                     <td><Link href={`/admin/commandes/${o.id}`} style={{ color: "var(--cyan)", fontSize: 13 }}>Détail</Link></td>
                   </tr>
                 );

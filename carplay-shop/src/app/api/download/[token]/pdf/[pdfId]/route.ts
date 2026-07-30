@@ -5,7 +5,7 @@ export async function GET(req: Request, { params }: { params: { token: string; p
   const order = await prisma.order.findUnique({ where: { downloadToken: params.token } });
 
   const expired = order?.downloadExpiresAt ? new Date() > order.downloadExpiresAt : true;
-  const valid = order && !expired && ["PAID", "PREPARING", "SHIPPED"].includes(order.status);
+  const valid = order && !expired && ["PAID", "PREPARING", "SHIPPED", "COMPLETED"].includes(order.status);
   if (!valid) {
     return NextResponse.json({ error: "Lien invalide ou expiré" }, { status: 403 });
   }

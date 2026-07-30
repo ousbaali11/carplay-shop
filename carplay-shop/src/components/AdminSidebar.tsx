@@ -1,10 +1,11 @@
 import Link from "next/link";
 import SignOutButton from "@/components/SignOutButton";
 
-export default function AdminSidebar({ active }: { active: "commandes" | "vehicules" | "parametres" | "utilisateurs" | "mon-compte" | "integrations" | "apparence" }) {
+export default function AdminSidebar({ active }: { active: "commandes" | "vehicules" | "parametres" | "utilisateurs" | "mon-compte" | "integrations" | "apparence" | "activations" }) {
   const items: { key: typeof active; label: string; href: string }[] = [
     { key: "commandes", label: "Commandes", href: "/admin" },
     { key: "vehicules", label: "Véhicules", href: "/admin/vehicules" },
+    { key: "activations", label: "Activations", href: "/admin/activations" },
     { key: "utilisateurs", label: "Utilisateurs", href: "/admin/utilisateurs" },
     { key: "parametres", label: "Paiement", href: "/admin/parametres" },
     { key: "integrations", label: "Intégrations", href: "/admin/integrations" },

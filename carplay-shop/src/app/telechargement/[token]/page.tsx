@@ -15,7 +15,7 @@ export default async function DownloadPage({ params }: { params: { token: string
   });
 
   const expired = order?.downloadExpiresAt ? new Date() > order.downloadExpiresAt : true;
-  const valid = order && !expired && ["PAID", "PREPARING", "SHIPPED"].includes(order.status);
+  const valid = order && !expired && ["PAID", "PREPARING", "SHIPPED", "COMPLETED"].includes(order.status);
   const isPhysical = order?.formula === "PHYSICAL_CARD";
   const { invoicesEnabled } = await getSiteSettings();
 

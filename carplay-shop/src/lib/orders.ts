@@ -4,15 +4,26 @@ import { sendOrderConfirmationEmail, sendAdminNewOrderNotification } from "@/lib
 import { generateInvoicePdf } from "@/lib/invoice";
 import { PaymentMethod } from "@prisma/client";
 
-// Appelée uniquement depuis un webhook Stripe vérifié, une capture PayPal confirmée
-// côté serveur, ou le contrôle de secours sur la page de confirmation.
-export async function finalizeOrderPayment(orderId: string, method: PaymentMethod, paymentRef: string) {
- const order = await prisma.order.findUnique({
+// Appelée normalement uniquement depuis un webhook Stripe vérifié, une capture
+// PayPal confirmée côté serveur, ou le contrôle de secours sur la page de
+// confirmation. Le paramètre "force" permet aussi à l'admin de la relancer
+// manuellement sur une commande restée bloquée (paiement reçu mais confirmation
+// jamais aboutie côté serveur — token/fichiers jamais générés).
+export async function finalizeOrderPayment(orderId: string, method: PaymentMethod, paymentRef: string, force = false) {
+  const order = await prisma.order.findUnique({
     where: { id: orderId },
-    include: { vehicle: { include: { pdfs: true, activationLinks: true } } },
+    include: {
+      vehicle: {
+        include: {
+          pdfs: true,
+          activationLinks: true,
+          activationType: { include: { pdfs: true } },
+        },
+      },
+    },
   });
   if (!order) throw new Error("Commande introuvable");
-  if (order.status !== "PENDING_PAYMENT") {
+  if (order.status !== "PENDING_PAYMENT" && !force) {
     return order; // déjà traité (idempotence)
   }
   if (!order.vehicle) {
@@ -31,9 +42,19 @@ export async function finalizeOrderPayment(orderId: string, method: PaymentMetho
       downloadToken: token,
       downloadExpiresAt: downloadExpiryDate(),
       pdfs: {
-        create: order.vehicle.pdfs
-          .filter((p) => p.formula === order.formula)
-          .map((p) => ({ data: p.data, fileName: p.fileName, title: p.title, position: p.position })),
+        create: [
+          // PDF propres à la formule achetée.
+          ...order.vehicle.pdfs
+            .filter((p) => p.formula === order.formula)
+            .map((p) => ({ data: p.data, fileName: p.fileName, title: p.title, position: p.position })),
+          // Guide(s) du type d'activation sélectionné (commun aux deux formules).
+          ...(order.vehicle.activationType?.pdfs.map((p) => ({
+            data: p.data,
+            fileName: p.fileName,
+            title: order.vehicle!.activationType!.name,
+            position: 1000 + p.position,
+          })) || []),
+        ],
       },
       activationLinks: isPhysical
         ? undefined
@@ -75,6 +96,7 @@ export async function finalizeOrderPayment(orderId: string, method: PaymentMetho
     downloadToken: token,
     isPhysical,
     invoicePdf,
+    whatsappUrl: siteSettings.whatsappUrl,
   });
 
   await sendAdminNewOrderNotification({

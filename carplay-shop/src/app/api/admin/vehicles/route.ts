@@ -36,6 +36,7 @@ export async function POST(req: Request) {
   const pricePhysicalEur = formData.get("pricePhysicalEur") as string;
   const active = formData.get("active") === "on";
   const activationLinks = parseLinks((formData.get("activationLinks") as string) || "");
+  const activationTypeId = ((formData.get("activationTypeId") as string) || "").trim() || null;
 
   const images = formData.getAll("images") as File[];
   const pdfsFilesOnly = formData.getAll("pdfsFilesOnly") as File[];
@@ -50,6 +51,7 @@ export async function POST(req: Request) {
       priceFilesCents: Math.round(parseFloat(priceFilesEur || "0") * 100),
       pricePhysicalCents: Math.round(parseFloat(pricePhysicalEur || "0") * 100),
       active,
+      activationTypeId,
     },
   });
 

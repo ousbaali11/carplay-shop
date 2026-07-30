@@ -30,6 +30,7 @@ export async function sendOrderConfirmationEmail(order: {
   downloadToken: string;
   isPhysical: boolean;
   invoicePdf: Buffer | null;
+  whatsappUrl: string | null;
 }) {
   const config = await getEmailConfig();
   if (!config) {
@@ -40,8 +41,12 @@ export async function sendOrderConfirmationEmail(order: {
   const downloadUrl = `${SITE_URL}/telechargement/${order.downloadToken}`;
 
   const physicalNote = order.isPhysical
-    ? `<p>Votre carte mémoire va être préparée puis expédiée par courrier. Vous recevrez un email avec le numéro de suivi dès son envoi. Le guide PDF est disponible dès maintenant.</p>`
+    ? `<p>Votre carte mémoire va être préparée puis expédiée par Mondial Relais. Vous recevrez un email avec le numéro de suivi dès son envoi. Le guide PDF est disponible dès maintenant.</p>`
     : `<p>Vos fichiers d'activation et votre guide PDF sont disponibles dès maintenant au lien ci-dessous.</p>`;
+
+  const whatsappNote = order.whatsappUrl
+    ? `<p style="margin-top:16px;">Une question sur votre commande ? Contactez-nous directement sur <a href="${order.whatsappUrl}">WhatsApp</a>.</p>`
+    : "";
 
   await config.resend.emails.send({
     from: config.from,
@@ -63,6 +68,7 @@ export async function sendOrderConfirmationEmail(order: {
           </a>
         </p>
         <p style="font-size:12px; color:#999;">Ce lien est personnel et valable 30 jours. Ne le partagez pas.</p>
+        ${whatsappNote}
       </div>
     `,
     attachments: order.invoicePdf
@@ -151,4 +157,49 @@ export async function sendPasswordResetEmail(user: { email: string; firstName: s
       </div>
     `,
   });
+}
+// Message envoyé depuis le formulaire de contact de l'accueil, vers l'adresse
+// "Email de contact" configurée dans /admin/apparence. Répond directement au
+// visiteur (reply-to) pour pouvoir lui répondre en un clic.
+export async function sendContactFormEmail(data: {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  subject: string;
+  message: string;
+}) {
+  const config = await getEmailConfig();
+  if (!config) {
+    console.error("Email de contact non envoyé : Resend n'est pas configuré (voir /admin/integrations).");
+    return false;
+  }
+
+  const settings = await prisma.siteSettings.findUnique({ where: { id: "singleton" } });
+  const contactEmail = settings?.contactEmail;
+  if (!contactEmail) {
+    console.error("Email de contact non envoyé : aucune adresse de contact configurée (voir /admin/apparence).");
+    return false;
+  }
+
+  await config.resend.emails.send({
+    from: config.from,
+    to: contactEmail,
+    replyTo: data.email,
+    subject: `[Contact site] ${data.subject}`,
+    html: `
+      <div style="font-family: sans-serif; max-width: 560px; margin: auto;">
+        <h2>Nouveau message depuis le formulaire de contact</h2>
+        <table style="width:100%; border-collapse: collapse; margin: 16px 0;">
+          <tr><td style="padding:6px 0; color:#666;">Nom</td><td>${data.firstName} ${data.lastName}</td></tr>
+          <tr><td style="padding:6px 0; color:#666;">Email</td><td>${data.email}</td></tr>
+          <tr><td style="padding:6px 0; color:#666;">Téléphone</td><td>${data.phone || "—"}</td></tr>
+          <tr><td style="padding:6px 0; color:#666;">Objet</td><td>${data.subject}</td></tr>
+        </table>
+        <p style="white-space:pre-wrap; border-top:1px solid #eee; padding-top:12px;">${data.message}</p>
+      </div>
+    `,
+  });
+
+  return true;
 }

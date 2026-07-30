@@ -9,12 +9,13 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Non autorisé" }, { status: 403 });
   }
 
-  const { siteName, logoUrl, removeLogo } = await req.json();
+  const { siteName, logoUrl, logoHeight, removeLogo } = await req.json();
 
   const data: any = {};
   if (typeof siteName === "string" && siteName.trim()) data.siteName = siteName.trim();
   if (removeLogo) data.logoUrl = null;
   else if (typeof logoUrl === "string" && logoUrl.trim()) data.logoUrl = logoUrl.trim();
+  if (typeof logoHeight === "number" && logoHeight >= 20 && logoHeight <= 120) data.logoHeight = Math.round(logoHeight);
 
   await prisma.siteSettings.upsert({
     where: { id: "singleton" },

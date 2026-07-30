@@ -177,7 +177,7 @@ export default function CheckoutClient({
             {paypalReady ? (
               <PayPalScriptProvider options={{ clientId: paypalClientId, currency: "EUR" }}>
                 <PayPalButtons
-                  style={{ layout: "horizontal" }}
+                  style={{ layout: "horizontal", tagline: false }}
                   createOrder={async () => {
                     try {
                       const res = await fetch("/api/checkout/paypal/create", {

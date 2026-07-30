@@ -18,7 +18,7 @@ export default async function AdminApparencePage() {
         <p style={{ marginBottom: 24, maxWidth: 480 }}>
           Affichés en haut de toutes les pages, publiques et admin.
         </p>
-        <BrandSettingsForm currentSiteName={settings.siteName} currentLogoUrl={settings.logoUrl || ""} />
+        <BrandSettingsForm currentSiteName={settings.siteName} currentLogoUrl={settings.logoUrl || ""} currentLogoHeight={settings.logoHeight} />
 
         <h1 style={{ fontSize: 26, margin: "40px 0 8px" }}>Vidéo de la page d'accueil</h1>
         <p style={{ marginBottom: 24, maxWidth: 520 }}>

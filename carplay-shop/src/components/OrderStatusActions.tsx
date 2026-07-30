@@ -4,8 +4,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 const ACTIONS: { status: string; label: string; cls: string }[] = [
+  { status: "PAID", label: "Payée", cls: "btn-secondary" },
   { status: "PREPARING", label: "En préparation", cls: "btn-secondary" },
   { status: "SHIPPED", label: "Expédiée", cls: "btn-secondary" },
+  { status: "COMPLETED", label: "Terminée", cls: "btn-secondary" },
   { status: "CANCELED", label: "Annulée", cls: "btn-secondary" },
   { status: "REFUNDED", label: "Remboursée", cls: "btn-secondary" },
 ];

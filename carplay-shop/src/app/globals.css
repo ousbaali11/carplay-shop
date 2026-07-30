@@ -109,6 +109,10 @@ input, select, textarea {
   font-family: var(--font-body);
   font-size: 15px;
 }
+textarea {
+  resize: vertical;
+  max-width: 100%;
+}
 input:focus, select:focus, textarea:focus {
   outline: none;
   border-color: var(--cyan);

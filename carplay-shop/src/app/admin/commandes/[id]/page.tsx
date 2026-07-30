@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import AdminSidebar from "@/components/AdminSidebar";
 import ShipOrderForm from "@/components/ShipOrderForm";
 import OrderStatusActions from "@/components/OrderStatusActions";
+import ForceFinalizeButton from "@/components/ForceFinalizeButton";
 import { notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
@@ -11,6 +12,7 @@ const statusLabel: Record<string, { label: string; cls: string }> = {
   PAID: { label: "Payée", cls: "badge-paid" },
   PREPARING: { label: "En préparation", cls: "badge-pending" },
   SHIPPED: { label: "Expédiée", cls: "badge-shipped" },
+  COMPLETED: { label: "Terminée", cls: "badge-paid" },
   CANCELED: { label: "Annulée", cls: "badge-canceled" },
   REFUNDED: { label: "Remboursée", cls: "badge-canceled" },
 };
@@ -34,6 +36,10 @@ export default async function AdminOrderDetail({ params }: { params: { id: strin
       <div style={{ flex: 1, padding: "36px 40px", maxWidth: 760 }}>
         <p className="eyebrow">Commande</p>
         <h1 style={{ fontSize: 26, margin: "8px 0 24px" }} className="mono">{order.orderNumber}</h1>
+
+        {!order.downloadToken && order.status !== "PENDING_PAYMENT" && (
+          <ForceFinalizeButton orderId={order.id} />
+        )}
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 }}>
           <div className="card">

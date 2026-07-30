@@ -11,7 +11,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   }
 
   const { status } = await req.json();
-  const allowed = ["PENDING_PAYMENT", "PAID", "PREPARING", "SHIPPED", "CANCELED", "REFUNDED"];
+  const allowed = ["PENDING_PAYMENT", "PAID", "PREPARING", "SHIPPED", "COMPLETED", "CANCELED", "REFUNDED"];
   if (!allowed.includes(status)) {
     return NextResponse.json({ error: "Statut invalide" }, { status: 400 });
   }
