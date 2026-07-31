@@ -46,8 +46,10 @@ if (order && order.status === "PENDING_PAYMENT" && searchParams.session_id) {
             <div style={{ fontSize: 48, marginBottom: 16 }}>✅</div>
             <h1 style={{ fontSize: 28, marginBottom: 12 }}>Merci pour votre commande !</h1>
             <p style={{ marginBottom: 24 }}>
-              Un email de confirmation vient d'être envoyé à <b style={{ color: "var(--text)" }}>{order?.email}</b> avec
-              votre facture et le lien pour accéder à vos fichiers.
+              Un email de confirmation vient d'être envoyé à <b style={{ color: "var(--text)" }}>{order?.email}</b>
+              {order?.formula === "FILES_ONLY"
+                ? " avec votre facture. Vos fichiers d'activation vous seront envoyés séparément dès qu'ils seront prêts."
+                : " avec votre facture et le lien pour accéder à vos fichiers."}
             </p>
             <p className="mono" style={{ fontSize: 13, marginBottom: 32 }}>N° de commande : {order?.orderNumber}</p>
             <Link href="/" className="btn btn-primary">Retour à l'accueil</Link>
