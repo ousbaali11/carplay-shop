@@ -17,13 +17,10 @@ async function createMany(files: File[], creator: (buf: Buffer, file: File, pos:
   }
 }
 
-function parseLinks(raw: string): string[] {
-  return raw
-    .split("\n")
-    .map((l) => l.trim())
-    .filter((l) => l.length > 0);
-}
-
+// Création d'une nouvelle fiche véhicule. Photos communes aux deux formules,
+// PDF séparés par formule (upload). Les liens Google Drive de la formule
+// "fichiers seuls" se saisissent désormais commande par commande, depuis
+// l'admin des commandes — plus au niveau de la fiche véhicule.
 export async function POST(req: Request) {
   if (!(await requireAdmin())) return NextResponse.json({ error: "Non autorisé" }, { status: 403 });
 
@@ -35,7 +32,6 @@ export async function POST(req: Request) {
   const priceFilesEur = formData.get("priceFilesEur") as string;
   const pricePhysicalEur = formData.get("pricePhysicalEur") as string;
   const active = formData.get("active") === "on";
-  const activationLinks = parseLinks((formData.get("activationLinks") as string) || "");
   const activationTypeId = ((formData.get("activationTypeId") as string) || "").trim() || null;
 
   const images = formData.getAll("images") as File[];
@@ -63,11 +59,6 @@ export async function POST(req: Request) {
 
   await createMany(pdfsPhysicalCard, (buf, file, pos) =>
     prisma.vehiclePdf.create({ data: { vehicleId: vehicle.id, formula: "PHYSICAL_CARD", data: buf, fileName: file.name, position: pos } }), 0);
-
-  let pos = 0;
-  for (const url of activationLinks) {
-    await prisma.vehicleActivationLink.create({ data: { vehicleId: vehicle.id, url, position: pos++ } });
-  }
 
   return NextResponse.redirect(new URL(`/admin/vehicules?cree=${encodeURIComponent(`${vehicle.brand} ${vehicle.model}`)}`, req.url), 303);
 }

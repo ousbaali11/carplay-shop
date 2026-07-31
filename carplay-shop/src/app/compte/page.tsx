@@ -79,7 +79,11 @@ export default async function AccountPage() {
               <tbody>
                 {orders.map((o) => {
                   const s = statusLabel[o.status];
-                  const canDownload = o.downloadToken && ["PAID", "PREPARING", "SHIPPED", "COMPLETED"].includes(o.status);
+                  const canDownload =
+                    o.downloadToken &&
+                    ["PAID", "PREPARING", "SHIPPED", "COMPLETED"].includes(o.status) &&
+                    (o.formula === "PHYSICAL_CARD" || !!o.filesSentAt);
+                  const filesPending = o.formula === "FILES_ONLY" && o.downloadToken && !o.filesSentAt;
                   return (
                     <tr key={o.id}>
                       <td className="mono">{o.orderNumber}</td>
@@ -92,6 +96,8 @@ export default async function AccountPage() {
                           <Link href={`/telechargement/${o.downloadToken}`} style={{ color: "var(--cyan)", fontSize: 13 }}>
                             Accéder
                           </Link>
+                        ) : filesPending ? (
+                          <span style={{ color: "var(--amber)", fontSize: 13 }}>En préparation</span>
                         ) : (
                           <span style={{ color: "var(--text-muted)", fontSize: 13 }}>—</span>
                         )}

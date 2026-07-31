@@ -15,8 +15,9 @@ export default async function DownloadPage({ params }: { params: { token: string
   });
 
   const expired = order?.downloadExpiresAt ? new Date() > order.downloadExpiresAt : true;
-  const valid = order && !expired && ["PAID", "PREPARING", "SHIPPED", "COMPLETED"].includes(order.status);
   const isPhysical = order?.formula === "PHYSICAL_CARD";
+  const filesPending = !isPhysical && !order?.filesSentAt;
+  const valid = order && !expired && !filesPending && ["PAID", "PREPARING", "SHIPPED", "COMPLETED"].includes(order.status);
   const { invoicesEnabled } = await getSiteSettings();
 
   return (
@@ -73,6 +74,15 @@ export default async function DownloadPage({ params }: { params: { token: string
                 </a>
               )}
             </div>
+          </>
+        ) : filesPending ? (
+          <>
+            <div style={{ fontSize: 44, marginBottom: 16 }}>⏳</div>
+            <h1 style={{ fontSize: 22, marginBottom: 10 }}>Fichiers en cours de préparation</h1>
+            <p>
+              Votre paiement est bien confirmé. Vos fichiers d'activation sont en cours de préparation
+              et vous recevrez un email dès qu'ils seront disponibles ici.
+            </p>
           </>
         ) : (
           <>

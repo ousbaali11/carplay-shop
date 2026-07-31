@@ -20,20 +20,6 @@ function FileList({ files, vehicleId, kind }: { files: { id: string; fileName: s
   );
 }
 
-function LinkList({ links, vehicleId }: { links: { id: string; url: string }[]; vehicleId: string }) {
-  if (links.length === 0) return null;
-  return (
-    <ul style={{ margin: "0 0 10px", padding: 0, listStyle: "none", display: "grid", gap: 6 }}>
-      {links.map((l) => (
-        <li key={l.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, fontSize: 13, background: "var(--bg-elevated)", padding: "6px 10px", borderRadius: 6 }}>
-          <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{l.url}</span>
-          <DeleteFileButton url={`/api/admin/vehicles/${vehicleId}/activation-links/${l.id}`} />
-        </li>
-      ))}
-    </ul>
-  );
-}
-
 export default async function EditVehiclePage({ params, searchParams }: { params: { id: string }; searchParams: { enregistre?: string; cree?: string } }) {
   const [v, activationTypes] = await Promise.all([
     prisma.vehicle.findUnique({
@@ -41,7 +27,6 @@ export default async function EditVehiclePage({ params, searchParams }: { params
       include: {
         images: { orderBy: { position: "asc" } },
         pdfs: { orderBy: { position: "asc" } },
-        activationLinks: { orderBy: { position: "asc" } },
       },
     }),
     prisma.activationType.findMany({ orderBy: { name: "asc" } }),
@@ -54,7 +39,6 @@ export default async function EditVehiclePage({ params, searchParams }: { params
     <div className="admin-layout">
       <AdminSidebar active="vehicules" />
       <div style={{ flex: 1, padding: "36px 40px", maxWidth: 640 }}>
-        
         <h1 style={{ fontSize: 26, marginBottom: 24 }}>{v.brand} {v.model} ({v.year})</h1>
 
         {searchParams.enregistre && (
@@ -130,12 +114,10 @@ export default async function EditVehiclePage({ params, searchParams }: { params
 
             <label style={{ fontSize: 13 }}>Guides Carte SD ({pdfsFilesOnly.length})</label>
             <FileList files={pdfsFilesOnly} vehicleId={v.id} kind="pdfs" />
-            <input name="pdfsFilesOnly" type="file" accept="application/pdf" multiple style={{ marginBottom: 12 }} />
-
-            <label style={{ fontSize: 13 }}>Liens d'activation actuels ({v.activationLinks.length})</label>
-            <LinkList links={v.activationLinks} vehicleId={v.id} />
-            <label style={{ fontSize: 12 }}>Ajouter d'autres liens (un par ligne)</label>
-            <textarea name="activationLinks" rows={3} placeholder={"https://drive.google.com/lien-1\nhttps://drive.google.com/lien-2"} />
+            <input name="pdfsFilesOnly" type="file" accept="application/pdf" multiple />
+            <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 6 }}>
+              Les liens Google Drive se saisissent désormais commande par commande, depuis "Commandes" dans le menu admin.
+            </p>
           </div>
 
           <div style={{ borderTop: "2px solid var(--amber)", paddingTop: 14 }}>

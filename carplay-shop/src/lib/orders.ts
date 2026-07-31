@@ -16,7 +16,6 @@ export async function finalizeOrderPayment(orderId: string, method: PaymentMetho
       vehicle: {
         include: {
           pdfs: true,
-          activationLinks: true,
           activationType: { include: { pdfs: true } },
         },
       },
@@ -53,17 +52,12 @@ export async function finalizeOrderPayment(orderId: string, method: PaymentMetho
             fileName: p.fileName,
             title: order.vehicle!.activationType!.name,
             position: 1000 + p.position,
-          })) || []),
-        ],
-      },
-      activationLinks: isPhysical
-        ? undefined
-        : {
-            create: order.vehicle.activationLinks.map((l) => ({ url: l.url, position: l.position })),
-          },
-    },
-    include: { pdfs: true },
-  });
+            })) || []),
+                    ],
+                  },
+                },
+                include: { pdfs: true },
+              });
 
   const siteSettings = await getSiteSettings();
   const invoicePdf = siteSettings.invoicesEnabled
@@ -97,6 +91,10 @@ export async function finalizeOrderPayment(orderId: string, method: PaymentMetho
     isPhysical,
     invoicePdf,
     whatsappUrl: siteSettings.whatsappUrl,
+    // Formule "fichiers seuls" : les liens Google Drive ne sont pas encore
+    // insérés par l'admin au moment du paiement — le bouton d'accès n'apparaît
+    // pas dans ce premier email, un second email suivra une fois prêt.
+    filesReady: isPhysical,
   });
 
   await sendAdminNewOrderNotification({

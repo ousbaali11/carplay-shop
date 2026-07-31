@@ -31,6 +31,7 @@ export async function sendOrderConfirmationEmail(order: {
   isPhysical: boolean;
   invoicePdf: Buffer | null;
   whatsappUrl: string | null;
+  filesReady: boolean;
 }) {
   const config = await getEmailConfig();
   if (!config) {
@@ -42,10 +43,21 @@ export async function sendOrderConfirmationEmail(order: {
 
   const physicalNote = order.isPhysical
     ? `<p>Votre carte mémoire va être préparée puis expédiée par Mondial Relais. Vous recevrez un email avec le numéro de suivi dès son envoi. Le guide PDF est disponible dès maintenant.</p>`
-    : `<p>Vos fichiers d'activation et votre guide PDF sont disponibles dès maintenant au lien ci-dessous.</p>`;
+    : order.filesReady
+    ? `<p>Vos fichiers d'activation et votre guide PDF sont disponibles dès maintenant au lien ci-dessous.</p>`
+    : `<p>Vos fichiers d'activation sont en cours de préparation. Vous recevrez un second email dès qu'ils seront disponibles au téléchargement.</p>`;
 
   const whatsappNote = order.whatsappUrl
     ? `<p style="margin-top:16px;">Une question sur votre commande ? Contactez-nous directement sur <a href="${order.whatsappUrl}">WhatsApp</a>.</p>`
+    : "";
+
+  const accessButton = order.filesReady
+    ? `<p style="margin-top:24px;">
+         <a href="${downloadUrl}" style="background:#111; color:#fff; padding:12px 20px; text-decoration:none; border-radius:6px; display:inline-block;">
+           Accéder à mes fichiers
+         </a>
+       </p>
+       <p style="font-size:12px; color:#999;">Ce lien est personnel et valable 30 jours. Ne le partagez pas.</p>`
     : "";
 
   await config.resend.emails.send({
@@ -62,12 +74,7 @@ export async function sendOrderConfirmationEmail(order: {
           <tr><td style="padding:6px 0; color:#666;">Montant payé</td><td style="text-align:right;"><b>${eur(order.priceCents)}</b></td></tr>
         </table>
         ${physicalNote}
-        <p style="margin-top:24px;">
-          <a href="${downloadUrl}" style="background:#111; color:#fff; padding:12px 20px; text-decoration:none; border-radius:6px; display:inline-block;">
-            Accéder à mes fichiers
-          </a>
-        </p>
-        <p style="font-size:12px; color:#999;">Ce lien est personnel et valable 30 jours. Ne le partagez pas.</p>
+        ${accessButton}
         ${whatsappNote}
       </div>
     `,
@@ -82,6 +89,46 @@ export async function sendOrderConfirmationEmail(order: {
   });
 }
 
+// Formule "fichiers seuls" uniquement : envoyé quand l'admin a inséré les liens
+// Google Drive de la commande et clique sur "Enregistrer et envoyer au client".
+export async function sendFilesReadyEmail(order: {
+  email: string;
+  firstName: string;
+  orderNumber: string;
+  vehicleLabel: string;
+  downloadToken: string;
+  whatsappUrl: string | null;
+}) {
+  const config = await getEmailConfig();
+  if (!config) {
+    console.error("Email non envoyé : Resend n'est pas configuré (voir /admin/integrations).");
+    return;
+  }
+
+  const downloadUrl = `${SITE_URL}/telechargement/${order.downloadToken}`;
+  const whatsappNote = order.whatsappUrl
+    ? `<p style="margin-top:16px;">Une question ? Contactez-nous directement sur <a href="${order.whatsappUrl}">WhatsApp</a>.</p>`
+    : "";
+
+  await config.resend.emails.send({
+    from: config.from,
+    to: order.email,
+    subject: `Vos fichiers sont prêts — ${order.orderNumber}`,
+    html: `
+      <div style="font-family: sans-serif; max-width: 560px; margin: auto;">
+        <h2>Bonne nouvelle, ${order.firstName} !</h2>
+        <p>Les fichiers d'activation de votre commande ${order.orderNumber} (${order.vehicleLabel}) sont maintenant disponibles.</p>
+        <p style="margin-top:24px;">
+          <a href="${downloadUrl}" style="background:#111; color:#fff; padding:12px 20px; text-decoration:none; border-radius:6px; display:inline-block;">
+            Accéder à mes fichiers
+          </a>
+        </p>
+        <p style="font-size:12px; color:#999;">Ce lien est personnel et valable 30 jours. Ne le partagez pas.</p>
+        ${whatsappNote}
+      </div>
+    `,
+  });
+}
 // Email envoyé par l'admin (manuellement depuis le tableau de bord) quand la carte physique part à La Poste.
 export async function sendShippingNotificationEmail(order: {
   email: string;

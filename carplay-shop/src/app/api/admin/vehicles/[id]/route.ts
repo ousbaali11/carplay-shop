@@ -17,13 +17,9 @@ async function appendMany(files: File[], startPos: number, creator: (buf: Buffer
   }
 }
 
-function parseLinks(raw: string): string[] {
-  return raw
-    .split("\n")
-    .map((l) => l.trim())
-    .filter((l) => l.length > 0);
-}
-
+// Met à jour les infos/prix, et AJOUTE (sans supprimer l'existant) les nouvelles
+// photos / PDF (par formule). Les liens Google Drive se saisissent désormais
+// commande par commande, depuis l'admin des commandes.
 export async function POST(req: Request, { params }: { params: { id: string } }) {
   if (!(await requireAdmin())) return NextResponse.json({ error: "Non autorisé" }, { status: 403 });
   const vehicleId = params.id;
@@ -36,7 +32,6 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   const priceFilesEur = formData.get("priceFilesEur") as string;
   const pricePhysicalEur = formData.get("pricePhysicalEur") as string;
   const active = formData.get("active") === "on";
-  const newLinks = parseLinks((formData.get("activationLinks") as string) || "");
   const activationTypeId = ((formData.get("activationTypeId") as string) || "").trim() || null;
 
   const images = formData.getAll("images") as File[];
@@ -68,12 +63,6 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   const pdfPhysicalCount = await prisma.vehiclePdf.count({ where: { vehicleId, formula: "PHYSICAL_CARD" } });
   await appendMany(pdfsPhysicalCard, pdfPhysicalCount, (buf, file, pos) =>
     prisma.vehiclePdf.create({ data: { vehicleId, formula: "PHYSICAL_CARD", data: buf, fileName: file.name, position: pos } }));
-
-  const linksCount = await prisma.vehicleActivationLink.count({ where: { vehicleId } });
-  let pos = linksCount;
-  for (const url of newLinks) {
-    await prisma.vehicleActivationLink.create({ data: { vehicleId, url, position: pos++ } });
-  }
 
   return NextResponse.redirect(new URL(`/admin/vehicules/${vehicleId}?enregistre=1`, req.url), 303);
 }

@@ -32,6 +32,7 @@ export default function CheckoutClient({
     firstName: "",
     lastName: "",
     phone: "",
+    radioSoftwareVersion: "",
     address: "",
     addressComp: "",
     postalCode: "",
@@ -120,6 +121,11 @@ export default function CheckoutClient({
             <div>
               <label>Téléphone</label>
               <input required type="tel" value={form.phone} onChange={(e) => update("phone", e.target.value)} />
+            </div>
+
+            <div>
+              <label>Version logiciel de votre autoradio</label>
+              <input required value={form.radioSoftwareVersion} onChange={(e) => update("radioSoftwareVersion", e.target.value)} placeholder="ex: MST2, v2.1..." />
             </div>
 
             {isPhysical && (

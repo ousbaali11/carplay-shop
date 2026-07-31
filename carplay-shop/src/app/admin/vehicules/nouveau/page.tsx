@@ -66,9 +66,10 @@ export default async function NewVehiclePage() {
           <div style={{ borderTop: "2px solid var(--cyan)", paddingTop: 14, marginTop: 4 }}>
             <p className="eyebrow" style={{ marginBottom: 10 }}>Formule 1 — Fichiers seuls</p>
             <label style={{ fontSize: 13 }}>Guides Carte SD</label>
-            <input name="pdfsFilesOnly" type="file" accept="application/pdf" multiple style={{ marginBottom: 10 }} />
-            <label style={{ fontSize: 13 }}>Liens d'activation (Google Drive...), un par ligne — livrés au client</label>
-            <textarea name="activationLinks" rows={3} placeholder={"https://drive.google.com/lien-1\nhttps://drive.google.com/lien-2"} />
+            <input name="pdfsFilesOnly" type="file" accept="application/pdf" multiple />
+            <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 6 }}>
+              Les liens Google Drive se saisissent désormais commande par commande, depuis "Commandes" dans le menu admin.
+            </p>
           </div>
 
           <div style={{ borderTop: "2px solid var(--amber)", paddingTop: 14 }}>

@@ -123,10 +123,6 @@ model Vehicle {
 
   images          VehicleImage[]
   pdfs            VehiclePdf[]
-  // Liens externes (ex: Google Drive) vers les fichiers d'activation — pour la
-  // formule "fichiers seuls" uniquement. La formule "carte physique" n'a besoin
-  // d'aucun lien : la carte est préparée entièrement en interne.
-  activationLinks VehicleActivationLink[]
 
   // Type d'activation partagé entre véhicules (ex: "MST2 Volkswagen Delphi").
   // Ses PDF sont communs aux deux formules et envoyés en plus des fichiers
@@ -139,16 +135,7 @@ model Vehicle {
   @@index([brand, model])
 }
 
-model VehicleActivationLink {
-  id        String   @id @default(cuid())
-  vehicleId String
-  vehicle   Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
-  url       String
-  position  Int      @default(0)
-  createdAt DateTime @default(now())
 
-  @@index([vehicleId])
-}
 
 // Bibliothèque de guides d'activation réutilisables (ex: "MST2 Volkswagen Delphi").
 // Une fiche véhicule peut en sélectionner un ; ses PDF sont alors envoyés en plus
@@ -238,6 +225,14 @@ model Order {
 
   trackingNumber String?
   shippedAt      DateTime?
+
+  // Renseignée obligatoirement par le client à la commande (les deux formules).
+  radioSoftwareVersion String?
+
+  // Formule "fichiers seuls" uniquement : renseigné quand l'admin a inséré les
+  // liens Google Drive de cette commande et envoyé l'email "fichiers prêts".
+  // Tant que c'est vide, le bouton "Accéder" reste inactif côté client.
+  filesSentAt DateTime?
 
   // Copies figées au moment du paiement : c'est CE contenu qui est livré au client,
   // jamais le contenu "live" de la fiche véhicule (qui peut changer ensuite).

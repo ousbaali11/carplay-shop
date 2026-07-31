@@ -3,6 +3,7 @@ import AdminSidebar from "@/components/AdminSidebar";
 import ShipOrderForm from "@/components/ShipOrderForm";
 import OrderStatusActions from "@/components/OrderStatusActions";
 import ForceFinalizeButton from "@/components/ForceFinalizeButton";
+import SendFilesForm from "@/components/SendFilesForm";
 import { notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
@@ -52,6 +53,7 @@ export default async function AdminOrderDetail({ params }: { params: { id: strin
             <p className="eyebrow" style={{ marginBottom: 10 }}>Commande</p>
             <p style={{ fontSize: 14 }}>Véhicule : <span style={{ color: "var(--text)" }}>{order.vehicleBrand} {order.vehicleModel} ({order.vehicleYear})</span></p>
             <p style={{ fontSize: 14 }}>Formule : <span style={{ color: "var(--text)" }}>{isPhysical ? "Carte physique" : "Fichiers seuls"}</span></p>
+            <p style={{ fontSize: 14 }}>Version logiciel autoradio : <span style={{ color: "var(--text)" }}>{order.radioSoftwareVersion || "—"}</span></p>
             <p style={{ fontSize: 14 }}>Montant : <span style={{ color: "var(--text)" }}>{eur(order.priceCents)}</span></p>
             <p style={{ fontSize: 14 }}>Paiement : <span style={{ color: "var(--text)" }}>{order.paymentMethod || "—"}</span></p>
             <p style={{ fontSize: 14 }}>Statut : <span className={`badge ${statusLabel[order.status].cls}`}>{statusLabel[order.status].label}</span></p>
@@ -70,25 +72,7 @@ export default async function AdminOrderDetail({ params }: { params: { id: strin
         )}
 
         {!isPhysical && (
-          <div className="card" style={{ marginBottom: 20 }}>
-            <p className="eyebrow" style={{ marginBottom: 10 }}>Liens d'activation (client) — {order.activationLinks.length}</p>
-            {order.activationLinks.length === 0 ? (
-              <p style={{ fontSize: 13, color: "var(--text-muted)" }}>Aucun lien n'était configuré au moment du paiement.</p>
-            ) : (
-              <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "grid", gap: 6 }}>
-                {order.activationLinks.map((l, i) => (
-                  <li key={l.id} style={{ fontSize: 14 }}>
-                    Lien #{i + 1} :{" "}
-                    {l.used ? (
-                      <span style={{ color: "var(--amber)" }}>déjà téléchargé le {l.usedAt?.toLocaleDateString("fr-FR")}</span>
-                    ) : (
-                      <span style={{ color: "var(--success)" }}>pas encore téléchargé</span>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+          <SendFilesForm orderId={order.id} existingLinks={order.activationLinks} filesSentAt={order.filesSentAt} />
         )}
 
         {isPhysical && order.status === "PREPARING" && (
