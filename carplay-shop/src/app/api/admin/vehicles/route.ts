@@ -35,7 +35,6 @@ export async function POST(req: Request) {
   const activationTypeId = ((formData.get("activationTypeId") as string) || "").trim() || null;
 
   const images = formData.getAll("images") as File[];
-  const pdfsFilesOnly = formData.getAll("pdfsFilesOnly") as File[];
   const pdfsPhysicalCard = formData.getAll("pdfsPhysicalCard") as File[];
 
   const vehicle = await prisma.vehicle.create({
@@ -53,9 +52,6 @@ export async function POST(req: Request) {
 
   await createMany(images, (buf, file, pos) =>
     prisma.vehicleImage.create({ data: { vehicleId: vehicle.id, data: buf, mimeType: file.type || "image/jpeg", fileName: file.name, position: pos } }), 0);
-
-  await createMany(pdfsFilesOnly, (buf, file, pos) =>
-    prisma.vehiclePdf.create({ data: { vehicleId: vehicle.id, formula: "FILES_ONLY", data: buf, fileName: file.name, position: pos } }), 0);
 
   await createMany(pdfsPhysicalCard, (buf, file, pos) =>
     prisma.vehiclePdf.create({ data: { vehicleId: vehicle.id, formula: "PHYSICAL_CARD", data: buf, fileName: file.name, position: pos } }), 0);

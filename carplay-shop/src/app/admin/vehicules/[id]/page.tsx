@@ -33,8 +33,6 @@ export default async function EditVehiclePage({ params, searchParams }: { params
   ]);
   if (!v) notFound();
 
-  const pdfsFilesOnly = v.pdfs.filter((p) => p.formula === "FILES_ONLY");
-
   return (
     <div className="admin-layout">
       <AdminSidebar active="vehicules" />
@@ -111,12 +109,9 @@ export default async function EditVehiclePage({ params, searchParams }: { params
 
           <div style={{ borderTop: "2px solid var(--cyan)", paddingTop: 14 }}>
             <p className="eyebrow" style={{ marginBottom: 10 }}>Formule 1 — Fichiers seuls</p>
-
-            <label style={{ fontSize: 13 }}>Guides Carte SD ({pdfsFilesOnly.length})</label>
-            <FileList files={pdfsFilesOnly} vehicleId={v.id} kind="pdfs" />
-            <input name="pdfsFilesOnly" type="file" accept="application/pdf" multiple />
-            <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 6 }}>
-              Les liens Google Drive se saisissent désormais commande par commande, depuis "Commandes" dans le menu admin.
+            <p style={{ fontSize: 13 }}>
+              Préparation des fichiers dans Google Drive et aucun lien à saisir ici, et un guide
+              pour l'installer sera envoyé automatiquement.
             </p>
           </div>
 

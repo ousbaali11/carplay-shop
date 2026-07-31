@@ -10,7 +10,6 @@ export default async function NewVehiclePage() {
     <div className="admin-layout">
       <AdminSidebar active="vehicules" />
       <div style={{ flex: 1, padding: "36px 40px", maxWidth: 640 }}>
-      
         <h1 style={{ fontSize: 26, marginBottom: 24 }}>Ajouter un véhicule</h1>
 
         <form action="/api/admin/vehicles" method="POST" encType="multipart/form-data" className="card" style={{ display: "grid", gap: 14 }}>
@@ -65,10 +64,9 @@ export default async function NewVehiclePage() {
 
           <div style={{ borderTop: "2px solid var(--cyan)", paddingTop: 14, marginTop: 4 }}>
             <p className="eyebrow" style={{ marginBottom: 10 }}>Formule 1 — Fichiers seuls</p>
-            <label style={{ fontSize: 13 }}>Guides Carte SD</label>
-            <input name="pdfsFilesOnly" type="file" accept="application/pdf" multiple />
-            <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 6 }}>
-              Les liens Google Drive se saisissent désormais commande par commande, depuis "Commandes" dans le menu admin.
+            <p style={{ fontSize: 13 }}>
+              Préparation des fichiers dans Google Drive et aucun lien à saisir ici, et un guide
+              pour l'installer sera envoyé automatiquement.
             </p>
           </div>
 

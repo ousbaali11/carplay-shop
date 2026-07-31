@@ -35,7 +35,6 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   const activationTypeId = ((formData.get("activationTypeId") as string) || "").trim() || null;
 
   const images = formData.getAll("images") as File[];
-  const pdfsFilesOnly = formData.getAll("pdfsFilesOnly") as File[];
   const pdfsPhysicalCard = formData.getAll("pdfsPhysicalCard") as File[];
 
   await prisma.vehicle.update({
@@ -55,10 +54,6 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   const imgCount = await prisma.vehicleImage.count({ where: { vehicleId } });
   await appendMany(images, imgCount, (buf, file, pos) =>
     prisma.vehicleImage.create({ data: { vehicleId, data: buf, mimeType: file.type || "image/jpeg", fileName: file.name, position: pos } }));
-
-  const pdfFilesOnlyCount = await prisma.vehiclePdf.count({ where: { vehicleId, formula: "FILES_ONLY" } });
-  await appendMany(pdfsFilesOnly, pdfFilesOnlyCount, (buf, file, pos) =>
-    prisma.vehiclePdf.create({ data: { vehicleId, formula: "FILES_ONLY", data: buf, fileName: file.name, position: pos } }));
 
   const pdfPhysicalCount = await prisma.vehiclePdf.count({ where: { vehicleId, formula: "PHYSICAL_CARD" } });
   await appendMany(pdfsPhysicalCard, pdfPhysicalCount, (buf, file, pos) =>
