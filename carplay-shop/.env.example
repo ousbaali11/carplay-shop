@@ -8,34 +8,14 @@ DIRECT_URL="postgresql://postgres.xxxxx:TON_MOT_DE_PASSE@aws-0-eu-west-1.pooler.
 
 # --- Authentification (comptes admin + client) ---
 # Génère une valeur aléatoire avec: openssl rand -base64 32
+# Doit rester en variable d'environnement (jamais en base) : c'est ce qui signe les
+# sessions de connexion, y compris celle de l'admin qui gérerait cette base.
 NEXTAUTH_SECRET="remplace-moi-par-une-valeur-aleatoire-longue"
 NEXTAUTH_URL="http://localhost:3000"
 
 # --- Adresse publique du site (utilisée dans les emails et redirections de paiement) ---
 NEXT_PUBLIC_SITE_URL="http://localhost:3000"
 
-# --- Stripe (paiement par carte bancaire) ---
-# Clés à récupérer sur https://dashboard.stripe.com/apikeys
-STRIPE_SECRET_KEY="sk_test_..."
-STRIPE_WEBHOOK_SECRET="whsec_..."
-
-# --- PayPal ---
-# Identifiants à récupérer sur https://developer.paypal.com/dashboard/applications
-PAYPAL_CLIENT_ID="..."
-PAYPAL_CLIENT_SECRET="..."
-PAYPAL_ENV="sandbox"
-# Cette clé publique doit être identique à PAYPAL_CLIENT_ID (elle est visible côté navigateur, c'est normal)
-NEXT_PUBLIC_PAYPAL_CLIENT_ID="..."
-
-# --- Contact affiché sur la page d'accueil ---
-
-# --- Infos affichées sur les factures générées automatiquement ---
-COMPANY_NAME="CarPlayActiv"
-COMPANY_ADDRESS="12 rue de l'Exemple, 75000 Paris"
-
-# --- Email transactionnel (Resend) ---
-# Clé API sur https://resend.com/api-keys
-RESEND_API_KEY="re_..."
-EMAIL_FROM="commandes@tondomaine.fr"
-# Email de l'administrateur qui reçoit une notification à chaque nouvelle commande
-ADMIN_NOTIFICATION_EMAIL="toi@tondomaine.fr"
+# --- Tout le reste (Stripe, PayPal, Resend, société, contact) se configure
+# désormais depuis /admin/integrations et /admin/parametres une fois le site lancé.
+# Il n'y a plus rien d'autre à mettre ici.

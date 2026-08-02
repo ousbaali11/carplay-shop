@@ -147,6 +147,7 @@ th { color: var(--text-muted); font-weight: 500; font-family: var(--font-mono); 
 .badge-paid { background: #103a2c; color: var(--success); }
 .badge-shipped { background: #0a2e3c; color: var(--cyan); }
 .badge-canceled { background: #3a1010; color: var(--danger); }
+
 .vehicle-info-link {
   transition: background 0.15s ease;
   position: relative;
@@ -163,6 +164,7 @@ th { color: var(--text-muted); font-weight: 500; font-family: var(--font-mono); 
   opacity: 1;
   transform: translateX(0);
 }
+
 /* ===== Responsive : mobile / tablette / desktop ===== */
 
 .desktop-nav { display: flex; align-items: center; gap: 28px; }
@@ -213,3 +215,14 @@ th { color: var(--text-muted); font-weight: 500; font-family: var(--font-mono); 
   .admin-sidebar .admin-signout { margin-top: 0 !important; margin-left: auto; }
   .admin-sidebar nav a { white-space: nowrap; }
 }
+
+/* Éditeur de texte enrichi (description d'annonce) + rendu public identique */
+.rich-content { outline: none; }
+.rich-content p { margin: 0 0 0.7em; }
+.rich-content p:last-child { margin-bottom: 0; }
+.rich-content ul, .rich-content ol { margin: 0 0 0.7em; padding-left: 22px; }
+.rich-content ul { list-style: disc; }
+.rich-content ol { list-style: decimal; }
+.rich-content li { margin-bottom: 0.2em; }
+.rich-content li > ul, .rich-content li > ol { margin-top: 0.2em; }
+.rich-content strong { color: var(--text); }

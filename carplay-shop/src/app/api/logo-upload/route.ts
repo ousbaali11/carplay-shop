@@ -19,7 +19,7 @@ export async function POST(request: Request): Promise<NextResponse> {
         }
         return {
           allowedContentTypes: ["image/png", "image/jpeg", "image/svg+xml", "image/webp"],
-          maximumSizeInBytes: 5 * 1024 * 1024,
+          maximumSizeInBytes: 5 * 1024 * 1024, // 5 Mo
           addRandomSuffix: true,
         };
       },

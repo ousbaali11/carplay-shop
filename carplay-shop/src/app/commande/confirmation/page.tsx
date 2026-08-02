@@ -20,7 +20,7 @@ export default async function ConfirmationPage({
   // en test local — on vérifie directement auprès de Stripe si la session a bien été
   // payée, et on finalise la commande depuis ici. En production avec le webhook actif,
   // ceci ne fait rien de plus car la commande est déjà finalisée (idempotent).
-if (order && order.status === "PENDING_PAYMENT" && searchParams.session_id) {
+  if (order && order.status === "PENDING_PAYMENT" && searchParams.session_id) {
     try {
       const stripe = await getStripeClient();
       if (stripe) {

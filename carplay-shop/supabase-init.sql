@@ -53,9 +53,26 @@ CREATE TABLE IF NOT EXISTS "Settings" (
   "id"            TEXT NOT NULL,
   "stripeEnabled" BOOLEAN NOT NULL DEFAULT true,
   "paypalEnabled" BOOLEAN NOT NULL DEFAULT true,
+  "contactEmail"  TEXT NOT NULL DEFAULT 'contact@tondomaine.fr',
+  "instagramUrl"  TEXT NOT NULL DEFAULT 'https://instagram.com/tapage',
   "updatedAt"     TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT "Settings_pkey" PRIMARY KEY ("id")
 );
+
+-- Si la table "Settings" existait déjà avant cette mise à jour (sans ces colonnes),
+-- ces lignes les ajoutent sans rien casser :
+ALTER TABLE "Settings" ADD COLUMN IF NOT EXISTS "contactEmail" TEXT NOT NULL DEFAULT 'contact@tondomaine.fr';
+ALTER TABLE "Settings" ADD COLUMN IF NOT EXISTS "instagramUrl" TEXT NOT NULL DEFAULT 'https://instagram.com/tapage';
+ALTER TABLE "Settings" ADD COLUMN IF NOT EXISTS "stripeSecretKey" TEXT;
+ALTER TABLE "Settings" ADD COLUMN IF NOT EXISTS "stripeWebhookSecret" TEXT;
+ALTER TABLE "Settings" ADD COLUMN IF NOT EXISTS "paypalClientId" TEXT;
+ALTER TABLE "Settings" ADD COLUMN IF NOT EXISTS "paypalClientSecret" TEXT;
+ALTER TABLE "Settings" ADD COLUMN IF NOT EXISTS "paypalEnv" TEXT NOT NULL DEFAULT 'sandbox';
+ALTER TABLE "Settings" ADD COLUMN IF NOT EXISTS "resendApiKey" TEXT;
+ALTER TABLE "Settings" ADD COLUMN IF NOT EXISTS "emailFrom" TEXT NOT NULL DEFAULT 'commandes@tondomaine.fr';
+ALTER TABLE "Settings" ADD COLUMN IF NOT EXISTS "adminNotificationEmail" TEXT;
+ALTER TABLE "Settings" ADD COLUMN IF NOT EXISTS "companyName" TEXT NOT NULL DEFAULT 'CarPlayActiv';
+ALTER TABLE "Settings" ADD COLUMN IF NOT EXISTS "companyAddress" TEXT;
 
 -- ----------------------------------------------------------------------------
 -- 4. "Vehicle" — le catalogue (infos et prix ; les fichiers sont dans les tables

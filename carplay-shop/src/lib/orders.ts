@@ -40,6 +40,7 @@ export async function finalizeOrderPayment(orderId: string, method: PaymentMetho
       paymentRef,
       downloadToken: token,
       downloadExpiresAt: downloadExpiryDate(),
+      // PDF de la formule choisie uniquement.
       pdfs: {
         create: [
           // PDF propres à la formule achetée.
@@ -52,12 +53,12 @@ export async function finalizeOrderPayment(orderId: string, method: PaymentMetho
             fileName: p.fileName,
             title: order.vehicle!.activationType!.name,
             position: 1000 + p.position,
-            })) || []),
-                    ],
-                  },
-                },
-                include: { pdfs: true },
-              });
+          })) || []),
+        ],
+      },
+    },
+    include: { pdfs: true },
+  });
 
   const siteSettings = await getSiteSettings();
   const invoicePdf = siteSettings.invoicesEnabled
@@ -72,8 +73,7 @@ export async function finalizeOrderPayment(orderId: string, method: PaymentMetho
         postalCode: updated.postalCode,
         city: updated.city,
         country: updated.country,
-        vehicleBrand: updated.vehicleBrand,
-        vehicleModel: updated.vehicleModel,
+        vehicleTitle: updated.vehicleTitle,
         vehicleYear: updated.vehicleYear,
         formula: updated.formula,
         priceCents: updated.priceCents,
@@ -85,7 +85,7 @@ export async function finalizeOrderPayment(orderId: string, method: PaymentMetho
     email: updated.email,
     firstName: updated.firstName,
     orderNumber: updated.orderNumber,
-    vehicleLabel: `${updated.vehicleBrand} ${updated.vehicleModel} (${updated.vehicleYear})`,
+    vehicleLabel: `${updated.vehicleTitle} (année ${updated.vehicleYear})`,
     priceCents: updated.priceCents,
     downloadToken: token,
     isPhysical,
@@ -99,7 +99,7 @@ export async function finalizeOrderPayment(orderId: string, method: PaymentMetho
 
   await sendAdminNewOrderNotification({
     orderNumber: updated.orderNumber,
-    vehicleLabel: `${updated.vehicleBrand} ${updated.vehicleModel} (${updated.vehicleYear})`,
+    vehicleLabel: `${updated.vehicleTitle} (année ${updated.vehicleYear})`,
     isPhysical,
   });
 

@@ -1,5 +1,6 @@
 import { getSiteSettings } from "@/lib/orders";
 import SiteBrand from "@/components/SiteBrand";
+import UserAvatar from "@/components/UserAvatar";
 
 export default async function AdminRootLayout({ children }: { children: React.ReactNode }) {
   const settings = await getSiteSettings();
@@ -7,8 +8,9 @@ export default async function AdminRootLayout({ children }: { children: React.Re
   return (
     <div>
       <header style={{ borderBottom: "1px solid var(--line)", background: "var(--bg)" }}>
-        <div className="container" style={{ display: "flex", alignItems: "center", height: 72 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", height: 72, padding: "0 24px" }}>
           <SiteBrand siteName={settings.siteName} logoUrl={settings.logoUrl} logoHeight={settings.logoHeight} href="/admin" />
+          <UserAvatar />
         </div>
       </header>
       {children}

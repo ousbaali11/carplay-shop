@@ -19,6 +19,7 @@ export function downloadExpiryDate() {
   d.setDate(d.getDate() + 30);
   return d;
 }
+
 export const generateResetToken = customAlphabet(tokenAlphabet, 48);
 
 // Le lien de réinitialisation de mot de passe expire après 1h (sensible : donne

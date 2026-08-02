@@ -25,9 +25,7 @@ export async function POST(req: Request) {
   if (!(await requireAdmin())) return NextResponse.json({ error: "Non autorisé" }, { status: 403 });
 
   const formData = await req.formData();
-  const brand = formData.get("brand") as string;
-  const model = formData.get("model") as string;
-  const year = formData.get("year") as string;
+  const title = formData.get("title") as string;
   const description = (formData.get("description") as string) || null;
   const priceFilesEur = formData.get("priceFilesEur") as string;
   const pricePhysicalEur = formData.get("pricePhysicalEur") as string;
@@ -39,9 +37,7 @@ export async function POST(req: Request) {
 
   const vehicle = await prisma.vehicle.create({
     data: {
-      brand,
-      model,
-      year,
+      title,
       description,
       priceFilesCents: Math.round(parseFloat(priceFilesEur || "0") * 100),
       pricePhysicalCents: Math.round(parseFloat(pricePhysicalEur || "0") * 100),
@@ -56,5 +52,5 @@ export async function POST(req: Request) {
   await createMany(pdfsPhysicalCard, (buf, file, pos) =>
     prisma.vehiclePdf.create({ data: { vehicleId: vehicle.id, formula: "PHYSICAL_CARD", data: buf, fileName: file.name, position: pos } }), 0);
 
-  return NextResponse.redirect(new URL(`/admin/vehicules?cree=${encodeURIComponent(`${vehicle.brand} ${vehicle.model}`)}`, req.url), 303);
+  return NextResponse.redirect(new URL(`/admin/vehicules?cree=${encodeURIComponent(vehicle.title)}`, req.url), 303);
 }

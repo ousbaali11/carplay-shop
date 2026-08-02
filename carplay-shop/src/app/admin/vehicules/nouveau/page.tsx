@@ -1,4 +1,5 @@
 import AdminSidebar from "@/components/AdminSidebar";
+import RichTextEditor from "@/components/RichTextEditor";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -13,24 +14,14 @@ export default async function NewVehiclePage() {
         <h1 style={{ fontSize: 26, marginBottom: 24 }}>Ajouter un véhicule</h1>
 
         <form action="/api/admin/vehicles" method="POST" encType="multipart/form-data" className="card" style={{ display: "grid", gap: 14 }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
-            <div>
-              <label>Marque</label>
-              <input name="brand" required placeholder="ex: Volkswagen" />
-            </div>
-            <div>
-              <label>Modèle</label>
-              <input name="model" required placeholder="ex: Golf 7" />
-            </div>
-            <div>
-              <label>Année</label>
-              <input name="year" required placeholder="ex: 2019 ou 2018-2021" />
-            </div>
+          <div>
+            <label style={{ fontWeight: 700, color: "var(--text)" }}>Titre de l'annonce</label>
+            <input name="title" required placeholder="ex: Kit CarPlay MIB2 — Volkswagen / Audi / Seat / Skoda" />
           </div>
 
           <div>
             <label>Description (optionnel)</label>
-            <textarea name="description" rows={3} />
+            <RichTextEditor name="description" initialValue="" />
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>

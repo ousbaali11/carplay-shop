@@ -1,6 +1,4 @@
 import Link from "next/link";
-import SignOutButton from "@/components/SignOutButton";
-
 export default function AdminSidebar({ active }: { active: "commandes" | "vehicules" | "parametres" | "utilisateurs" | "mon-compte" | "integrations" | "apparence" | "activations" }) {
   const items: { key: typeof active; label: string; href: string }[] = [
     { key: "commandes", label: "Commandes", href: "/admin" },
@@ -36,9 +34,6 @@ export default function AdminSidebar({ active }: { active: "commandes" | "vehicu
           </Link>
         ))}
       </nav>
-      <div className="admin-signout" style={{ marginTop: "auto" }}>
-        <SignOutButton />
-      </div>
     </aside>
   );
 }

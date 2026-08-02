@@ -18,8 +18,7 @@ export async function generateInvoicePdf(order: {
   postalCode: string | null;
   city: string | null;
   country: string;
-  vehicleBrand: string;
-  vehicleModel: string;
+  vehicleTitle: string;
   vehicleYear: string;
   formula: string;
   priceCents: number;
@@ -29,6 +28,7 @@ export async function generateInvoicePdf(order: {
   const companyName = settings?.companyName || "CarPlayActiv";
   const companyAddress = settings?.companyAddress || "";
   const companyEmail = settings?.contactEmail || settings?.adminNotificationEmail || "";
+
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({ size: "A4", margin: 50 });
     const chunks: Buffer[] = [];
@@ -59,7 +59,7 @@ export async function generateInvoicePdf(order: {
     doc.moveDown(1.5);
 
     const formulaLabel = order.formula === "PHYSICAL_CARD" ? "Carte mémoire physique" : "Fichiers seuls";
-    const description = `Activation CarPlay — ${order.vehicleBrand} ${order.vehicleModel} (${order.vehicleYear}) — ${formulaLabel}`;
+    const description = `Activation CarPlay — ${order.vehicleTitle} (année ${order.vehicleYear}) — ${formulaLabel}`;
 
     const tableTop = doc.y;
     doc.fontSize(10).fillColor("#000");

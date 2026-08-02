@@ -55,7 +55,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     email: order.email,
     firstName: order.firstName,
     orderNumber: order.orderNumber,
-    vehicleLabel: `${order.vehicleBrand} ${order.vehicleModel} (${order.vehicleYear})`,
+    vehicleLabel: `${order.vehicleTitle} (${order.vehicleYear})`,
     downloadToken: order.downloadToken,
     whatsappUrl,
   });

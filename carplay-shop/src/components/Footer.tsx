@@ -8,6 +8,7 @@ export default function Footer() {
         <div style={{ display: "flex", gap: 20 }}>
           <Link href="/cgv" style={{ fontSize: 13, color: "var(--text-muted)", textDecoration: "none" }}>CGV</Link>
           <Link href="/compte/connexion" style={{ fontSize: 13, color: "var(--text-muted)", textDecoration: "none" }}>Mon compte</Link>
+          <Link href="/admin/connexion" style={{ fontSize: 13, color: "var(--text-muted)", textDecoration: "none" }}>Administration</Link>
         </div>
       </div>
     </footer>

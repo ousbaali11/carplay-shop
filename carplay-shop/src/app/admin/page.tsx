@@ -19,6 +19,7 @@ function OrdersTable({ orders, showFilesSent }: { orders: any[]; showFilesSent: 
               <th>Commande</th>
               <th>Client</th>
               <th>Véhicule</th>
+              <th>Année</th>
               <th>Version logiciel autoradio</th>
               <th>Montant</th>
               <th>Statut</th>
@@ -31,7 +32,8 @@ function OrdersTable({ orders, showFilesSent }: { orders: any[]; showFilesSent: 
               <tr key={o.id}>
                 <td className="mono">{o.orderNumber}</td>
                 <td>{o.firstName} {o.lastName}<br /><span style={{ color: "var(--text-muted)", fontSize: 12 }}>{o.email}</span></td>
-                <td>{o.vehicleBrand} {o.vehicleModel} ({o.vehicleYear})</td>
+                <td>{o.vehicleTitle}</td>
+                <td style={{ fontSize: 13 }}>{o.vehicleYear}</td>
                 <td style={{ fontSize: 13 }}>{o.radioSoftwareVersion || "—"}</td>
                 <td>{eur(o.priceCents)}</td>
                 <td><InlineStatusSelect orderId={o.id} status={o.status} /></td>
@@ -48,7 +50,7 @@ function OrdersTable({ orders, showFilesSent }: { orders: any[]; showFilesSent: 
               </tr>
             ))}
             {orders.length === 0 && (
-              <tr><td colSpan={showFilesSent ? 8 : 7} style={{ color: "var(--text-muted)", textAlign: "center", padding: 24 }}>Aucune commande pour le moment.</td></tr>
+              <tr><td colSpan={showFilesSent ? 9 : 8} style={{ color: "var(--text-muted)", textAlign: "center", padding: 24 }}>Aucune commande pour le moment.</td></tr>
             )}
           </tbody>
         </table>

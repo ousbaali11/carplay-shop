@@ -129,6 +129,7 @@ export async function sendFilesReadyEmail(order: {
     `,
   });
 }
+
 // Email envoyé par l'admin (manuellement depuis le tableau de bord) quand la carte physique part à La Poste.
 export async function sendShippingNotificationEmail(order: {
   email: string;
@@ -177,6 +178,7 @@ export async function sendAdminNewOrderNotification(order: {
       ${order.isPhysical ? "<p><b>Action requise :</b> préparer et expédier la carte mémoire depuis le tableau de bord admin.</p>" : ""}`,
   });
 }
+
 // Email envoyé quand un client demande à réinitialiser son mot de passe.
 export async function sendPasswordResetEmail(user: { email: string; firstName: string; resetUrl: string }) {
   const config = await getEmailConfig();
@@ -205,6 +207,7 @@ export async function sendPasswordResetEmail(user: { email: string; firstName: s
     `,
   });
 }
+
 // Message envoyé depuis le formulaire de contact de l'accueil, vers l'adresse
 // "Email de contact" configurée dans /admin/apparence. Répond directement au
 // visiteur (reply-to) pour pouvoir lui répondre en un clic.

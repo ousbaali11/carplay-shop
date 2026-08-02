@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+// Bascule rapide Visible / Caché depuis la liste des véhicules, sans passer par
+// le formulaire complet de la fiche.
 export async function POST(req: Request, { params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
   if ((session?.user as any)?.role !== "ADMIN") {

@@ -22,7 +22,7 @@ export async function POST(req: Request) {
   if (!order) return NextResponse.json({ error: "Commande introuvable" }, { status: 404 });
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-  const label = `${order.vehicleBrand} ${order.vehicleModel} (${order.vehicleYear}) — ${
+  const label = `${order.vehicleTitle} (${order.vehicleYear}) — ${
     order.formula === "PHYSICAL_CARD" ? "Carte mémoire" : "Fichiers seuls"
   }`;
 

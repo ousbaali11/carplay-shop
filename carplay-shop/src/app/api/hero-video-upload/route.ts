@@ -5,9 +5,10 @@ import { authOptions } from "@/lib/auth";
 
 export const runtime = "nodejs";
 
-// Point d'entrée utilisé par le navigateur pour uploader la vidéo DIRECTEMENT
-// vers Vercel Blob — le fichier ne transite jamais par nos propres fonctions
-// serveur, ce qui évite la limite de 4,5 Mo des Vercel Functions.
+// Point d'entrée utilisé par le navigateur (via @vercel/blob/client côté
+// composant admin) pour uploader la vidéo DIRECTEMENT vers Vercel Blob — le
+// fichier ne transite jamais par nos propres fonctions serveur, ce qui évite
+// la limite de 4,5 Mo des Vercel Functions.
 export async function POST(request: Request): Promise<NextResponse> {
   const body = (await request.json()) as HandleUploadBody;
 
@@ -22,11 +23,15 @@ export async function POST(request: Request): Promise<NextResponse> {
         }
         return {
           allowedContentTypes: ["video/mp4", "video/webm", "video/quicktime"],
-          maximumSizeInBytes: 30 * 1024 * 1024,
+          maximumSizeInBytes: 30 * 1024 * 1024, // 30 Mo
           addRandomSuffix: true,
         };
       },
-      onUploadCompleted: async () => {},
+      onUploadCompleted: async () => {
+        // Rien à faire ici : le composant admin enregistre lui-même l'URL
+        // renvoyée dans Settings juste après l'upload (plus simple et fiable
+        // que ce webhook, qui ne fonctionne pas en test local).
+      },
     });
 
     return NextResponse.json(jsonResponse);

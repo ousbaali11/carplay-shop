@@ -5,7 +5,6 @@ export default function NewActivationTypePage() {
     <div className="admin-layout">
       <AdminSidebar active="activations" />
       <div style={{ flex: 1, padding: "36px 40px", maxWidth: 560 }}>
-        
         <h1 style={{ fontSize: 26, marginBottom: 24 }}>Nouveau type d'activation</h1>
 
         <form action="/api/admin/activation-types" method="POST" encType="multipart/form-data" className="card" style={{ display: "grid", gap: 14 }}>

@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import PasswordInput from "@/components/PasswordInput";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
-import PasswordInput from "@/components/PasswordInput";
 
 export default function RegisterForm() {
   const router = useRouter();
@@ -60,14 +60,14 @@ export default function RegisterForm() {
         </div>
         <div>
           <label>Mot de passe (8 caractères minimum)</label>
-          <PasswordInput required minLength={8} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
+          <PasswordInput required  minLength={8} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
         </div>
         {error && <p style={{ color: "var(--danger)", fontSize: 14 }}>{error}</p>}
         <button className="btn btn-primary" disabled={loading}>{loading ? "Création..." : "Créer mon compte"}</button>
-        </form>
-        <p style={{ marginTop: 16, fontSize: 14 }}>
-          Déjà un compte ? <Link href="/compte/connexion" style={{ color: "var(--cyan)" }}>Se connecter</Link>
-        </p>
+      </form>
+      <p style={{ marginTop: 16, fontSize: 14 }}>
+        Déjà un compte ? <Link href="/compte/connexion" style={{ color: "var(--cyan)" }}>Se connecter</Link>
+      </p>
       <p style={{ marginTop: 8, fontSize: 13 }}>
         Vous pouvez aussi <Link href="/#produits" style={{ color: "var(--cyan)" }}>commander sans créer de compte</Link>.
       </p>

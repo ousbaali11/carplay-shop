@@ -13,7 +13,7 @@ export default function CGVPage() {
             <h3 style={{ fontSize: 18, marginBottom: 8 }}>1. Objet</h3>
             <p>
               Les présentes conditions régissent la vente de fichiers numériques d'activation et de
-              cartes mémoire physiques permettant l'activation de CarPlay Android Auto,
+              cartes mémoire physiques permettant l'activation de CarPlay / Android Auto,
               proposés sur ce site par [Nom de l'entreprise / auto-entreprise — à compléter], [adresse
               du siège — à compléter], [SIRET — à compléter].
             </p>

@@ -51,7 +51,8 @@ export default async function AdminOrderDetail({ params }: { params: { id: strin
           </div>
           <div className="card">
             <p className="eyebrow" style={{ marginBottom: 10 }}>Commande</p>
-            <p style={{ fontSize: 14 }}>Véhicule : <span style={{ color: "var(--text)" }}>{order.vehicleBrand} {order.vehicleModel} ({order.vehicleYear})</span></p>
+            <p style={{ fontSize: 14 }}>Véhicule : <span style={{ color: "var(--text)" }}>{order.vehicleTitle}</span></p>
+            <p style={{ fontSize: 14 }}>Année de véhicule : <span style={{ color: "var(--text)" }}>{order.vehicleYear}</span></p>
             <p style={{ fontSize: 14 }}>Formule : <span style={{ color: "var(--text)" }}>{isPhysical ? "Carte physique" : "Fichiers seuls"}</span></p>
             <p style={{ fontSize: 14 }}>Version logiciel autoradio : <span style={{ color: "var(--text)" }}>{order.radioSoftwareVersion || "—"}</span></p>
             <p style={{ fontSize: 14 }}>Montant : <span style={{ color: "var(--text)" }}>{eur(order.priceCents)}</span></p>

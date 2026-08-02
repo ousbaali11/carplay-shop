@@ -30,9 +30,7 @@ export default async function CheckoutPage({
         <CheckoutClient
           vehicle={{
             id: vehicle.id,
-            brand: vehicle.brand,
-            model: vehicle.model,
-            year: vehicle.year,
+            title: vehicle.title,
           }}
           formula={formula}
           priceCents={priceCents}

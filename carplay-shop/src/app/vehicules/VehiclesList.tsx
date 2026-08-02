@@ -1,104 +1,30 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
+import Lightbox from "@/components/Lightbox";
 
 type Vehicle = {
   id: string;
-  brand: string;
-  model: string;
-  year: string;
+  title: string;
   description: string | null;
   imageIds: string[];
-  priceCents: number;
+  priceFromCents: number;
 };
 
 function eur(cents: number) {
   return (cents / 100).toLocaleString("fr-FR", { style: "currency", currency: "EUR" });
 }
 
-// Plein écran : clic sur une photo pour l'agrandir, flèches si plusieurs photos,
-// fermeture au clic en dehors, à la croix, ou avec la touche Échap.
-function Lightbox({ imageIds, startIndex, label, onClose }: { imageIds: string[]; startIndex: number; label: string; onClose: () => void }) {
-  const [index, setIndex] = useState(startIndex);
-
-  useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
-      if (e.key === "ArrowRight") setIndex((i) => (i + 1) % imageIds.length);
-      if (e.key === "ArrowLeft") setIndex((i) => (i - 1 + imageIds.length) % imageIds.length);
-    }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [imageIds.length, onClose]);
-
-  return (
-    <div
-      onClick={onClose}
-      style={{
-        position: "fixed", inset: 0, background: "rgba(6,8,10,0.92)", zIndex: 1000,
-        display: "flex", alignItems: "center", justifyContent: "center", padding: 24,
-      }}
-    >
-      <button
-        onClick={onClose}
-        aria-label="Fermer"
-        style={{
-          position: "absolute", top: 20, right: 24, background: "none", border: "none",
-          color: "#fff", fontSize: 32, lineHeight: 1, cursor: "pointer",
-        }}
-      >
-        ×
-      </button>
-
-      {imageIds.length > 1 && (
-        <button
-          onClick={(e) => { e.stopPropagation(); setIndex((i) => (i - 1 + imageIds.length) % imageIds.length); }}
-          aria-label="Photo précédente"
-          style={{ position: "absolute", left: 16, background: "none", border: "none", color: "#fff", fontSize: 40, cursor: "pointer", padding: 12 }}
-        >
-          ‹
-        </button>
-      )}
-
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={`/api/vehicules/image/${imageIds[index]}`}
-        alt={label}
-        onClick={(e) => e.stopPropagation()}
-        style={{ maxWidth: "90vw", maxHeight: "85vh", objectFit: "contain", borderRadius: 8 }}
-      />
-
-      {imageIds.length > 1 && (
-        <button
-          onClick={(e) => { e.stopPropagation(); setIndex((i) => (i + 1) % imageIds.length); }}
-          aria-label="Photo suivante"
-          style={{ position: "absolute", right: 16, background: "none", border: "none", color: "#fff", fontSize: 40, cursor: "pointer", padding: 12 }}
-        >
-          ›
-        </button>
-      )}
-
-      {imageIds.length > 1 && (
-        <span className="mono" style={{ position: "absolute", bottom: 24, color: "#ccc", fontSize: 12 }}>
-          {index + 1} / {imageIds.length}
-        </span>
-      )}
-    </div>
-  );
-}
-
-function VehicleCard({ v, formula }: { v: Vehicle; formula: string }) {
+function VehicleCard({ v }: { v: Vehicle }) {
   const [activeImg, setActiveImg] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
-
-  const label = `${v.brand} ${v.model}`;
 
   return (
     <div className="card" style={{ padding: 0, overflow: "hidden" }}>
       <div
         role={v.imageIds.length > 0 ? "button" : undefined}
-        aria-label={v.imageIds.length > 0 ? `Agrandir la photo de ${label}` : undefined}
+        aria-label={v.imageIds.length > 0 ? `Agrandir la photo de ${v.title}` : undefined}
         onClick={() => v.imageIds.length > 0 && setLightboxOpen(true)}
         onMouseEnter={() => v.imageIds.length > 1 && setActiveImg(1)}
         onMouseLeave={() => setActiveImg(0)}
@@ -110,7 +36,7 @@ function VehicleCard({ v, formula }: { v: Vehicle; formula: string }) {
       >
         {v.imageIds.length > 0 ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={`/api/vehicules/image/${v.imageIds[activeImg] || v.imageIds[0]}`} alt={label} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          <img src={`/api/vehicules/image/${v.imageIds[activeImg] || v.imageIds[0]}`} alt={v.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
         ) : (
           <span style={{ color: "var(--text-muted)", fontSize: 13 }}>Pas de photo</span>
         )}
@@ -125,46 +51,49 @@ function VehicleCard({ v, formula }: { v: Vehicle; formula: string }) {
           </span>
         )}
       </div>
-      <Link href={`/checkout?vehicule=${v.id}&formule=${formula}`} className="vehicle-info-link" style={{ padding: 16, textDecoration: "none", display: "block" }}>
-        <p style={{ color: "var(--text)", fontWeight: 600, fontSize: 15 }}>{v.brand} {v.model}</p>
-        <p className="mono" style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 8 }}>{v.year}</p>
-        {v.description && <p style={{ fontSize: 13, marginBottom: 10, whiteSpace: "pre-wrap" }}>{v.description}</p>}
+
+      <Link href={`/vehicules/${v.id}`} className="vehicle-info-link" style={{ padding: 16, textDecoration: "none", display: "block" }}>
+        <p style={{ color: "var(--text)", fontWeight: 600, fontSize: 15 }}>{v.title}</p>
+        {v.description && (
+          <div className="rich-content" style={{ fontSize: 13, margin: "6px 0 10px" }} dangerouslySetInnerHTML={{ __html: v.description }} />
+        )}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <p style={{ color: "var(--cyan)", fontWeight: 700, fontFamily: "var(--font-display)" }}>{eur(v.priceCents)}</p>
-          <span className="order-hint" style={{ fontSize: 12, color: "var(--cyan)", fontWeight: 600 }}>Commander →</span>
+          <p style={{ color: "var(--cyan)", fontWeight: 700, fontFamily: "var(--font-display)" }}>À partir de {eur(v.priceFromCents)}</p>
+          <span className="order-hint" style={{ fontSize: 12, color: "var(--cyan)", fontWeight: 600 }}>Voir l'annonce →</span>
         </div>
       </Link>
+
       {lightboxOpen && (
-        <Lightbox imageIds={v.imageIds} startIndex={activeImg} label={label} onClose={() => setLightboxOpen(false)} />
+        <Lightbox imageIds={v.imageIds} startIndex={activeImg} label={v.title} onClose={() => setLightboxOpen(false)} />
       )}
     </div>
   );
 }
 
-export default function VehiclesList({ vehicles, formula }: { vehicles: Vehicle[]; formula: string }) {
+export default function VehiclesList({ vehicles }: { vehicles: Vehicle[] }) {
   const [query, setQuery] = useState("");
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return vehicles;
-    return vehicles.filter((v) => `${v.brand} ${v.model} ${v.year}`.toLowerCase().includes(q));
+    return vehicles.filter((v) => v.title.toLowerCase().includes(q));
   }, [vehicles, query]);
 
   return (
     <div>
       <input
-        placeholder="Rechercher une marque, un modèle, une année..."
+        placeholder="Rechercher une annonce..."
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         style={{ marginBottom: 28, maxWidth: 420 }}
       />
 
       {filtered.length === 0 ? (
-        <p>Aucun véhicule ne correspond à votre recherche. Contactez-nous, votre véhicule est peut-être disponible prochainement.</p>
+        <p>Aucune annonce ne correspond à votre recherche. Contactez-nous, votre véhicule est peut-être disponible prochainement.</p>
       ) : (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 18 }}>
           {filtered.map((v) => (
-            <VehicleCard key={v.id} v={v} formula={formula} />
+            <VehicleCard key={v.id} v={v} />
           ))}
         </div>
       )}

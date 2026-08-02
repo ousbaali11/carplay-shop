@@ -15,6 +15,7 @@ export default async function AdminUsersPage() {
       <AdminSidebar active="utilisateurs" />
       <div style={{ flex: 1, padding: "36px 40px" }}>
         <h1 style={{ fontSize: 26, marginBottom: 24 }}>Utilisateurs ({users.length})</h1>
+
         <div className="card" style={{ padding: 0, overflow: "hidden" }}>
           <div className="table-scroll">
           <table>
@@ -49,7 +50,7 @@ export default async function AdminUsersPage() {
                 <tr><td colSpan={6} style={{ textAlign: "center", color: "var(--text-muted)", padding: 24 }}>Aucun utilisateur.</td></tr>
               )}
             </tbody>
-            </table>
+          </table>
           </div>
         </div>
       </div>

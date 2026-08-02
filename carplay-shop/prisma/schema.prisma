@@ -109,9 +109,7 @@ model SiteSettings {
 // eux-mêmes diffèrent entre "fichiers seuls" et "carte physique".
 model Vehicle {
   id          String  @id @default(cuid())
-  brand       String
-  model       String
-  year        String
+  title       String
   description String?
 
   priceFilesCents    Int
@@ -132,10 +130,8 @@ model Vehicle {
 
   orders          Order[]
 
-  @@index([brand, model])
+  @@index([title])
 }
-
-
 
 // Bibliothèque de guides d'activation réutilisables (ex: "MST2 Volkswagen Delphi").
 // Une fiche véhicule peut en sélectionner un ; ses PDF sont alors envoyés en plus
@@ -160,6 +156,11 @@ model ActivationTypePdf {
 
   @@index([activationTypeId])
 }
+
+// Guide(s) "Carte SD" : identique(s) pour tous les véhicules, saisi(s) une seule
+// fois ici plutôt que ré-uploadé(s) sur chaque fiche véhicule. Envoyé
+// automatiquement avec toute commande formule "fichiers seuls" (uniquement).
+
 
 model VehicleImage {
   id        String   @id @default(cuid())
@@ -202,9 +203,12 @@ model Order {
   vehicle   Vehicle? @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
   vehicleId String?
 
-  vehicleBrand String
-  vehicleModel String
-  vehicleYear  String
+  // Titre de l'annonce, figé au moment de la commande (jamais affecté si
+  // l'annonce est modifiée/supprimée ensuite).
+  vehicleTitle String
+  // Renseignés par le client lui-même à la commande (les deux formules) :
+  // l'année réelle de son véhicule et la version logicielle de son autoradio.
+  vehicleYear String
 
   formula    Formula
   priceCents Int

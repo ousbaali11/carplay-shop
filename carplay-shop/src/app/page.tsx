@@ -7,15 +7,33 @@ import { getSiteSettings } from "@/lib/orders";
 
 export const dynamic = "force-dynamic";
 
+function eur(cents: number) {
+  return (cents / 100).toLocaleString("fr-FR", { style: "currency", currency: "EUR" });
+}
+
 export default async function HomePage() {
   const settings = await getSiteSettings();
   const contactEmail = settings.contactEmail;
   const instagramUrl = settings.instagramUrl;
   const heroVideoSrc = settings.heroVideoUrl || null;
 
+  let vehicles: { id: string; title: string; description: string | null; imageId: string | null; priceFromCents: number }[] = [];
   let vehicleCount = 0;
   try {
+    const all = await prisma.vehicle.findMany({
+      where: { active: true },
+      orderBy: { createdAt: "desc" },
+      take: 6,
+      include: { images: { orderBy: { position: "asc" }, take: 1 } },
+    });
     vehicleCount = await prisma.vehicle.count({ where: { active: true } });
+    vehicles = all.map((v) => ({
+      id: v.id,
+      title: v.title,
+      description: v.description,
+      imageId: v.images[0]?.id || null,
+      priceFromCents: Math.min(v.priceFilesCents, v.pricePhysicalCents),
+    }));
   } catch {
     vehicleCount = 0;
   }
@@ -33,16 +51,16 @@ export default async function HomePage() {
               Débloquez CarPlay sur votre écran d'origine, sans changer d'autoradio.
             </h1>
             <p style={{ fontSize: 17, maxWidth: 460 }}>
-              Chaque véhicule a son propre fichier d'activation. Choisissez la marque, le modèle et
-              l'année de votre voiture, et recevez exactement ce qu'il vous faut.
+              Chaque véhicule a sa propre annonce. Trouvez la vôtre, puis choisissez la formule qui
+              vous convient.
             </p>
             <div style={{ display: "flex", gap: 14, marginTop: 28 }}>
-              <a href="#produits" className="btn btn-primary">Voir les formules</a>
+              <a href="#annonces" className="btn btn-primary">Voir les annonces</a>
               <a href="#comment-ca-marche" className="btn btn-secondary">Comment ça marche</a>
             </div>
             {vehicleCount > 0 && (
               <p style={{ marginTop: 20, fontSize: 13 }} className="mono">
-                {vehicleCount} véhicule{vehicleCount > 1 ? "s" : ""} disponible{vehicleCount > 1 ? "s" : ""} au catalogue
+                {vehicleCount} annonce{vehicleCount > 1 ? "s" : ""} disponible{vehicleCount > 1 ? "s" : ""}
               </p>
             )}
           </div>
@@ -78,62 +96,49 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* FORMULES */}
-      <section id="produits" style={{ padding: "72px 0" }}>
+      {/* ANNONCES */}
+      <section id="annonces" style={{ padding: "72px 0" }}>
         <div className="container">
-          <p className="eyebrow">Deux formules</p>
-          <h2 style={{ fontSize: 32, margin: "10px 0 40px" }}>Choisissez votre formule</h2>
+          <p className="eyebrow">Nos annonces</p>
+          <h2 style={{ fontSize: 32, margin: "10px 0 40px" }}>Trouvez votre véhicule</h2>
 
-          <div className="two-col-grid">
-            {/* Formule 1 */}
-            <div className="card">
-              <p className="eyebrow" style={{ color: "var(--text-muted)" }}>Formule 1</p>
-              <h3 style={{ fontSize: 24, margin: "10px 0" }}>Fichiers seuls</h3>
-              <p style={{ margin: "8px 0 20px" }}>
-                Vous recevez immédiatement par email le fichier d'activation propre à votre véhicule
-                et son guide PDF. Vous préparez vous-même votre carte mémoire.
-              </p>
-              <ul style={{ margin: "0 0 24px", padding: 0, listStyle: "none", display: "grid", gap: 8 }}>
-                {["Fichier d'activation propre à votre véhicule", "Guide PDF pas à pas", "Envoi automatique par email", "Support par email"].map((f) => (
-                  <li key={f} style={{ display: "flex", gap: 10, fontSize: 14, color: "var(--text-muted)" }}>
-                    <span style={{ color: "var(--success)" }}>✓</span> {f}
-                  </li>
+          {vehicles.length === 0 ? (
+            <p>Aucune annonce disponible pour le moment. Revenez bientôt ou contactez-nous.</p>
+          ) : (
+            <>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 18, marginBottom: 32 }}>
+                {vehicles.map((v) => (
+                  <div key={v.id} className="card" style={{ padding: 0, overflow: "hidden" }}>
+                    <Link href={`/vehicules/${v.id}`} style={{ display: "block" }}>
+                      <div style={{ aspectRatio: "16/10", background: "var(--bg-elevated)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        {v.imageId ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={`/api/vehicules/image/${v.imageId}`} alt={v.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                        ) : (
+                          <span style={{ color: "var(--text-muted)", fontSize: 13 }}>Pas de photo</span>
+                        )}
+                      </div>
+                    </Link>
+                    <div style={{ padding: 16 }}>
+                      <Link href={`/vehicules/${v.id}`} style={{ textDecoration: "none" }}>
+                        <p style={{ color: "var(--text)", fontWeight: 600, fontSize: 15, marginBottom: 8 }}>{v.title}</p>
+                      </Link>
+                      {v.description && (
+                        <div className="rich-content" style={{ fontSize: 13, marginBottom: 10 }} dangerouslySetInnerHTML={{ __html: v.description }} />
+                      )}
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+                        <p style={{ color: "var(--cyan)", fontWeight: 700, fontFamily: "var(--font-display)" }}>Prix : {eur(v.priceFromCents)}</p>
+                        <Link href={`/vehicules/${v.id}`} className="btn btn-primary" style={{ fontSize: 13, padding: "8px 16px" }}>
+                          Commander
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
                 ))}
-              </ul>
-              <Link href="/vehicules?formule=fichiers" className="btn btn-primary" style={{ width: "100%" }}>
-                Choisir mon véhicule
-              </Link>
-            </div>
-
-            {/* Formule 2 */}
-            <div className="card" style={{ borderColor: "var(--cyan)", position: "relative" }}>
-              <span className="badge badge-shipped" style={{ position: "absolute", top: 28, right: 28 }}>Le plus choisi</span>
-              <p className="eyebrow">Formule 2</p>
-              <h3 style={{ fontSize: 24, margin: "10px 0" }}>Carte mémoire prête à l'emploi</h3>
-              <p style={{ margin: "8px 0 20px" }}>
-                On prépare pour vous une carte mémoire avec le fichier de votre véhicule déjà
-                installé, avec le guide PDF final.
-              </p>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, margin: "0 0 20px", fontSize: 13, color: "var(--text-muted)" }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                  <path d="M3 8L12 3L21 8V16L12 21L3 16V8Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
-                  <path d="M3 8L12 13L21 8" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
-                  <path d="M12 13V21" stroke="currentColor" strokeWidth="1.6" />
-                </svg>
-                Expédition via Mondial Relais
               </div>
-              <ul style={{ margin: "0 0 24px", padding: 0, listStyle: "none", display: "grid", gap: 8 }}>
-                {["Carte mémoire préparée par nos soins", "Envoi via Mondial Relais à votre adresse", "Guide PDF envoyé par email", "Aucune manipulation de fichiers"].map((f) => (
-                  <li key={f} style={{ display: "flex", gap: 10, fontSize: 14, color: "var(--text-muted)" }}>
-                    <span style={{ color: "var(--success)" }}>✓</span> {f}
-                  </li>
-                ))}
-              </ul>
-              <Link href="/vehicules?formule=carte" className="btn btn-amber" style={{ width: "100%" }}>
-                Choisir mon véhicule
-              </Link>
-            </div>
-          </div>
+              <Link href="/vehicules" className="btn btn-secondary">Voir toutes les annonces</Link>
+            </>
+          )}
         </div>
       </section>
 
@@ -144,9 +149,9 @@ export default async function HomePage() {
           <h2 style={{ fontSize: 32, margin: "10px 0 40px" }}>Comment ça marche</h2>
           <div className="four-col-grid">
             {[
-              ["01", "Choisissez", "Sélectionnez une formule, puis la marque/modèle/année de votre voiture."],
+              ["01", "Choisissez", "Trouvez l'annonce correspondant à votre véhicule, puis la formule qui vous convient."],
               ["02", "Payez", "Par carte bancaire ou PayPal, en toute sécurité."],
-              ["03", "Recevez", "Vos fichiers arrivent par email immédiatement. La carte physique part sous 48h."],
+              ["03", "Recevez", "Vos fichiers arrivent par email. La carte physique part sous 48h."],
               ["04", "Activez", "Suivez le guide étape par étape pour activer CarPlay."],
             ].map(([n, t, d]) => (
               <div key={n}>

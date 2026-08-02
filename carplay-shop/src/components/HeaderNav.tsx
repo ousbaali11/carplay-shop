@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import UserAvatar from "@/components/UserAvatar";
 
 const LINKS = [
-  { href: "/#produits", label: "Produits" },
+  { href: "/#annonces", label: "Annonces" },
   { href: "/#comment-ca-marche", label: "Comment ça marche" },
   { href: "/#contact", label: "Contact" },
   { href: "/compte", label: "Mon compte" },
@@ -21,9 +22,7 @@ export default function HeaderNav() {
             {l.label}
           </Link>
         ))}
-        <Link href="/#produits" className="btn btn-primary" style={{ padding: "10px 18px", fontSize: 14 }}>
-          Commander
-        </Link>
+        <UserAvatar />
       </nav>
 
       <button className="mobile-menu-btn" aria-label="Menu" onClick={() => setOpen((o) => !o)}>
@@ -41,9 +40,9 @@ export default function HeaderNav() {
               {l.label}
             </Link>
           ))}
-          <Link href="/#produits" onClick={() => setOpen(false)} className="btn btn-primary" style={{ marginTop: 8, textAlign: "center" }}>
-            Commander
-          </Link>
+          <div style={{ marginTop: 8 }}>
+            <UserAvatar />
+          </div>
         </div>
       )}
     </>

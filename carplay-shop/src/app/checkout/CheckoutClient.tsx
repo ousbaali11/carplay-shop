@@ -4,11 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 
-type Vehicle = { id: string; brand: string; model: string; year: string };
+type Vehicle = { id: string; title: string };
 
 function eur(cents: number) {
   return (cents / 100).toLocaleString("fr-FR", { style: "currency", currency: "EUR" });
 }
+
 export default function CheckoutClient({
   vehicle,
   formula,
@@ -33,6 +34,7 @@ export default function CheckoutClient({
     lastName: "",
     phone: "",
     radioSoftwareVersion: "",
+    vehicleYear: "",
     address: "",
     addressComp: "",
     postalCode: "",
@@ -123,9 +125,15 @@ export default function CheckoutClient({
               <input required type="tel" value={form.phone} onChange={(e) => update("phone", e.target.value)} />
             </div>
 
-            <div>
-              <label>Version logiciel de votre autoradio</label>
-              <input required value={form.radioSoftwareVersion} onChange={(e) => update("radioSoftwareVersion", e.target.value)} placeholder="ex: MST2, v2.1..." />
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <div>
+                <label>Année de véhicule</label>
+                <input required value={form.vehicleYear} onChange={(e) => update("vehicleYear", e.target.value)} placeholder="ex: 2020" />
+              </div>
+              <div>
+                <label>Version logiciel de votre autoradio</label>
+                <input required value={form.radioSoftwareVersion} onChange={(e) => update("radioSoftwareVersion", e.target.value)} placeholder="ex: MST2, v2.1..." />
+              </div>
             </div>
 
             {isPhysical && (
@@ -235,7 +243,7 @@ export default function CheckoutClient({
 
       <div className="card" style={{ height: "fit-content" }}>
         <p className="eyebrow" style={{ marginBottom: 12 }}>Récapitulatif</p>
-        <p style={{ color: "var(--text)", fontWeight: 600, marginBottom: 4 }}>{vehicle.brand} {vehicle.model} ({vehicle.year})</p>
+        <p style={{ color: "var(--text)", fontWeight: 600, marginBottom: 4 }}>{vehicle.title}</p>
         <p style={{ fontSize: 13, marginBottom: 20 }}>
           {isPhysical ? "Carte mémoire + guide(s) PDF, envoyée par la poste" : "Fichier d'activation + guide(s) PDF envoyés par email"}
         </p>

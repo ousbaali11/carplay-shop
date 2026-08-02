@@ -21,11 +21,9 @@ export default async function AdminPaymentPage() {
         <div className="card" style={{ maxWidth: 480, marginTop: 24 }}>
           <p className="eyebrow" style={{ marginBottom: 10 }}>Ajouter un autre moyen de paiement</p>
           <p style={{ fontSize: 13 }}>
-            Chaque moyen de paiement (Mollie, Lyra/PayZen, Alma, Apple Pay, Google Pay...)
-    	    nécessite une intégration technique spécifique. Cela inclut la configuration du
-            compte marchand, l’ajout des clés API, la mise en place des webhooks et
-    	    l’adaptation du backend. Ce ne sont pas des options activables automatiquement :
-            chaque fournisseur fonctionne différemment et demande une implémentation dédiée.
+            Chaque moyen de paiement supplémentaire (Mollie, Lyra/PayZen, Alma, Apple Pay,
+            Google Pay...) nécessite sa propre configuration technique, distincte des autres.
+            Ce n'est pas un réglage à activer simplement en cochant une case ici.
           </p>
         </div>
       </div>

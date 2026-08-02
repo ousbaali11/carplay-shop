@@ -18,7 +18,7 @@ export default async function DownloadPage({ params }: { params: { token: string
   const isPhysical = order?.formula === "PHYSICAL_CARD";
   const filesPending = !isPhysical && !order?.filesSentAt;
   const valid = order && !expired && !filesPending && ["PAID", "PREPARING", "SHIPPED", "COMPLETED"].includes(order.status);
-  const { invoicesEnabled } = await getSiteSettings();
+  const { invoicesEnabled, whatsappUrl } = await getSiteSettings();
 
   return (
     <>
@@ -28,12 +28,12 @@ export default async function DownloadPage({ params }: { params: { token: string
           <>
             <div style={{ fontSize: 44, marginBottom: 16 }}>📄</div>
             <h1 style={{ fontSize: 22, marginBottom: 10 }}>
-              {order!.vehicleBrand} {order!.vehicleModel} ({order!.vehicleYear})
+              {order!.vehicleTitle} ({order!.vehicleYear})
             </h1>
             <p style={{ marginBottom: 28 }}>
               Vos fichiers sont prêts. Ce lien reste valable jusqu'au{" "}
               {order!.downloadExpiresAt!.toLocaleDateString("fr-FR")}.
-              {isPhysical && " Votre carte mémoire vous sera envoyée par courrier séparément."}
+              {isPhysical && " Votre carte mémoire vous sera envoyée par Mondial Relais séparément."}
               {" "}Chaque fichier ne peut être téléchargé qu'une seule fois.
             </p>
             <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "center" }}>
@@ -71,6 +71,18 @@ export default async function DownloadPage({ params }: { params: { token: string
               {invoicesEnabled && (
                 <a href={`/api/download/${params.token}/facture`} className="btn btn-secondary" style={{ width: 300 }}>
                   Télécharger ma facture
+                </a>
+              )}
+
+              {whatsappUrl && (
+                <a
+                  href={`${whatsappUrl}?text=${encodeURIComponent(`Bonjour, je vous contacte à propos de ma commande ${order!.orderNumber}`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-secondary"
+                  style={{ width: 300 }}
+                >
+                  Nous contacter sur WhatsApp
                 </a>
               )}
             </div>

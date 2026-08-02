@@ -11,7 +11,7 @@ function eur(cents: number) {
 
 export default async function AdminVehiclesPage({ searchParams }: { searchParams: { cree?: string } }) {
   const vehicles = await prisma.vehicle.findMany({
-    orderBy: [{ brand: "asc" }, { model: "asc" }],
+    orderBy: { title: "asc" },
     include: {
       images: { orderBy: { position: "asc" }, take: 1 },
       pdfs: true,
@@ -34,6 +34,7 @@ export default async function AdminVehiclesPage({ searchParams }: { searchParams
           <h1 style={{ fontSize: 26 }}>Véhicules ({vehicles.length})</h1>
           <Link href="/admin/vehicules/nouveau" className="btn btn-primary">+ Ajouter un véhicule</Link>
         </div>
+
         <div className="card" style={{ padding: 0, overflow: "hidden" }}>
           <div className="table-scroll">
           <table>
@@ -50,7 +51,6 @@ export default async function AdminVehiclesPage({ searchParams }: { searchParams
             </thead>
             <tbody>
               {vehicles.map((v) => {
-                const filesOnlyCount = v.pdfs.filter((p) => p.formula === "FILES_ONLY").length;
                 const physicalCount = v.pdfs.filter((p) => p.formula === "PHYSICAL_CARD").length;
                 return (
                 <tr key={v.id}>
@@ -62,12 +62,12 @@ export default async function AdminVehiclesPage({ searchParams }: { searchParams
                       ) : null}
                     </div>
                   </td>
-                  <td>{v.brand} {v.model}<br /><span style={{ color: "var(--text-muted)", fontSize: 12 }}>{v.year}</span></td>
+                  <td>{v.title}</td>
                   <td>{eur(v.priceFilesCents)}</td>
                   <td>{eur(v.pricePhysicalCents)}</td>
                   <td style={{ fontSize: 12 }}>
                     {v._count.images} photo{v._count.images !== 1 ? "s" : ""}<br/>
-                    F1: {filesOnlyCount} PDF · F2: {physicalCount} PDF
+                    F2: {physicalCount} PDF
                   </td>
                   <td><ToggleActiveButton vehicleId={v.id} active={v.active} /></td>
                   <td><Link href={`/admin/vehicules/${v.id}`} style={{ color: "var(--cyan)", fontSize: 13 }}>Modifier</Link></td>
@@ -80,7 +80,7 @@ export default async function AdminVehiclesPage({ searchParams }: { searchParams
                 </td></tr>
               )}
             </tbody>
-            </table>
+          </table>
           </div>
         </div>
       </div>

@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+// Sert un PDF précis parmi ceux livrés avec la commande (copie figée au paiement).
+// À usage unique : un PDF déjà téléchargé une fois ne peut plus l'être (anti-fraude).
 export async function GET(req: Request, { params }: { params: { token: string; pdfId: string } }) {
   const order = await prisma.order.findUnique({ where: { downloadToken: params.token } });
 
@@ -18,6 +20,8 @@ export async function GET(req: Request, { params }: { params: { token: string; p
     return NextResponse.json({ error: "Ce PDF a déjà été téléchargé et ne peut l'être qu'une seule fois." }, { status: 403 });
   }
 
+  // Marqué comme téléchargé AVANT de servir le fichier : comportement
+  // volontairement strict, cohérent avec la passerelle du lien d'activation.
   await prisma.orderPdf.update({ where: { id: pdf.id }, data: { downloaded: true, downloadedAt: new Date() } });
   await prisma.order.update({ where: { id: order!.id }, data: { downloadCount: { increment: 1 } } });
 

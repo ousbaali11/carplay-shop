@@ -28,16 +28,16 @@ async function main() {
   // Quelques véhicules de démonstration pour pouvoir tester le site tout de suite.
   // Sans PDF ni fichier d'activation réels : à uploader ensuite depuis /admin/vehicules.
   const demoVehicles = [
-    { brand: "Volkswagen", model: "Golf 7", year: "2017-2020", priceFilesCents: 2990, pricePhysicalCents: 4990 },
-    { brand: "Peugeot", model: "3008", year: "2019-2022", priceFilesCents: 3490, pricePhysicalCents: 5490 },
-    { brand: "Renault", model: "Clio 5", year: "2020-2023", priceFilesCents: 2790, pricePhysicalCents: 4790 },
+    { title: "Kit CarPlay — Volkswagen Golf 7", priceFilesCents: 2990, pricePhysicalCents: 4990 },
+    { title: "Kit CarPlay — Peugeot 3008", priceFilesCents: 3490, pricePhysicalCents: 5490 },
+    { title: "Kit CarPlay — Renault Clio 5", priceFilesCents: 2790, pricePhysicalCents: 4790 },
   ];
 
   for (const veh of demoVehicles) {
-    const existing = await prisma.vehicle.findFirst({ where: { brand: veh.brand, model: veh.model, year: veh.year } });
+    const existing = await prisma.vehicle.findFirst({ where: { title: veh.title } });
     if (!existing) {
       await prisma.vehicle.create({ data: veh });
-      console.log(`✅ Véhicule de démo créé : ${veh.brand} ${veh.model} (${veh.year})`);
+      console.log(`✅ Véhicule de démo créé : ${veh.title}`);
     }
   }
 

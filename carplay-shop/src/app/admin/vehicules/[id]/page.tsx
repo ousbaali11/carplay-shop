@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import AdminSidebar from "@/components/AdminSidebar";
 import DeleteVehicleButton from "@/components/DeleteVehicleButton";
 import DeleteFileButton from "@/components/DeleteFileButton";
+import RichTextEditor from "@/components/RichTextEditor";
 import { notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
@@ -37,7 +38,7 @@ export default async function EditVehiclePage({ params, searchParams }: { params
     <div className="admin-layout">
       <AdminSidebar active="vehicules" />
       <div style={{ flex: 1, padding: "36px 40px", maxWidth: 640 }}>
-        <h1 style={{ fontSize: 26, marginBottom: 24 }}>{v.brand} {v.model} ({v.year})</h1>
+        <h1 style={{ fontSize: 26, marginBottom: 24 }}>{v.title}</h1>
 
         {searchParams.enregistre && (
           <div className="card" style={{ borderColor: "var(--success)", marginBottom: 20, padding: "14px 18px" }}>
@@ -46,24 +47,14 @@ export default async function EditVehiclePage({ params, searchParams }: { params
         )}
 
         <form action={`/api/admin/vehicles/${v.id}`} method="POST" encType="multipart/form-data" className="card" style={{ display: "grid", gap: 14, marginBottom: 20 }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
-            <div>
-              <label>Marque</label>
-              <input name="brand" required defaultValue={v.brand} />
-            </div>
-            <div>
-              <label>Modèle</label>
-              <input name="model" required defaultValue={v.model} />
-            </div>
-            <div>
-              <label>Année</label>
-              <input name="year" required defaultValue={v.year} />
-            </div>
+          <div>
+            <label style={{ fontWeight: 700, color: "var(--text)" }}>Titre de l'annonce</label>
+            <input name="title" required defaultValue={v.title} />
           </div>
 
           <div>
             <label>Description (optionnel)</label>
-            <textarea name="description" rows={3} defaultValue={v.description || ""} />
+            <RichTextEditor name="description" initialValue={v.description || ""} />
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
@@ -136,7 +127,7 @@ export default async function EditVehiclePage({ params, searchParams }: { params
           <p style={{ fontSize: 13, marginBottom: 12 }}>
             Supprime définitivement ce véhicule et tous ses fichiers. Les commandes déjà payées ne sont pas affectées.
           </p>
-          <DeleteVehicleButton vehicleId={v.id} label={`${v.brand} ${v.model}`} />
+          <DeleteVehicleButton vehicleId={v.id} label={v.title} />
         </div>
       </div>
     </div>

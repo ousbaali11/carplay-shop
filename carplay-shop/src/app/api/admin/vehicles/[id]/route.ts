@@ -25,9 +25,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   const vehicleId = params.id;
 
   const formData = await req.formData();
-  const brand = formData.get("brand") as string;
-  const model = formData.get("model") as string;
-  const year = formData.get("year") as string;
+  const title = formData.get("title") as string;
   const description = (formData.get("description") as string) || null;
   const priceFilesEur = formData.get("priceFilesEur") as string;
   const pricePhysicalEur = formData.get("pricePhysicalEur") as string;
@@ -40,9 +38,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   await prisma.vehicle.update({
     where: { id: vehicleId },
     data: {
-      brand,
-      model,
-      year,
+      title,
       description,
       priceFilesCents: Math.round(parseFloat(priceFilesEur || "0") * 100),
       pricePhysicalCents: Math.round(parseFloat(pricePhysicalEur || "0") * 100),
