@@ -10,12 +10,12 @@ import { useState } from "react";
 const COLORS = ["#e8eaed", "#00c2ce", "#f0a93a", "#e5484d", "#3ddc84", "#8b5cf6"];
 
 function ToolbarButton({
-  onClick,
+  onAction,
   active,
   label,
   children,
 }: {
-  onClick: () => void;
+  onAction: () => void;
   active?: boolean;
   label: string;
   children: React.ReactNode;
@@ -23,7 +23,13 @@ function ToolbarButton({
   return (
     <button
       type="button"
-      onClick={onClick}
+      // Important : onMouseDown + preventDefault (pas onClick) — sinon le clic
+      // sur le bouton fait perdre la sélection du texte dans l'éditeur AVANT
+      // que l'action ne s'exécute, et la couleur/le gras ne s'applique à rien.
+      onMouseDown={(e) => {
+        e.preventDefault();
+        onAction();
+      }}
       aria-label={label}
       title={label}
       style={{
@@ -82,19 +88,19 @@ export default function RichTextEditor({ name, initialValue }: { name: string; i
           borderBottom: "none",
         }}
       >
-        <ToolbarButton onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive("bold")} label="Gras">
+        <ToolbarButton onAction={() => editor.chain().focus().toggleBold().run()} active={editor.isActive("bold")} label="Gras">
           <b>G</b>
         </ToolbarButton>
-        <ToolbarButton onClick={() => editor.chain().focus().toggleItalic().run()} active={editor.isActive("italic")} label="Italique">
+        <ToolbarButton onAction={() => editor.chain().focus().toggleItalic().run()} active={editor.isActive("italic")} label="Italique">
           <i>I</i>
         </ToolbarButton>
-        <ToolbarButton onClick={() => editor.chain().focus().toggleUnderline().run()} active={editor.isActive("underline")} label="Souligné">
+        <ToolbarButton onAction={() => editor.chain().focus().toggleUnderline().run()} active={editor.isActive("underline")} label="Souligné">
           <u>S</u>
         </ToolbarButton>
-        <ToolbarButton onClick={() => editor.chain().focus().toggleBulletList().run()} active={editor.isActive("bulletList")} label="Liste à puces">
+        <ToolbarButton onAction={() => editor.chain().focus().toggleBulletList().run()} active={editor.isActive("bulletList")} label="Liste à puces">
           • Puces
         </ToolbarButton>
-        <ToolbarButton onClick={() => editor.chain().focus().toggleOrderedList().run()} active={editor.isActive("orderedList")} label="Liste numérotée">
+        <ToolbarButton onAction={() => editor.chain().focus().toggleOrderedList().run()} active={editor.isActive("orderedList")} label="Liste numérotée">
           1. Numéros
         </ToolbarButton>
 
@@ -103,7 +109,10 @@ export default function RichTextEditor({ name, initialValue }: { name: string; i
             <button
               key={c}
               type="button"
-              onClick={() => editor.chain().focus().setColor(c).run()}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                editor.chain().focus().setColor(c).run();
+              }}
               aria-label={`Couleur ${c}`}
               title="Couleur du texte"
               style={{ width: 20, height: 20, borderRadius: "50%", background: c, border: "1px solid var(--line)", cursor: "pointer", padding: 0 }}
@@ -111,7 +120,10 @@ export default function RichTextEditor({ name, initialValue }: { name: string; i
           ))}
           <button
             type="button"
-            onClick={() => editor.chain().focus().unsetColor().run()}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              editor.chain().focus().unsetColor().run();
+            }}
             title="Couleur par défaut"
             style={{ fontSize: 12, color: "var(--text-muted)", background: "none", border: "none", cursor: "pointer", padding: "0 4px" }}
           >
@@ -134,7 +146,8 @@ export default function RichTextEditor({ name, initialValue }: { name: string; i
         <EditorContent editor={editor} />
       </div>
       <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 6 }}>
-        Astuce : dans une liste, appuie sur Tab pour indenter une ligne, Maj+Tab pour la remonter.
+        Sélectionne (surligne) le texte à modifier avant de cliquer sur un bouton — comme dans Word.
+        Dans une liste, Tab pour indenter une ligne, Maj+Tab pour la remonter.
       </p>
     </div>
   );

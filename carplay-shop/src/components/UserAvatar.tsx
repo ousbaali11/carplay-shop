@@ -157,7 +157,7 @@ export default function UserAvatar() {
     return (
       <div ref={ref} style={{ position: "relative" }}>
         <CircleButton letters={["A", "D"]} onClick={() => setOpen((o) => !o)} ariaLabel="Menu admin" showAdminBadge />
-        {open && <DropdownMenu accountHref="/admin" accountLabel="Panel admin" onClose={() => setOpen(false)} />}
+        {open && <DropdownMenu accountHref="/admin" accountLabel="Admin" onClose={() => setOpen(false)} />}
       </div>
     );
   }
