@@ -132,9 +132,16 @@ function DropdownMenu({ accountHref, accountLabel, onClose }: { accountHref: str
 // ouvre un petit menu (compte + déconnexion), comme sur la plupart des
 // réseaux sociaux/applications. Pour un visiteur, le clic va directement vers
 // la connexion (rien à déconnecter).
-export default function UserAvatar() {
+//
+// context="public" (par défaut) : sur les pages publiques du site, un compte
+// admin n'est JAMAIS reconnu comme connecté — il apparaît comme un simple
+// visiteur (cercle "CA"), pour ne jamais mélanger identité admin et navigation
+// cliente. context="admin" : utilisé uniquement dans le panel admin lui-même,
+// où l'identité admin doit au contraire être visible.
+export default function UserAvatar({ context = "public" }: { context?: "public" | "admin" }) {
   const { data: session } = useSession();
-  const role = (session?.user as any)?.role;
+  const rawRole = (session?.user as any)?.role;
+  const role = context === "public" && rawRole === "ADMIN" ? null : rawRole;
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
