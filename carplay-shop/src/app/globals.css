@@ -12,6 +12,9 @@
   --amber: #ff8a3d;
   --success: #3ddc84;
   --danger: #ff5c5c;
+  --amber-dim: #3a2f10;
+  --success-dim: #103a2c;
+  --danger-dim: #3a1010;
   --radius: 10px;
   --font-display: 'Space Grotesk', sans-serif;
   --font-body: 'Inter', sans-serif;
@@ -143,10 +146,10 @@ th { color: var(--text-muted); font-weight: 500; font-family: var(--font-mono); 
   font-weight: 600;
   font-family: var(--font-mono);
 }
-.badge-pending { background: #3a2f10; color: var(--amber); }
-.badge-paid { background: #103a2c; color: var(--success); }
-.badge-shipped { background: #0a2e3c; color: var(--cyan); }
-.badge-canceled { background: #3a1010; color: var(--danger); }
+.badge-pending { background: var(--amber-dim); color: var(--amber); }
+.badge-paid { background: var(--success-dim); color: var(--success); }
+.badge-shipped { background: var(--cyan-dim); color: var(--cyan); }
+.badge-canceled { background: var(--danger-dim); color: var(--danger); }
 
 .vehicle-info-link {
   transition: background 0.15s ease;
@@ -226,3 +229,53 @@ th { color: var(--text-muted); font-weight: 500; font-family: var(--font-mono); 
 .rich-content li { margin-bottom: 0.2em; }
 .rich-content li > ul, .rich-content li > ol { margin-top: 0.2em; }
 .rich-content strong { color: var(--text); }
+/* Thèmes additionnels — le thème "default" n'a besoin d'aucune règle ici,
+   il utilise les couleurs de :root telles quelles. */
+[data-theme="android-auto"] {
+  --bg: #0b1210; --bg-card: #10201a; --bg-elevated: #142a22;
+  --text: #eaf5ee; --text-muted: #8fae9c; --line: #24443a;
+  --cyan: #3ddc84; --cyan-dim: #113a26; --amber: #a8e063;
+}
+[data-theme="atelier"] {
+  --bg: #16130f; --bg-card: #1f1a12; --bg-elevated: #291f16;
+  --text: #f3ece0; --text-muted: #a89a85; --line: #3a2f22;
+  --cyan: #f0a93a; --cyan-dim: #4a2f10; --amber: #ff8c42;
+}
+[data-theme="obd-scanner"] {
+  --bg: #060b0d; --bg-card: #0c1417; --bg-elevated: #101c20;
+  --text: #e3fbf7; --text-muted: #7fa8a3; --line: #1c3438;
+  --cyan: #00e5c0; --cyan-dim: #073b32; --amber: #7fffd4;
+}
+[data-theme="mode-sport"] {
+  --bg: #0d0808; --bg-card: #170e0e; --bg-elevated: #201313;
+  --text: #fbeaea; --text-muted: #ad8686; --line: #3a1e1e;
+  --cyan: #ff3b3b; --cyan-dim: #3f0f0f; --amber: #ff8080;
+}
+[data-theme="premium"] {
+  --bg: #0a0e16; --bg-card: #101625; --bg-elevated: #161d30;
+  --text: #eef1f8; --text-muted: #8891a8; --line: #262e45;
+  --cyan: #4a6fa5; --cyan-dim: #16233a; --amber: #d4af6a;
+}
+[data-theme="habitacle-nuit"] {
+  --bg: #0f0a16; --bg-card: #181025; --bg-elevated: #221631;
+  --text: #f2eaf9; --text-muted: #a690b8; --line: #33234a;
+  --cyan: #a78bfa; --cyan-dim: #2c1f4a; --amber: #f472b6;
+}
+[data-theme="jour-clair"] {
+  --bg: #f5f6f8; --bg-card: #ffffff; --bg-elevated: #eef0f3;
+  --text: #1a1d21; --text-muted: #5b6470; --line: #e1e4e8;
+  --cyan: #0089a8; --cyan-dim: #d6f0f5;
+  --amber: #c97a1a; --amber-dim: #fdecd2;
+  --success: #1f9d55; --success-dim: #d7f5e3;
+  --danger: #d63838; --danger-dim: #ffe0e0;
+}
+[data-theme="signal-warning"] {
+  --bg: #120e08; --bg-card: #1c1509; --bg-elevated: #261c0c;
+  --text: #fbf3e3; --text-muted: #b8a888; --line: #40300f;
+  --cyan: #ffb020; --cyan-dim: #4a3208; --amber: #ff5c5c;
+}
+[data-theme="circuit"] {
+  --bg: #060806; --bg-card: #0d120d; --bg-elevated: #121a12;
+  --text: #e3f9e3; --text-muted: #7fae7f; --line: #1e321e;
+  --cyan: #39ff14; --cyan-dim: #0f3a08; --amber: #00c2ce;
+}

@@ -3,6 +3,7 @@ import ContactSettingsForm from "@/components/ContactSettingsForm";
 import HeroVideoSettingsForm from "@/components/HeroVideoSettingsForm";
 import BrandSettingsForm from "@/components/BrandSettingsForm";
 import InvoiceSettingsForm from "@/components/InvoiceSettingsForm";
+import ThemePicker from "@/components/ThemePicker";
 import { getSiteSettings } from "@/lib/orders";
 
 export const dynamic = "force-dynamic";
@@ -37,6 +38,11 @@ export default async function AdminApparencePage() {
           Contrôle si les clients reçoivent une facture, pour les deux formules.
         </p>
         <InvoiceSettingsForm initialEnabled={settings.invoicesEnabled} />
+        <h1 style={{ fontSize: 26, margin: "40px 0 8px" }}>Thème du site</h1>
+        <p style={{ marginBottom: 24, maxWidth: 560 }}>
+          Change les couleurs de tout le site en un clic (accueil, panel admin, emails non compris).
+        </p>
+        <ThemePicker currentTheme={settings.theme} />
       </div>
     </div>
   );

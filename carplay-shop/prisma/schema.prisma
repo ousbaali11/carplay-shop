@@ -88,6 +88,8 @@ model SiteSettings {
   logoUrl  String?
   // Hauteur d'affichage du logo, en pixels (largeur automatique, proportionnelle).
   logoHeight Int @default(38)
+  // Thème visuel du site (clé technique, voir src/lib/themes.ts)
+  theme String @default("default")
 
   // Vidéo de la page d'accueil (à la place de l'animation par défaut).
   heroVideoUrl String?
