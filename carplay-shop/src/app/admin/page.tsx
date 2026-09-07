@@ -61,6 +61,7 @@ function OrdersTable({ orders, showFilesSent }: { orders: any[]; showFilesSent: 
 
 export default async function AdminDashboard() {
   const allOrders = await prisma.order.findMany({
+    where: { status: { not: "PENDING_PAYMENT" } },
     orderBy: { createdAt: "desc" },
     take: 200,
   });
