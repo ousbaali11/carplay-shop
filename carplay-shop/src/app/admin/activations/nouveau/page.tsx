@@ -1,11 +1,17 @@
 import AdminSidebar from "@/components/AdminSidebar";
 
-export default function NewActivationTypePage() {
+export default function NewActivationTypePage({ searchParams }: { searchParams: { erreur?: string } }) {
   return (
     <div className="admin-layout">
       <AdminSidebar active="activations" />
       <div style={{ flex: 1, padding: "36px 40px", maxWidth: 560 }}>
         <h1 style={{ fontSize: 26, marginBottom: 24 }}>Nouveau type d'activation</h1>
+
+        {searchParams.erreur && (
+          <div className="card" style={{ borderColor: "var(--danger)", marginBottom: 20, padding: "14px 18px" }}>
+            <span style={{ color: "var(--danger)" }}>✕</span> <span style={{ color: "var(--text)" }}>{searchParams.erreur}</span>
+          </div>
+        )}
 
         <form action="/api/admin/activation-types" method="POST" encType="multipart/form-data" className="card" style={{ display: "grid", gap: 14 }}>
           <div>

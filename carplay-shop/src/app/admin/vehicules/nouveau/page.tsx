@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
-export default async function NewVehiclePage() {
+export default async function NewVehiclePage({ searchParams }: { searchParams: { erreur?: string } }) {
   const activationTypes = await prisma.activationType.findMany({ orderBy: { name: "asc" } });
 
   return (
@@ -12,6 +12,12 @@ export default async function NewVehiclePage() {
       <AdminSidebar active="vehicules" />
       <div style={{ flex: 1, padding: "36px 40px", maxWidth: 640 }}>
         <h1 style={{ fontSize: 26, marginBottom: 24 }}>Ajouter un véhicule</h1>
+
+        {searchParams.erreur && (
+          <div className="card" style={{ borderColor: "var(--danger)", marginBottom: 20, padding: "14px 18px" }}>
+            <span style={{ color: "var(--danger)" }}>✕</span> <span style={{ color: "var(--text)" }}>{searchParams.erreur}</span>
+          </div>
+        )}
 
         <form action="/api/admin/vehicles" method="POST" encType="multipart/form-data" className="card" style={{ display: "grid", gap: 14 }}>
           <div>

@@ -1,17 +1,16 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { requireAdmin } from "@/lib/admin";
+import { isSafeHttpUrl } from "@/lib/html";
 
 // Enregistre le lien de la vidéo (qu'il vienne d'un upload Vercel Blob ou d'un
 // lien externe collé à la main) — ou l'efface pour revenir à l'animation par défaut.
 export async function POST(req: Request) {
-  const session = await getServerSession(authOptions);
-  if ((session?.user as any)?.role !== "ADMIN") {
-    return NextResponse.json({ error: "Non autorisé" }, { status: 403 });
-  }
+  if (!(await requireAdmin())) return NextResponse.json({ error: "Non autorisé" }, { status: 403 });
 
-  const { videoUrl, remove } = await req.json();
+  const body = await req.json().catch(() => null);
+  const videoUrl = body?.videoUrl;
+  const remove = !!body?.remove;
 
   if (remove) {
     await prisma.siteSettings.upsert({
@@ -22,8 +21,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: true });
   }
 
-  if (!videoUrl || typeof videoUrl !== "string" || !videoUrl.trim()) {
-    return NextResponse.json({ error: "Lien manquant" }, { status: 400 });
+  // Ce lien est mis dans <video src=...> sur la page d'accueil : uniquement http(s).
+  if (!isSafeHttpUrl(videoUrl)) {
+    return NextResponse.json({ error: "Lien manquant ou invalide (une URL complète https://... est attendue)" }, { status: 400 });
   }
 
   await prisma.siteSettings.upsert({

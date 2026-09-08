@@ -1,56 +1,62 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { requireAdmin } from "@/lib/admin";
+import { parseVehicleForm, pickFiles, readImageUpload, readPdfUpload } from "@/lib/uploads";
 
-async function requireAdmin() {
-  const session = await getServerSession(authOptions);
-  return (session?.user as any)?.role === "ADMIN";
-}
-
-async function createMany(files: File[], creator: (buf: Buffer, file: File, pos: number) => Promise<any>, startPos: number) {
-  let pos = startPos;
-  for (const f of files) {
-    if (f.size > 0) {
-      await creator(Buffer.from(await f.arrayBuffer()), f, pos++);
-    }
-  }
+function backWithError(req: Request, message: string) {
+  const url = new URL("/admin/vehicules/nouveau", req.url);
+  url.searchParams.set("erreur", message);
+  return NextResponse.redirect(url, 303);
 }
 
 // Création d'une nouvelle fiche véhicule. Photos communes aux deux formules,
 // PDF séparés par formule (upload). Les liens Google Drive de la formule
-// "fichiers seuls" se saisissent désormais commande par commande, depuis
-// l'admin des commandes — plus au niveau de la fiche véhicule.
+// "fichiers seuls" se saisissent commande par commande, depuis l'admin des
+// commandes — plus au niveau de la fiche véhicule.
 export async function POST(req: Request) {
   if (!(await requireAdmin())) return NextResponse.json({ error: "Non autorisé" }, { status: 403 });
 
   const formData = await req.formData();
-  const title = formData.get("title") as string;
-  const description = (formData.get("description") as string) || null;
-  const priceFilesEur = formData.get("priceFilesEur") as string;
-  const pricePhysicalEur = formData.get("pricePhysicalEur") as string;
-  const active = formData.get("active") === "on";
-  const activationTypeId = ((formData.get("activationTypeId") as string) || "").trim() || null;
+  const parsed = parseVehicleForm(formData);
+  if (!parsed.ok) return backWithError(req, parsed.error);
+  const { title, description, priceFilesCents, pricePhysicalCents, active, activationTypeId } = parsed.data;
 
-  const images = formData.getAll("images") as File[];
-  const pdfsPhysicalCard = formData.getAll("pdfsPhysicalCard") as File[];
+  if (activationTypeId) {
+    const exists = await prisma.activationType.findUnique({ where: { id: activationTypeId } });
+    if (!exists) return backWithError(req, "Type d'activation introuvable.");
+  }
+
+  // Tous les fichiers sont lus et validés AVANT de créer la fiche : soit tout
+  // passe, soit rien n'est enregistré.
+  const images: { buf: Buffer; mimeType: string; fileName: string }[] = [];
+  for (const f of pickFiles(formData, "images")) {
+    const r = await readImageUpload(f);
+    if ("error" in r) return backWithError(req, r.error);
+    images.push(r);
+  }
+  const pdfsPhysicalCard: { buf: Buffer; fileName: string }[] = [];
+  for (const f of pickFiles(formData, "pdfsPhysicalCard")) {
+    const r = await readPdfUpload(f);
+    if ("error" in r) return backWithError(req, r.error);
+    pdfsPhysicalCard.push(r);
+  }
 
   const vehicle = await prisma.vehicle.create({
     data: {
       title,
       description,
-      priceFilesCents: Math.round(parseFloat(priceFilesEur || "0") * 100),
-      pricePhysicalCents: Math.round(parseFloat(pricePhysicalEur || "0") * 100),
+      priceFilesCents,
+      pricePhysicalCents,
       active,
       activationTypeId,
+      images: {
+        create: images.map((img, i) => ({ data: img.buf, mimeType: img.mimeType, fileName: img.fileName, position: i })),
+      },
+      pdfs: {
+        create: pdfsPhysicalCard.map((p, i) => ({ formula: "PHYSICAL_CARD" as const, data: p.buf, fileName: p.fileName, position: i })),
+      },
     },
   });
-
-  await createMany(images, (buf, file, pos) =>
-    prisma.vehicleImage.create({ data: { vehicleId: vehicle.id, data: buf, mimeType: file.type || "image/jpeg", fileName: file.name, position: pos } }), 0);
-
-  await createMany(pdfsPhysicalCard, (buf, file, pos) =>
-    prisma.vehiclePdf.create({ data: { vehicleId: vehicle.id, formula: "PHYSICAL_CARD", data: buf, fileName: file.name, position: pos } }), 0);
 
   return NextResponse.redirect(new URL(`/admin/vehicules?cree=${encodeURIComponent(vehicle.title)}`, req.url), 303);
 }

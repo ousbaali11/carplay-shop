@@ -69,8 +69,9 @@ export default async function AdminDashboard() {
   const filesOnlyOrders = allOrders.filter((o) => o.formula === "FILES_ONLY");
   const physicalOrders = allOrders.filter((o) => o.formula === "PHYSICAL_CARD");
 
+  // Chiffre d'affaires réellement encaissé : hors commandes annulées ET remboursées.
   const totalRevenue = allOrders
-    .filter((o) => o.status !== "PENDING_PAYMENT" && o.status !== "CANCELED")
+    .filter((o) => o.status !== "PENDING_PAYMENT" && o.status !== "CANCELED" && o.status !== "REFUNDED")
     .reduce((sum, o) => sum + o.priceCents, 0);
   const toPrepare = allOrders.filter((o) => o.status === "PREPARING").length;
   const filesToInsert = filesOnlyOrders.filter((o) => o.downloadToken && !o.filesSentAt).length;

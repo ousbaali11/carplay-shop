@@ -6,7 +6,7 @@ import { notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
-export default async function EditActivationTypePage({ params, searchParams }: { params: { id: string }; searchParams: { enregistre?: string } }) {
+export default async function EditActivationTypePage({ params, searchParams }: { params: { id: string }; searchParams: { enregistre?: string; erreur?: string } }) {
   const t = await prisma.activationType.findUnique({
     where: { id: params.id },
     include: { pdfs: { orderBy: { position: "asc" } }, _count: { select: { vehicles: true } } },
@@ -25,6 +25,12 @@ export default async function EditActivationTypePage({ params, searchParams }: {
         {searchParams.enregistre && (
           <div className="card" style={{ borderColor: "var(--success)", marginBottom: 20, padding: "14px 18px" }}>
             <span style={{ color: "var(--success)" }}>✓</span> <span style={{ color: "var(--text)" }}>Modifications enregistrées.</span>
+          </div>
+        )}
+
+        {searchParams.erreur && (
+          <div className="card" style={{ borderColor: "var(--danger)", marginBottom: 20, padding: "14px 18px" }}>
+            <span style={{ color: "var(--danger)" }}>✕</span> <span style={{ color: "var(--text)" }}>{searchParams.erreur}</span>
           </div>
         )}
 

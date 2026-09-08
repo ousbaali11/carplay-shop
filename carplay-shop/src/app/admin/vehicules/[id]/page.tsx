@@ -21,7 +21,7 @@ function FileList({ files, vehicleId, kind }: { files: { id: string; fileName: s
   );
 }
 
-export default async function EditVehiclePage({ params, searchParams }: { params: { id: string }; searchParams: { enregistre?: string; cree?: string } }) {
+export default async function EditVehiclePage({ params, searchParams }: { params: { id: string }; searchParams: { enregistre?: string; cree?: string; erreur?: string } }) {
   const [v, activationTypes] = await Promise.all([
     prisma.vehicle.findUnique({
       where: { id: params.id },
@@ -43,6 +43,12 @@ export default async function EditVehiclePage({ params, searchParams }: { params
         {searchParams.enregistre && (
           <div className="card" style={{ borderColor: "var(--success)", marginBottom: 20, padding: "14px 18px" }}>
             <span style={{ color: "var(--success)" }}>✓</span> <span style={{ color: "var(--text)" }}>Modifications enregistrées.</span>
+          </div>
+        )}
+
+        {searchParams.erreur && (
+          <div className="card" style={{ borderColor: "var(--danger)", marginBottom: 20, padding: "14px 18px" }}>
+            <span style={{ color: "var(--danger)" }}>✕</span> <span style={{ color: "var(--text)" }}>{searchParams.erreur}</span>
           </div>
         )}
 

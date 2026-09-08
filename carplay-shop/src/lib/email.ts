@@ -1,7 +1,13 @@
 import { Resend } from "resend";
 import { prisma } from "@/lib/prisma";
+import { escapeHtml as e } from "@/lib/html";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
+// Un sujet d'email ne doit jamais contenir de retour à la ligne (injection d'en-têtes).
+function oneLine(value: string, max = 200) {
+  return value.replace(/[\r\n]+/g, " ").trim().slice(0, max);
+}
 
 function eur(cents: number) {
   return (cents / 100).toLocaleString("fr-FR", { style: "currency", currency: "EUR" });
@@ -18,6 +24,11 @@ async function getEmailConfig() {
     adminEmail: settings.adminNotificationEmail,
   };
 }
+
+// NB : toutes les valeurs saisies par un client (prénom, année du véhicule,
+// message de contact...) passent par e() = escapeHtml avant d'être insérées
+// dans le HTML des emails, sinon un client pourrait injecter du HTML/liens
+// arbitraires dans les emails envoyés par le site.
 
 // Email envoyé automatiquement dès que le paiement est confirmé.
 // Contient : le récap commande (facture) + le lien sécurisé vers le téléchargement.
@@ -39,7 +50,7 @@ export async function sendOrderConfirmationEmail(order: {
     return;
   }
 
-  const downloadUrl = `${SITE_URL}/telechargement/${order.downloadToken}`;
+  const downloadUrl = `${SITE_URL}/telechargement/${encodeURIComponent(order.downloadToken)}`;
 
   const physicalNote = order.isPhysical
     ? `<p>Votre carte mémoire va être préparée puis expédiée par Mondial Relais. Vous recevrez un email avec le numéro de suivi dès son envoi. Le guide PDF est disponible dès maintenant.</p>`
@@ -48,12 +59,12 @@ export async function sendOrderConfirmationEmail(order: {
     : `<p>Vos fichiers d'activation sont en cours de préparation. Vous recevrez un second email dès qu'ils seront disponibles au téléchargement.</p>`;
 
   const whatsappNote = order.whatsappUrl
-    ? `<p style="margin-top:16px;">Une question sur votre commande ? Contactez-nous directement sur <a href="${order.whatsappUrl}">WhatsApp</a>.</p>`
+    ? `<p style="margin-top:16px;">Une question sur votre commande ? Contactez-nous directement sur <a href="${e(order.whatsappUrl)}">WhatsApp</a>.</p>`
     : "";
 
   const accessButton = order.filesReady
     ? `<p style="margin-top:24px;">
-         <a href="${downloadUrl}" style="background:#111; color:#fff; padding:12px 20px; text-decoration:none; border-radius:6px; display:inline-block;">
+         <a href="${e(downloadUrl)}" style="background:#111; color:#fff; padding:12px 20px; text-decoration:none; border-radius:6px; display:inline-block;">
            Accéder à mes fichiers
          </a>
        </p>
@@ -63,14 +74,14 @@ export async function sendOrderConfirmationEmail(order: {
   await config.resend.emails.send({
     from: config.from,
     to: order.email,
-    subject: `Confirmation de commande ${order.orderNumber} — ${order.vehicleLabel}`,
+    subject: oneLine(`Confirmation de commande ${order.orderNumber} — ${order.vehicleLabel}`),
     html: `
       <div style="font-family: sans-serif; max-width: 560px; margin: auto;">
-        <h2>Merci pour votre commande, ${order.firstName} !</h2>
+        <h2>Merci pour votre commande, ${e(order.firstName)} !</h2>
         <p>Votre paiement a bien été confirmé.${order.invoicePdf ? " Votre facture est jointe à cet email." : ""}</p>
         <table style="width:100%; border-collapse: collapse; margin: 16px 0;">
-          <tr><td style="padding:6px 0; color:#666;">N° de commande</td><td style="text-align:right;">${order.orderNumber}</td></tr>
-          <tr><td style="padding:6px 0; color:#666;">Véhicule</td><td style="text-align:right;">${order.vehicleLabel}</td></tr>
+          <tr><td style="padding:6px 0; color:#666;">N° de commande</td><td style="text-align:right;">${e(order.orderNumber)}</td></tr>
+          <tr><td style="padding:6px 0; color:#666;">Véhicule</td><td style="text-align:right;">${e(order.vehicleLabel)}</td></tr>
           <tr><td style="padding:6px 0; color:#666;">Montant payé</td><td style="text-align:right;"><b>${eur(order.priceCents)}</b></td></tr>
         </table>
         ${physicalNote}
@@ -105,21 +116,21 @@ export async function sendFilesReadyEmail(order: {
     return;
   }
 
-  const downloadUrl = `${SITE_URL}/telechargement/${order.downloadToken}`;
+  const downloadUrl = `${SITE_URL}/telechargement/${encodeURIComponent(order.downloadToken)}`;
   const whatsappNote = order.whatsappUrl
-    ? `<p style="margin-top:16px;">Une question ? Contactez-nous directement sur <a href="${order.whatsappUrl}">WhatsApp</a>.</p>`
+    ? `<p style="margin-top:16px;">Une question ? Contactez-nous directement sur <a href="${e(order.whatsappUrl)}">WhatsApp</a>.</p>`
     : "";
 
   await config.resend.emails.send({
     from: config.from,
     to: order.email,
-    subject: `Vos fichiers sont prêts — ${order.orderNumber}`,
+    subject: oneLine(`Vos fichiers sont prêts — ${order.orderNumber}`),
     html: `
       <div style="font-family: sans-serif; max-width: 560px; margin: auto;">
-        <h2>Bonne nouvelle, ${order.firstName} !</h2>
-        <p>Les fichiers d'activation de votre commande ${order.orderNumber} (${order.vehicleLabel}) sont maintenant disponibles.</p>
+        <h2>Bonne nouvelle, ${e(order.firstName)} !</h2>
+        <p>Les fichiers d'activation de votre commande ${e(order.orderNumber)} (${e(order.vehicleLabel)}) sont maintenant disponibles.</p>
         <p style="margin-top:24px;">
-          <a href="${downloadUrl}" style="background:#111; color:#fff; padding:12px 20px; text-decoration:none; border-radius:6px; display:inline-block;">
+          <a href="${e(downloadUrl)}" style="background:#111; color:#fff; padding:12px 20px; text-decoration:none; border-radius:6px; display:inline-block;">
             Accéder à mes fichiers
           </a>
         </p>
@@ -146,14 +157,14 @@ export async function sendShippingNotificationEmail(order: {
   await config.resend.emails.send({
     from: config.from,
     to: order.email,
-    subject: `Votre carte mémoire a été expédiée — ${order.orderNumber}`,
+    subject: oneLine(`Votre carte mémoire a été expédiée — ${order.orderNumber}`),
     html: `
       <div style="font-family: sans-serif; max-width: 560px; margin: auto;">
-        <h2>Votre carte mémoire est en route, ${order.firstName} !</h2>
-        <p>Commande ${order.orderNumber} expédiée.</p>
+        <h2>Votre carte mémoire est en route, ${e(order.firstName)} !</h2>
+        <p>Commande ${e(order.orderNumber)} expédiée.</p>
         ${
           order.trackingNumber
-            ? `<p>Numéro de suivi : <b>${order.trackingNumber}</b></p>`
+            ? `<p>Numéro de suivi : <b>${e(order.trackingNumber)}</b></p>`
             : "<p>Vous recevrez votre colis sous quelques jours.</p>"
         }
       </div>
@@ -173,8 +184,8 @@ export async function sendAdminNewOrderNotification(order: {
   await config.resend.emails.send({
     from: config.from,
     to: config.adminEmail,
-    subject: `Nouvelle commande ${order.orderNumber}${order.isPhysical ? " — carte à préparer" : ""}`,
-    html: `<p>Nouvelle commande payée : ${order.orderNumber} (${order.vehicleLabel}).</p>
+    subject: oneLine(`Nouvelle commande ${order.orderNumber}${order.isPhysical ? " — carte à préparer" : ""}`),
+    html: `<p>Nouvelle commande payée : ${e(order.orderNumber)} (${e(order.vehicleLabel)}).</p>
       ${order.isPhysical ? "<p><b>Action requise :</b> préparer et expédier la carte mémoire depuis le tableau de bord admin.</p>" : ""}`,
   });
 }
@@ -193,10 +204,10 @@ export async function sendPasswordResetEmail(user: { email: string; firstName: s
     subject: "Réinitialisation de votre mot de passe",
     html: `
       <div style="font-family: sans-serif; max-width: 560px; margin: auto;">
-        <h2>Bonjour ${user.firstName},</h2>
+        <h2>Bonjour ${e(user.firstName)},</h2>
         <p>Vous avez demandé à réinitialiser votre mot de passe. Cliquez sur le bouton ci-dessous (valable 1 heure) :</p>
         <p style="margin-top:24px;">
-          <a href="${user.resetUrl}" style="background:#111; color:#fff; padding:12px 20px; text-decoration:none; border-radius:6px; display:inline-block;">
+          <a href="${e(user.resetUrl)}" style="background:#111; color:#fff; padding:12px 20px; text-decoration:none; border-radius:6px; display:inline-block;">
             Réinitialiser mon mot de passe
           </a>
         </p>
@@ -236,17 +247,17 @@ export async function sendContactFormEmail(data: {
     from: config.from,
     to: contactEmail,
     replyTo: data.email,
-    subject: `[Contact site] ${data.subject}`,
+    subject: oneLine(`[Contact site] ${data.subject}`),
     html: `
       <div style="font-family: sans-serif; max-width: 560px; margin: auto;">
         <h2>Nouveau message depuis le formulaire de contact</h2>
         <table style="width:100%; border-collapse: collapse; margin: 16px 0;">
-          <tr><td style="padding:6px 0; color:#666;">Nom</td><td>${data.firstName} ${data.lastName}</td></tr>
-          <tr><td style="padding:6px 0; color:#666;">Email</td><td>${data.email}</td></tr>
-          <tr><td style="padding:6px 0; color:#666;">Téléphone</td><td>${data.phone || "—"}</td></tr>
-          <tr><td style="padding:6px 0; color:#666;">Objet</td><td>${data.subject}</td></tr>
+          <tr><td style="padding:6px 0; color:#666;">Nom</td><td>${e(data.firstName)} ${e(data.lastName)}</td></tr>
+          <tr><td style="padding:6px 0; color:#666;">Email</td><td>${e(data.email)}</td></tr>
+          <tr><td style="padding:6px 0; color:#666;">Téléphone</td><td>${e(data.phone || "—")}</td></tr>
+          <tr><td style="padding:6px 0; color:#666;">Objet</td><td>${e(data.subject)}</td></tr>
         </table>
-        <p style="white-space:pre-wrap; border-top:1px solid #eee; padding-top:12px;">${data.message}</p>
+        <p style="white-space:pre-wrap; border-top:1px solid #eee; padding-top:12px;">${e(data.message)}</p>
       </div>
     `,
   });

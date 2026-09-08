@@ -27,16 +27,12 @@ export default async function AccountPage() {
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id;
 
-  // Rattache automatiquement au compte toute commande passée "en invité" (sans
-  // être connecté) avec cette même adresse email — cas fréquent : le client
-  // achète d'abord, puis crée son compte ensuite avec le même email.
-  if (userId && session?.user?.email) {
-    await prisma.order.updateMany({
-      where: { userId: null, email: session.user.email.toLowerCase().trim() },
-      data: { userId },
-    });
-  }
-
+  // Seules les commandes passées EN ÉTANT CONNECTÉ à ce compte sont affichées.
+  // Les commandes "invité" ne sont volontairement PAS rattachées par simple
+  // égalité d'email : l'email d'un compte n'est jamais vérifié à l'inscription,
+  // n'importe qui pourrait donc créer un compte avec l'email d'un autre client
+  // et récupérer ses liens de téléchargement. Un client invité conserve l'accès
+  // à ses fichiers via le lien personnel reçu par email.
   const orders = userId
     ? await prisma.order.findMany({ where: { userId }, orderBy: { createdAt: "desc" } })
     : [];
@@ -57,7 +53,12 @@ export default async function AccountPage() {
 
         <h3 style={{ marginBottom: 14 }}>Mes commandes</h3>
         {orders.length === 0 ? (
-          <p>Vous n'avez pas encore de commande.</p>
+          <>
+            <p>Vous n'avez pas encore de commande passée avec ce compte.</p>
+            <p style={{ fontSize: 13, marginTop: 6 }}>
+              Une commande passée sans être connecté reste accessible via le lien personnel reçu par email.
+            </p>
+          </>
         ) : (
           <div className="card" style={{ padding: 0, overflow: "hidden" }}>
             <div className="table-scroll">
@@ -76,7 +77,7 @@ export default async function AccountPage() {
               </thead>
               <tbody>
                 {orders.map((o) => {
-                  const s = statusLabel[o.status];
+                  const s = statusLabel[o.status] || { label: o.status, cls: "badge-pending" };
                   const canDownload =
                     o.downloadToken &&
                     ["PAID", "PREPARING", "SHIPPED", "COMPLETED"].includes(o.status) &&

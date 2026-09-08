@@ -1,21 +1,33 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { requireAdmin } from "@/lib/admin";
+import { isSafeHttpUrl } from "@/lib/html";
 
 export async function POST(req: Request) {
-  const session = await getServerSession(authOptions);
-  if ((session?.user as any)?.role !== "ADMIN") {
-    return NextResponse.json({ error: "Non autorisé" }, { status: 403 });
+  if (!(await requireAdmin())) return NextResponse.json({ error: "Non autorisé" }, { status: 403 });
+
+  const body = await req.json().catch(() => null);
+  const { siteName, logoUrl, logoHeight, removeLogo } = body ?? {};
+
+  const data: { siteName?: string; logoUrl?: string | null; logoHeight?: number } = {};
+  if (typeof siteName === "string" && siteName.trim()) {
+    if (siteName.trim().length > 60) {
+      return NextResponse.json({ error: "Le nom du site est trop long (60 caractères max)" }, { status: 400 });
+    }
+    data.siteName = siteName.trim();
   }
-
-  const { siteName, logoUrl, logoHeight, removeLogo } = await req.json();
-
-  const data: any = {};
-  if (typeof siteName === "string" && siteName.trim()) data.siteName = siteName.trim();
-  if (removeLogo) data.logoUrl = null;
-  else if (typeof logoUrl === "string" && logoUrl.trim()) data.logoUrl = logoUrl.trim();
-  if (typeof logoHeight === "number" && logoHeight >= 20 && logoHeight <= 120) data.logoHeight = Math.round(logoHeight);
+  if (removeLogo) {
+    data.logoUrl = null;
+  } else if (typeof logoUrl === "string" && logoUrl.trim()) {
+    // Affiché dans <img src=...> : uniquement http(s).
+    if (!isSafeHttpUrl(logoUrl)) {
+      return NextResponse.json({ error: "Lien du logo invalide" }, { status: 400 });
+    }
+    data.logoUrl = logoUrl.trim();
+  }
+  if (typeof logoHeight === "number" && Number.isFinite(logoHeight) && logoHeight >= 20 && logoHeight <= 120) {
+    data.logoHeight = Math.round(logoHeight);
+  }
 
   await prisma.siteSettings.upsert({
     where: { id: "singleton" },

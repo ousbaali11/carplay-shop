@@ -1,23 +1,34 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { requireAdmin } from "@/lib/admin";
+import { isSafeHttpUrl } from "@/lib/html";
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function POST(req: Request) {
-  const session = await getServerSession(authOptions);
-  if ((session?.user as any)?.role !== "ADMIN") {
-    return NextResponse.json({ error: "Non autorisé" }, { status: 403 });
-  }
+  if (!(await requireAdmin())) return NextResponse.json({ error: "Non autorisé" }, { status: 403 });
 
-  const { contactEmail, instagramUrl, whatsappUrl } = await req.json();
-  if (!contactEmail || !instagramUrl) {
-    return NextResponse.json({ error: "Champs manquants" }, { status: 400 });
+  const body = await req.json().catch(() => null);
+  const contactEmail = typeof body?.contactEmail === "string" ? body.contactEmail.trim() : "";
+  const instagramUrl = typeof body?.instagramUrl === "string" ? body.instagramUrl.trim() : "";
+  const whatsappRaw = typeof body?.whatsappUrl === "string" ? body.whatsappUrl.trim() : "";
+
+  if (!contactEmail || contactEmail.length > 254 || !EMAIL_RE.test(contactEmail)) {
+    return NextResponse.json({ error: "Email de contact invalide" }, { status: 400 });
   }
+  // Ces liens sont affichés en href sur le site et dans les emails : uniquement http(s).
+  if (!isSafeHttpUrl(instagramUrl)) {
+    return NextResponse.json({ error: "Le lien Instagram doit être une URL complète (https://...)" }, { status: 400 });
+  }
+  if (whatsappRaw && !isSafeHttpUrl(whatsappRaw)) {
+    return NextResponse.json({ error: "Le lien WhatsApp doit être une URL complète (https://wa.me/...)" }, { status: 400 });
+  }
+  const whatsappUrl = whatsappRaw || null;
 
   await prisma.siteSettings.upsert({
     where: { id: "singleton" },
-    update: { contactEmail, instagramUrl, whatsappUrl: whatsappUrl || null },
-    create: { id: "singleton", contactEmail, instagramUrl, whatsappUrl: whatsappUrl || null },
+    update: { contactEmail, instagramUrl, whatsappUrl },
+    create: { id: "singleton", contactEmail, instagramUrl, whatsappUrl },
   });
 
   return NextResponse.json({ success: true });

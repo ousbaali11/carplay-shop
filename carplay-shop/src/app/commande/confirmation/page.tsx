@@ -12,21 +12,32 @@ export default async function ConfirmationPage({
 }: {
   searchParams: { order?: string; session_id?: string };
 }) {
-  let order = searchParams.order
-    ? await prisma.order.findUnique({ where: { id: searchParams.order } })
-    : null;
+  const orderId = typeof searchParams.order === "string" && searchParams.order.length <= 64 ? searchParams.order : null;
+  let order = orderId ? await prisma.order.findUnique({ where: { id: orderId } }) : null;
 
   // Filet de sécurité : si le webhook Stripe n'est pas (encore) configuré — typiquement
   // en test local — on vérifie directement auprès de Stripe si la session a bien été
   // payée, et on finalise la commande depuis ici. En production avec le webhook actif,
   // ceci ne fait rien de plus car la commande est déjà finalisée (idempotent).
-  if (order && order.status === "PENDING_PAYMENT" && searchParams.session_id) {
+  //
+  // La session Stripe doit appartenir à CETTE commande (metadata.orderId) et avoir
+  // encaissé exactement son montant : sinon un session_id d'une commande payée
+  // pourrait servir à "confirmer" n'importe quelle autre commande en attente.
+  const sessionId = typeof searchParams.session_id === "string" ? searchParams.session_id : null;
+  if (order && order.status === "PENDING_PAYMENT" && sessionId && sessionId.length <= 200) {
     try {
       const stripe = await getStripeClient();
       if (stripe) {
-        const session = await stripe.checkout.sessions.retrieve(searchParams.session_id);
-        if (session.payment_status === "paid") {
-          order = await finalizeOrderPayment(order.id, "STRIPE", (session.payment_intent as string) || session.id);
+        const session = await stripe.checkout.sessions.retrieve(sessionId);
+        const belongsToOrder = session.metadata?.orderId === order.id;
+        const amountOk = session.amount_total === order.priceCents && (session.currency || "").toLowerCase() === "eur";
+        if (session.payment_status === "paid" && belongsToOrder && amountOk) {
+          const paymentRef = typeof session.payment_intent === "string" ? session.payment_intent : session.id;
+          order = await finalizeOrderPayment(order.id, "STRIPE", paymentRef);
+        } else if (session.payment_status === "paid") {
+          console.warn(
+            `Confirmation : session Stripe ${session.id} ne correspond pas à la commande ${order.orderNumber} (orderId=${session.metadata?.orderId}, montant=${session.amount_total}).`
+          );
         }
       }
     } catch {
