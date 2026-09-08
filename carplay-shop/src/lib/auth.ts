@@ -20,9 +20,10 @@ export const authOptions: NextAuthOptions = {
     // c'est ça qui déconnecte réellement à la fermeture du navigateur.
     maxAge: 30 * 24 * 60 * 60,
   },
-  // Cookie de session "classique" (sans maxAge/expires) : le navigateur le
-  // supprime lui-même à sa fermeture complète. Rouvrir le navigateur plus tard
-  // = obligatoirement se reconnecter, que ce soit un compte admin ou client.
+  // Cookie de session persistant : reste valable 30 jours même après
+  // fermeture complète du navigateur (PC, mobile, tablette), que ce soit un
+  // compte admin ou client. Se reconnecter n'est nécessaire qu'après 30 jours
+  // d'inactivité, ou après une déconnexion manuelle.
   cookies: {
     sessionToken: {
       name: `${cookiePrefix}next-auth.session-token`,
@@ -31,6 +32,7 @@ export const authOptions: NextAuthOptions = {
         sameSite: "lax",
         path: "/",
         secure: useSecureCookies,
+        maxAge: 30 * 24 * 60 * 60,
       },
     },
   },
