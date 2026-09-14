@@ -16,8 +16,11 @@ export default async function DownloadPage({ params }: { params: { token: string
 
   const expired = order?.downloadExpiresAt ? new Date() > order.downloadExpiresAt : true;
   const isPhysical = order?.formula === "PHYSICAL_CARD";
-  const filesPending = !isPhysical && !order?.filesSentAt;
-  const valid = order && !expired && !filesPending && ["PAID", "PREPARING", "SHIPPED", "COMPLETED"].includes(order.status);
+  // 1. La commande doit exister, être payée et non expirée. Sinon : lien invalide.
+  const orderOk = !!order && !expired && ["PAID", "PREPARING", "SHIPPED", "COMPLETED"].includes(order.status);
+  // 2. Seulement pour une commande valide "fichiers seuls" : liens pas encore envoyés par l'admin.
+  const filesPending = orderOk && !isPhysical && !order!.filesSentAt;
+  const valid = orderOk && !filesPending;
   const { invoicesEnabled, whatsappUrl } = await getSiteSettings();
 
   return (
