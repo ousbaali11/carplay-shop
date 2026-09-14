@@ -26,19 +26,19 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div style={{ minHeight: "calc(100vh - 72px)", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--bg)" }}>
-      <form onSubmit={submit} className="card" style={{ width: 360, display: "grid", gap: 14 }}>
-        <p className="eyebrow" style={{ marginBottom: -4 }}>Espace réservé</p>
-        <h1 style={{ fontSize: 22 }}>Administration</h1>
+    <div className="auth-screen">
+      <form onSubmit={submit} className="card auth-card">
+        <p className="eyebrow auth-eyebrow">Espace réservé</p>
+        <h1 className="auth-title">Administration</h1>
         <div>
           <label>Email</label>
-          <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="username" />
         </div>
         <div>
           <label>Mot de passe</label>
-          <PasswordInput required  value={password} onChange={(e) => setPassword(e.target.value)} />
+          <PasswordInput required value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" />
         </div>
-        {error && <p style={{ color: "var(--danger)", fontSize: 14 }}>{error}</p>}
+        {error && <p className="form-error form-error-md">{error}</p>}
         <button className="btn btn-primary" disabled={loading}>{loading ? "Connexion..." : "Se connecter"}</button>
       </form>
     </div>

@@ -31,22 +31,21 @@ export default function OrderStatusActions({ orderId, status }: { orderId: strin
   }
 
   return (
-    <div style={{ display: "grid", gap: 10 }}>
-      <label style={{ fontSize: 13 }}>Changer le statut de la commande (à tout moment, quel que soit l'état actuel)</label>
-      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+    <div className="form-grid">
+      <label className="label-13">Changer le statut de la commande (à tout moment, quel que soit l'état actuel)</label>
+      <div className="actions-row">
         {ACTIONS.map((a) => (
           <button
             key={a.status}
-            className={`btn ${a.cls}`}
+            className={`btn ${a.cls}${status === a.status ? " is-current" : ""}`}
             disabled={loading !== null || status === a.status}
             onClick={() => setStatus(a.status, a.label)}
-            style={status === a.status ? { borderColor: "var(--cyan)", color: "var(--cyan)" } : undefined}
           >
             {loading === a.status ? "..." : status === a.status ? `✓ ${a.label}` : a.label}
           </button>
         ))}
       </div>
-      <p style={{ fontSize: 12, color: "var(--text-muted)" }}>
+      <p className="note-xs">
         Ce changement est silencieux (aucun email envoyé au client), sauf "Expédiée" via le
         formulaire "Expédition" ci-dessus qui, lui, notifie le client avec le numéro de suivi.
       </p>

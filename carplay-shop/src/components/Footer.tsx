@@ -2,13 +2,13 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer style={{ borderTop: "1px solid var(--line)", marginTop: 80, padding: "40px 0" }}>
-      <div className="container" style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 20 }}>
-        <p style={{ fontSize: 13 }}>© {new Date().getFullYear()} CarPlayActiv. Tous droits réservés.</p>
-        <div style={{ display: "flex", gap: 20 }}>
-          <Link href="/cgv" style={{ fontSize: 13, color: "var(--text-muted)", textDecoration: "none" }}>CGV</Link>
-          <Link href="/compte/connexion" style={{ fontSize: 13, color: "var(--text-muted)", textDecoration: "none" }}>Mon compte</Link>
-          <Link href="/admin/connexion" style={{ fontSize: 13, color: "var(--text-muted)", textDecoration: "none" }}>Administration</Link>
+    <footer className="site-footer">
+      <div className="container site-footer-inner">
+        <p className="footer-copy">© {new Date().getFullYear()} CarPlayActiv. Tous droits réservés.</p>
+        <div className="footer-links">
+          <Link href="/cgv" className="footer-link">CGV</Link>
+          <Link href="/compte/connexion" className="footer-link">Mon compte</Link>
+          <Link href="/admin/connexion" className="footer-link">Administration</Link>
         </div>
       </div>
     </footer>

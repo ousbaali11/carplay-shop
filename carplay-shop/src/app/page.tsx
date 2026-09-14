@@ -43,30 +43,35 @@ export default async function HomePage() {
       <Header />
 
       {/* HERO */}
-      <section style={{ padding: "80px 0 60px", borderBottom: "1px solid var(--line)" }}>
+      <section className="hero">
         <div className="container hero-grid">
           <div>
             <p className="eyebrow">Activation CarPlay & Android Auto</p>
-            <h1 style={{ fontSize: 46, lineHeight: 1.08, margin: "16px 0" }}>
+            <h1 className="hero-title">
               Débloquez CarPlay sur votre écran d'origine, sans changer d'autoradio.
             </h1>
-            <p style={{ fontSize: 17, maxWidth: 460 }}>
+            <p className="hero-lead">
               Chaque véhicule a sa propre annonce. Trouvez la vôtre, puis choisissez la formule qui
               vous convient.
             </p>
-            <div style={{ display: "flex", gap: 14, marginTop: 28 }}>
+            <div className="hero-actions">
               <a href="#annonces" className="btn btn-primary">Voir les annonces</a>
               <a href="#comment-ca-marche" className="btn btn-secondary">Comment ça marche</a>
             </div>
             {vehicleCount > 0 && (
-              <p style={{ marginTop: 20, fontSize: 13 }} className="mono">
+              <p className="hero-count mono">
                 {vehicleCount} annonce{vehicleCount > 1 ? "s" : ""} disponible{vehicleCount > 1 ? "s" : ""}
               </p>
             )}
+            <ul className="hero-trust premium-only" aria-label="Garanties">
+              <li>Paiement sécurisé Stripe ou PayPal</li>
+              <li>Guide PDF pas à pas inclus</li>
+              <li>Support par email</li>
+            </ul>
           </div>
 
           {/* Vidéo si configurée par l'admin, sinon animation par défaut */}
-          <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+          <div className="card hero-media">
             {heroVideoSrc ? (
               <video
                 src={heroVideoSrc}
@@ -74,22 +79,22 @@ export default async function HomePage() {
                 muted
                 loop
                 playsInline
-                style={{ display: "block", width: "100%", aspectRatio: "480 / 300", objectFit: "cover" }}
+                className="hero-video"
               />
             ) : (
-              <svg viewBox="0 0 480 300" width="100%" style={{ display: "block" }}>
-                <rect width="480" height="300" fill="#06080a" />
-                <rect x="20" y="20" width="440" height="230" rx="14" fill="#0c1013" stroke="#242a31" strokeWidth="2" />
-                <rect x="36" y="36" width="408" height="198" rx="6" fill="#0a0d10" />
-                <circle cx="240" cy="135" r="46" fill="none" stroke="#00c2ce" strokeWidth="2.5" opacity="0.9" />
-                <path d="M240 100 L258 128 L222 128 Z" fill="#00c2ce" />
-                <rect x="222" y="130" width="36" height="26" rx="4" fill="#00c2ce" />
-                <text x="240" y="200" fill="#8891a0" fontFamily="IBM Plex Mono" fontSize="11" textAnchor="middle" letterSpacing="2">
+              <svg viewBox="0 0 480 300" width="100%" className="hero-illustration">
+                <rect className="hi-bg" width="480" height="300" fill="#06080a" />
+                <rect className="hi-frame" x="20" y="20" width="440" height="230" rx="14" fill="#0c1013" stroke="#242a31" strokeWidth="2" />
+                <rect className="hi-screen" x="36" y="36" width="408" height="198" rx="6" fill="#0a0d10" />
+                <circle className="hi-accent-stroke" cx="240" cy="135" r="46" fill="none" stroke="#00c2ce" strokeWidth="2.5" opacity="0.9" />
+                <path className="hi-accent" d="M240 100 L258 128 L222 128 Z" fill="#00c2ce" />
+                <rect className="hi-accent" x="222" y="130" width="36" height="26" rx="4" fill="#00c2ce" />
+                <text className="hi-text" x="240" y="200" fill="#8891a0" fontFamily="IBM Plex Mono" fontSize="11" textAnchor="middle" letterSpacing="2">
                   CARPLAY ACTIVÉ
                 </text>
-                <rect x="50" y="264" width="380" height="6" rx="3" fill="#1c2027" />
-                <rect x="50" y="264" width="260" height="6" rx="3" fill="#00c2ce" />
-                <circle cx="440" cy="50" r="4" fill="#3ddc84" />
+                <rect className="hi-track" x="50" y="264" width="380" height="6" rx="3" fill="#1c2027" />
+                <rect className="hi-accent" x="50" y="264" width="260" height="6" rx="3" fill="#00c2ce" />
+                <circle className="hi-dot" cx="440" cy="50" r="4" fill="#3ddc84" />
               </svg>
             )}
           </div>
@@ -97,38 +102,38 @@ export default async function HomePage() {
       </section>
 
       {/* ANNONCES */}
-      <section id="annonces" style={{ padding: "72px 0" }}>
+      <section id="annonces" className="section">
         <div className="container">
           <p className="eyebrow">Nos annonces</p>
-          <h2 style={{ fontSize: 32, margin: "10px 0 40px" }}>Trouvez votre véhicule</h2>
+          <h2 className="section-heading">Trouvez votre véhicule</h2>
 
           {vehicles.length === 0 ? (
             <p>Aucune annonce disponible pour le moment. Revenez bientôt ou contactez-nous.</p>
           ) : (
             <>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 18, marginBottom: 32 }}>
+              <div className="vehicle-grid mb-32">
                 {vehicles.map((v) => (
-                  <div key={v.id} className="card" style={{ padding: 0, overflow: "hidden" }}>
-                    <Link href={`/vehicules/${v.id}`} style={{ display: "block" }}>
-                      <div style={{ aspectRatio: "16/10", background: "var(--bg-elevated)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <div key={v.id} className="card vehicle-card card-hover">
+                    <Link href={`/vehicules/${v.id}`} className="vehicle-card-media-link">
+                      <div className="vehicle-card-media">
                         {v.imageId ? (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img src={`/api/vehicules/image/${v.imageId}`} alt={v.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                          <img src={`/api/vehicules/image/${v.imageId}`} alt={v.title} className="vehicle-card-img" />
                         ) : (
-                          <span style={{ color: "var(--text-muted)", fontSize: 13 }}>Pas de photo</span>
+                          <span className="no-photo">Pas de photo</span>
                         )}
                       </div>
                     </Link>
-                    <div style={{ padding: 16 }}>
-                      <Link href={`/vehicules/${v.id}`} style={{ textDecoration: "none" }}>
-                        <p style={{ color: "var(--text)", fontWeight: 600, fontSize: 15, marginBottom: 8 }}>{v.title}</p>
+                    <div className="vehicle-card-body">
+                      <Link href={`/vehicules/${v.id}`} className="vehicle-card-title-link">
+                        <p className="vehicle-card-title">{v.title}</p>
                       </Link>
                       {v.description && (
-                        <div className="rich-content" style={{ fontSize: 13, marginBottom: 10 }} dangerouslySetInnerHTML={{ __html: v.description }} />
+                        <div className="rich-content vehicle-card-desc" dangerouslySetInnerHTML={{ __html: v.description }} />
                       )}
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
-                        <p style={{ color: "var(--cyan)", fontWeight: 700, fontFamily: "var(--font-display)" }}>Prix : {eur(v.priceFromCents)}</p>
-                        <Link href={`/vehicules/${v.id}`} className="btn btn-primary" style={{ fontSize: 13, padding: "8px 16px" }}>
+                      <div className="vehicle-card-footer">
+                        <p className="price-text">Prix : {eur(v.priceFromCents)}</p>
+                        <Link href={`/vehicules/${v.id}`} className="btn btn-primary btn-compact">
                           Commander
                         </Link>
                       </div>
@@ -143,10 +148,10 @@ export default async function HomePage() {
       </section>
 
       {/* COMMENT ÇA MARCHE */}
-      <section id="comment-ca-marche" style={{ padding: "72px 0", borderTop: "1px solid var(--line)" }}>
+      <section id="comment-ca-marche" className="section bordered">
         <div className="container">
           <p className="eyebrow">Processus</p>
-          <h2 style={{ fontSize: 32, margin: "10px 0 40px" }}>Comment ça marche</h2>
+          <h2 className="section-heading">Comment ça marche</h2>
           <div className="four-col-grid">
             {[
               ["01", "Choisissez", "Trouvez l'annonce correspondant à votre véhicule, puis la formule qui vous convient."],
@@ -154,10 +159,10 @@ export default async function HomePage() {
               ["03", "Recevez", "Vos fichiers arrivent par email. La carte physique part sous 48h."],
               ["04", "Activez", "Suivez le guide étape par étape pour activer CarPlay."],
             ].map(([n, t, d]) => (
-              <div key={n}>
-                <p className="mono" style={{ color: "var(--cyan)", fontSize: 13, marginBottom: 10 }}>{n}</p>
-                <h4 style={{ fontSize: 17, marginBottom: 8 }}>{t}</h4>
-                <p style={{ fontSize: 14 }}>{d}</p>
+              <div key={n} className="step">
+                <p className="step-num mono">{n}</p>
+                <h4 className="step-title">{t}</h4>
+                <p className="step-desc">{d}</p>
               </div>
             ))}
           </div>
@@ -165,17 +170,16 @@ export default async function HomePage() {
       </section>
 
       {/* CONTACT */}
-      <section id="contact" style={{ padding: "72px 0", borderTop: "1px solid var(--line)" }}>
+      <section id="contact" className="section bordered">
         <div className="container">
           <p className="eyebrow">Une question ?</p>
-          <h2 style={{ fontSize: 32, margin: "10px 0 24px" }}>Contactez-nous</h2>
-          <div style={{ display: "flex", gap: 16, flexWrap: "wrap", alignItems: "center" }}>
+          <h2 className="section-heading tight">Contactez-nous</h2>
+          <div className="contact-icons">
             <a
               href={`mailto:${contactEmail}`}
               aria-label="Nous écrire par email"
               title={contactEmail}
-              className="card"
-              style={{ width: 56, height: 56, padding: 0, display: "flex", alignItems: "center", justifyContent: "center" }}
+              className="card icon-card"
             >
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                 <rect x="2" y="4" width="20" height="16" rx="3" stroke="var(--cyan)" strokeWidth="2" />
@@ -189,8 +193,7 @@ export default async function HomePage() {
               rel="noopener noreferrer"
               aria-label="Notre Instagram"
               title="Instagram"
-              className="card"
-              style={{ width: 56, height: 56, padding: 0, display: "flex", alignItems: "center", justifyContent: "center" }}
+              className="card icon-card"
             >
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                 <defs>
@@ -208,8 +211,8 @@ export default async function HomePage() {
             </a>
           </div>
 
-          <div style={{ marginTop: 40, maxWidth: 480 }}>
-            <p style={{ marginBottom: 16 }}>
+          <div className="contact-form-wrap">
+            <p className="mb-16">
               Contactez-nous directement via ce formulaire.
             </p>
             <ContactForm />

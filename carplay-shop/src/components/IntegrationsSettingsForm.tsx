@@ -20,14 +20,14 @@ type Props = {
 function SecretField({ label, placeholderWhenSet, value, onChange, help }: { label: string; placeholderWhenSet: boolean; value: string; onChange: (v: string) => void; help?: string }) {
   return (
     <div>
-      <label>{label} {placeholderWhenSet && <span style={{ color: "var(--success)", fontSize: 12 }}>· déjà configuré</span>}</label>
+      <label>{label} {placeholderWhenSet && <span className="label-tag">· déjà configuré</span>}</label>
       <PasswordInput
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholderWhenSet ? "•••••••••••••••• (laisser vide pour ne pas changer)" : "Non configuré"}
         autoComplete="off"
       />
-      {help && <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 4 }}>{help}</p>}
+      {help && <p className="field-hint">{help}</p>}
     </div>
   );
 }
@@ -76,8 +76,8 @@ export default function IntegrationsSettingsForm(props: Props) {
   }
 
   return (
-    <div style={{ display: "grid", gap: 28, maxWidth: 520 }}>
-      <div className="card" style={{ display: "grid", gap: 14 }}>
+    <div className="form-stack w-520">
+      <div className="card form-card">
         <p className="eyebrow">Stripe — paiement par carte</p>
         <SecretField
           label="Clé secrète (sk_...)"
@@ -95,7 +95,7 @@ export default function IntegrationsSettingsForm(props: Props) {
         />
       </div>
 
-      <div className="card" style={{ display: "grid", gap: 14 }}>
+      <div className="card form-card">
         <p className="eyebrow">PayPal</p>
         <div>
           <label>Client ID</label>
@@ -116,7 +116,7 @@ export default function IntegrationsSettingsForm(props: Props) {
         </div>
       </div>
 
-      <div className="card" style={{ display: "grid", gap: 14 }}>
+      <div className="card form-card">
         <p className="eyebrow">Emails (Resend)</p>
         <SecretField
           label="Clé API Resend (re_...)"
@@ -134,7 +134,7 @@ export default function IntegrationsSettingsForm(props: Props) {
         </div>
       </div>
 
-      <div className="card" style={{ display: "grid", gap: 14 }}>
+      <div className="card form-card">
         <p className="eyebrow">Société (affiché sur les factures)</p>
         <div>
           <label>Nom</label>
@@ -146,11 +146,11 @@ export default function IntegrationsSettingsForm(props: Props) {
         </div>
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+      <div className="form-actions">
         <button className="btn btn-primary" onClick={save} disabled={saving}>
           {saving ? "Enregistrement..." : "Enregistrer"}
         </button>
-        {saved && <span style={{ color: "var(--success)", fontSize: 13 }}>✓ Enregistré</span>}
+        {saved && <span className="form-success">✓ Enregistré</span>}
       </div>
     </div>
   );

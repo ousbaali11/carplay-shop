@@ -11,7 +11,7 @@ function eur(cents: number) {
 
 function OrdersTable({ orders, showFilesSent }: { orders: any[]; showFilesSent: boolean }) {
   return (
-    <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+    <div className="card table-card">
       <div className="table-scroll">
         <table>
           <thead>
@@ -21,7 +21,7 @@ function OrdersTable({ orders, showFilesSent }: { orders: any[]; showFilesSent: 
               <th>Véhicule</th>
               <th>Année</th>
               <th>Version logiciel autoradio</th>
-              <th>Montant</th>
+              <th className="num">Montant</th>
               <th>Statut</th>
               {showFilesSent && <th>Fichiers envoyés</th>}
               <th></th>
@@ -31,26 +31,30 @@ function OrdersTable({ orders, showFilesSent }: { orders: any[]; showFilesSent: 
             {orders.map((o) => (
               <tr key={o.id}>
                 <td className="mono">{o.orderNumber}</td>
-                <td>{o.firstName} {o.lastName}<br /><span style={{ color: "var(--text-muted)", fontSize: 12 }}>{o.email}</span></td>
+                <td>
+                  <span className="cell-strong">{o.firstName} {o.lastName}</span>
+                  <br />
+                  <span className="cell-muted">{o.email}</span>
+                </td>
                 <td>{o.vehicleTitle}</td>
-                <td style={{ fontSize: 13 }}>{o.vehicleYear}</td>
-                <td style={{ fontSize: 13 }}>{o.radioSoftwareVersion || "—"}</td>
-                <td>{eur(o.priceCents)}</td>
+                <td className="cell-sm">{o.vehicleYear}</td>
+                <td className="cell-sm">{o.radioSoftwareVersion || "—"}</td>
+                <td className="num">{eur(o.priceCents)}</td>
                 <td><InlineStatusSelect orderId={o.id} status={o.status} /></td>
                 {showFilesSent && (
                   <td>
                     {o.filesSentAt ? (
-                      <span style={{ color: "var(--success)", fontSize: 13 }}>✓ {o.filesSentAt.toLocaleDateString("fr-FR")}</span>
+                      <span className="text-success cell-sm">✓ {o.filesSentAt.toLocaleDateString("fr-FR")}</span>
                     ) : (
-                      <span style={{ color: "var(--amber)", fontSize: 13 }}>À insérer</span>
+                      <span className="text-amber cell-sm">À insérer</span>
                     )}
                   </td>
                 )}
-                <td><Link href={`/admin/commandes/${o.id}`} style={{ color: "var(--cyan)", fontSize: 13 }}>Détail</Link></td>
+                <td className="cell-action"><Link href={`/admin/commandes/${o.id}`} className="link-accent">Détail</Link></td>
               </tr>
             ))}
             {orders.length === 0 && (
-              <tr><td colSpan={showFilesSent ? 9 : 8} style={{ color: "var(--text-muted)", textAlign: "center", padding: 24 }}>Aucune commande pour le moment.</td></tr>
+              <tr><td colSpan={showFilesSent ? 9 : 8} className="table-empty">Aucune commande pour le moment.</td></tr>
             )}
           </tbody>
         </table>
@@ -79,34 +83,34 @@ export default async function AdminDashboard() {
   return (
     <div className="admin-layout">
       <AdminSidebar active="commandes" />
-      <div style={{ flex: 1, padding: "36px 40px" }}>
-        <h1 style={{ fontSize: 26, marginBottom: 24 }}>Commandes</h1>
+      <div className="admin-main">
+        <h1 className="page-title mb-24">Commandes</h1>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 32 }}>
-          <div className="card">
+        <div className="stat-grid">
+          <div className="card stat-card">
             <p className="eyebrow">Chiffre d'affaires</p>
-            <p style={{ fontFamily: "var(--font-display)", fontSize: 26, marginTop: 8 }}>{eur(totalRevenue)}</p>
+            <p className="stat-value">{eur(totalRevenue)}</p>
           </div>
-          <div className="card">
+          <div className="card stat-card">
             <p className="eyebrow">Commandes totales</p>
-            <p style={{ fontFamily: "var(--font-display)", fontSize: 26, marginTop: 8 }}>{allOrders.length}</p>
+            <p className="stat-value">{allOrders.length}</p>
           </div>
-          <div className="card" style={{ borderColor: filesToInsert > 0 ? "var(--amber)" : undefined }}>
-            <p className="eyebrow" style={{ color: filesToInsert > 0 ? "var(--amber)" : undefined }}>Fichiers à insérer</p>
-            <p style={{ fontFamily: "var(--font-display)", fontSize: 26, marginTop: 8 }}>{filesToInsert}</p>
+          <div className={`card stat-card${filesToInsert > 0 ? " is-alert" : ""}`}>
+            <p className="eyebrow">Fichiers à insérer</p>
+            <p className="stat-value">{filesToInsert}</p>
           </div>
-          <div className="card" style={{ borderColor: toPrepare > 0 ? "var(--amber)" : undefined }}>
-            <p className="eyebrow" style={{ color: toPrepare > 0 ? "var(--amber)" : undefined }}>Cartes à préparer</p>
-            <p style={{ fontFamily: "var(--font-display)", fontSize: 26, marginTop: 8 }}>{toPrepare}</p>
+          <div className={`card stat-card${toPrepare > 0 ? " is-alert" : ""}`}>
+            <p className="eyebrow">Cartes à préparer</p>
+            <p className="stat-value">{toPrepare}</p>
           </div>
         </div>
 
-        <h2 style={{ fontSize: 20, marginBottom: 12 }}>Formule 1 — Fichiers seuls</h2>
-        <div style={{ marginBottom: 32 }}>
+        <h2 className="section-title">Formule 1 — Fichiers seuls</h2>
+        <div className="mb-32">
           <OrdersTable orders={filesOnlyOrders} showFilesSent />
         </div>
 
-        <h2 style={{ fontSize: 20, marginBottom: 12 }}>Formule 2 — Carte physique</h2>
+        <h2 className="section-title">Formule 2 — Carte physique</h2>
         <OrdersTable orders={physicalOrders} showFilesSent={false} />
       </div>
     </div>

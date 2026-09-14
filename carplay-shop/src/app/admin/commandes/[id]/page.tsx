@@ -30,41 +30,45 @@ export default async function AdminOrderDetail({ params }: { params: { id: strin
   if (!order) notFound();
 
   const isPhysical = order.formula === "PHYSICAL_CARD";
+  const status = statusLabel[order.status] || { label: order.status, cls: "badge-pending" };
 
   return (
     <div className="admin-layout">
       <AdminSidebar active="commandes" />
-      <div style={{ flex: 1, padding: "36px 40px", maxWidth: 760 }}>
-        <p className="eyebrow">Commande</p>
-        <h1 style={{ fontSize: 26, margin: "8px 0 24px" }} className="mono">{order.orderNumber}</h1>
+      <div className="admin-main narrow-lg">
+        <div className="order-heading">
+          <p className="eyebrow">Commande</p>
+          <h1 className="page-title mono order-title">{order.orderNumber}</h1>
+          <span className={`badge order-heading-badge ${status.cls}`}>{status.label}</span>
+        </div>
 
         {!order.downloadToken && order.status !== "PENDING_PAYMENT" && (
           <ForceFinalizeButton orderId={order.id} />
         )}
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 }}>
+        <div className="detail-grid">
           <div className="card">
-            <p className="eyebrow" style={{ marginBottom: 10 }}>Client</p>
-            <p style={{ color: "var(--text)" }}>{order.firstName} {order.lastName}</p>
-            <p style={{ fontSize: 14 }}>{order.email}</p>
-            <p style={{ fontSize: 14 }}>{order.phone}</p>
+            <p className="eyebrow mb-10">Client</p>
+            <p className="detail-name">{order.firstName} {order.lastName}</p>
+            <p className="detail-line">{order.email}</p>
+            <p className="detail-line">{order.phone}</p>
           </div>
           <div className="card">
-            <p className="eyebrow" style={{ marginBottom: 10 }}>Commande</p>
-            <p style={{ fontSize: 14 }}>Véhicule : <span style={{ color: "var(--text)" }}>{order.vehicleTitle}</span></p>
-            <p style={{ fontSize: 14 }}>Année de véhicule : <span style={{ color: "var(--text)" }}>{order.vehicleYear}</span></p>
-            <p style={{ fontSize: 14 }}>Formule : <span style={{ color: "var(--text)" }}>{isPhysical ? "Carte physique" : "Fichiers seuls"}</span></p>
-            <p style={{ fontSize: 14 }}>Version logiciel autoradio : <span style={{ color: "var(--text)" }}>{order.radioSoftwareVersion || "—"}</span></p>
-            <p style={{ fontSize: 14 }}>Montant : <span style={{ color: "var(--text)" }}>{eur(order.priceCents)}</span></p>
-            <p style={{ fontSize: 14 }}>Paiement : <span style={{ color: "var(--text)" }}>{order.paymentMethod || "—"}</span></p>
-            <p style={{ fontSize: 14 }}>Statut : <span className={`badge ${statusLabel[order.status].cls}`}>{statusLabel[order.status].label}</span></p>
+            <p className="eyebrow mb-10">Commande</p>
+            <p className="detail-line"><span className="detail-label">Véhicule :</span> <span className="detail-value">{order.vehicleTitle}</span></p>
+            <p className="detail-line"><span className="detail-label">Année de véhicule :</span> <span className="detail-value">{order.vehicleYear}</span></p>
+            <p className="detail-line"><span className="detail-label">Formule :</span> <span className="detail-value">{isPhysical ? "Carte physique" : "Fichiers seuls"}</span></p>
+            <p className="detail-line"><span className="detail-label">Version logiciel autoradio :</span> <span className="detail-value">{order.radioSoftwareVersion || "—"}</span></p>
+            <p className="detail-line"><span className="detail-label">Montant :</span> <span className="detail-value detail-amount">{eur(order.priceCents)}</span></p>
+            <p className="detail-line"><span className="detail-label">Paiement :</span> <span className="detail-value">{order.paymentMethod || "—"}</span></p>
+            <p className="detail-line"><span className="detail-label">Statut :</span> <span className={`badge ${status.cls}`}>{status.label}</span></p>
           </div>
         </div>
 
         {isPhysical && (
-          <div className="card" style={{ marginBottom: 20 }}>
-            <p className="eyebrow" style={{ marginBottom: 10 }}>Adresse de livraison</p>
-            <p style={{ fontSize: 14, color: "var(--text)" }}>
+          <div className="card mb-20">
+            <p className="eyebrow mb-10">Adresse de livraison</p>
+            <p className="detail-block">
               {order.address}{order.addressComp ? `, ${order.addressComp}` : ""}<br />
               {order.postalCode} {order.city}<br />
               {order.country}
@@ -77,24 +81,24 @@ export default async function AdminOrderDetail({ params }: { params: { id: strin
         )}
 
         {isPhysical && order.status === "PREPARING" && (
-          <div className="card" style={{ marginBottom: 20 }}>
-            <p className="eyebrow" style={{ marginBottom: 10 }}>Expédition</p>
+          <div className="card mb-20">
+            <p className="eyebrow mb-10">Expédition</p>
             <ShipOrderForm orderId={order.id} />
           </div>
         )}
 
         {isPhysical && order.status === "SHIPPED" && (
-          <div className="card" style={{ marginBottom: 20 }}>
-            <p className="eyebrow" style={{ marginBottom: 10 }}>Expédiée</p>
-            <p style={{ fontSize: 14, color: "var(--text)" }}>
+          <div className="card mb-20">
+            <p className="eyebrow mb-10">Expédiée</p>
+            <p className="detail-block">
               Le {order.shippedAt?.toLocaleDateString("fr-FR")} {order.trackingNumber ? `— suivi : ${order.trackingNumber}` : ""}
             </p>
           </div>
         )}
 
         <div className="card">
-          <p className="eyebrow" style={{ marginBottom: 10 }}>Actions</p>
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 14 }}>
+          <p className="eyebrow mb-10">Actions</p>
+          <div className="actions-row mb-14">
             <a href={`/api/admin/orders/${order.id}/facture`} className="btn btn-secondary">Télécharger la facture</a>
           </div>
           <OrderStatusActions orderId={order.id} status={order.status} />

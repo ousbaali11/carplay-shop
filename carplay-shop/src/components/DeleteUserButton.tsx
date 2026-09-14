@@ -18,12 +18,7 @@ export default function DeleteUserButton({ userId, label }: { userId: string; la
   }
 
   return (
-    <button
-      type="button"
-      onClick={handleDelete}
-      disabled={loading}
-      style={{ background: "none", border: "none", color: "var(--danger)", fontSize: 13, cursor: "pointer", textDecoration: "underline" }}
-    >
+    <button type="button" onClick={handleDelete} disabled={loading} className="link-danger link-danger-md">
       {loading ? "..." : "Supprimer"}
     </button>
   );

@@ -19,47 +19,44 @@ function eur(cents: number) {
 function VehicleCard({ v }: { v: Vehicle }) {
   const [activeImg, setActiveImg] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const hasImages = v.imageIds.length > 0;
 
   return (
-    <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+    <div className="card vehicle-card card-hover">
       <div
-        role={v.imageIds.length > 0 ? "button" : undefined}
-        aria-label={v.imageIds.length > 0 ? `Agrandir la photo de ${v.title}` : undefined}
-        onClick={() => v.imageIds.length > 0 && setLightboxOpen(true)}
+        role={hasImages ? "button" : undefined}
+        aria-label={hasImages ? `Agrandir la photo de ${v.title}` : undefined}
+        onClick={() => hasImages && setLightboxOpen(true)}
         onMouseEnter={() => v.imageIds.length > 1 && setActiveImg(1)}
         onMouseLeave={() => setActiveImg(0)}
-        style={{
-          aspectRatio: "16/10", background: "var(--bg-elevated)", display: "flex",
-          alignItems: "center", justifyContent: "center", position: "relative",
-          cursor: v.imageIds.length > 0 ? "zoom-in" : "default",
-        }}
+        className={`vehicle-card-media${hasImages ? " zoomable" : ""}`}
       >
-        {v.imageIds.length > 0 ? (
+        {hasImages ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={`/api/vehicules/image/${v.imageIds[activeImg] || v.imageIds[0]}`} alt={v.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          <img src={`/api/vehicules/image/${v.imageIds[activeImg] || v.imageIds[0]}`} alt={v.title} className="vehicle-card-img" />
         ) : (
-          <span style={{ color: "var(--text-muted)", fontSize: 13 }}>Pas de photo</span>
+          <span className="no-photo">Pas de photo</span>
         )}
         {v.imageIds.length > 1 && (
-          <span className="mono" style={{ position: "absolute", bottom: 8, right: 8, background: "rgba(0,0,0,0.6)", color: "#fff", fontSize: 11, padding: "2px 8px", borderRadius: 999 }}>
+          <span className="mono photo-count-pill">
             {v.imageIds.length} photos
           </span>
         )}
-        {v.imageIds.length > 0 && (
-          <span style={{ position: "absolute", top: 8, left: 8, background: "rgba(0,0,0,0.55)", color: "#fff", fontSize: 13, width: 26, height: 26, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        {hasImages && (
+          <span className="zoom-hint">
             ⤢
           </span>
         )}
       </div>
 
-      <Link href={`/vehicules/${v.id}`} className="vehicle-info-link" style={{ padding: 16, textDecoration: "none", display: "block" }}>
-        <p style={{ color: "var(--text)", fontWeight: 600, fontSize: 15 }}>{v.title}</p>
+      <Link href={`/vehicules/${v.id}`} className="vehicle-info-link vehicle-card-body">
+        <p className="vehicle-card-title tight">{v.title}</p>
         {v.description && (
-          <div className="rich-content" style={{ fontSize: 13, margin: "6px 0 10px" }} dangerouslySetInnerHTML={{ __html: v.description }} />
+          <div className="rich-content vehicle-card-desc mt-6" dangerouslySetInnerHTML={{ __html: v.description }} />
         )}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <p style={{ color: "var(--cyan)", fontWeight: 700, fontFamily: "var(--font-display)" }}>À partir de {eur(v.priceFromCents)}</p>
-          <span className="order-hint" style={{ fontSize: 12, color: "var(--cyan)", fontWeight: 600 }}>Voir l'annonce →</span>
+        <div className="vehicle-card-footer">
+          <p className="price-text">À partir de {eur(v.priceFromCents)}</p>
+          <span className="order-hint">Voir l'annonce →</span>
         </div>
       </Link>
 
@@ -85,13 +82,14 @@ export default function VehiclesList({ vehicles }: { vehicles: Vehicle[] }) {
         placeholder="Rechercher une annonce..."
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        style={{ marginBottom: 28, maxWidth: 420 }}
+        className="search-input"
+        aria-label="Rechercher une annonce"
       />
 
       {filtered.length === 0 ? (
         <p>Aucune annonce ne correspond à votre recherche. Contactez-nous, votre véhicule est peut-être disponible prochainement.</p>
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 18 }}>
+        <div className="vehicle-grid">
           {filtered.map((v) => (
             <VehicleCard key={v.id} v={v} />
           ))}

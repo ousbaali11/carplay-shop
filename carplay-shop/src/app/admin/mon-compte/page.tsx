@@ -9,9 +9,11 @@ export default async function AdminAccountPage() {
   return (
     <div className="admin-layout">
       <AdminSidebar active="mon-compte" />
-      <div style={{ flex: 1, padding: "36px 40px" }}>
-        <h1 style={{ fontSize: 26, marginBottom: 8 }}>Mon compte</h1>
-        <p style={{ marginBottom: 24 }}>Connecté en tant que {session?.user?.email}</p>
+      <div className="admin-main">
+        <div className="page-header">
+          <h1 className="page-title">Mon compte</h1>
+          <p className="page-lead">Connecté en tant que {session?.user?.email}</p>
+        </div>
         <ChangePasswordForm />
       </div>
     </div>

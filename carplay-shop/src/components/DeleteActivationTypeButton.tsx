@@ -21,7 +21,7 @@ export default function DeleteActivationTypeButton({ activationTypeId, label }: 
   }
 
   return (
-    <button type="button" onClick={handleDelete} disabled={loading} className="btn btn-secondary" style={{ borderColor: "var(--danger)", color: "var(--danger)" }}>
+    <button type="button" onClick={handleDelete} disabled={loading} className="btn btn-danger">
       {loading ? "Suppression..." : "Supprimer ce type d'activation"}
     </button>
   );

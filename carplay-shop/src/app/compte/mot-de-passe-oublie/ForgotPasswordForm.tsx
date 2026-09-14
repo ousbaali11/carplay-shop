@@ -23,9 +23,9 @@ export default function ForgotPasswordForm() {
   if (sent) {
     return (
       <div className="card">
-        <p style={{ color: "var(--text)", fontWeight: 600, marginBottom: 8 }}>Email envoyé</p>
-        <p style={{ fontSize: 14 }}>
-          Si un compte existe avec l'adresse <b style={{ color: "var(--text)" }}>{email}</b>, un lien de
+        <p className="form-title mb-8">Email envoyé</p>
+        <p className="text-14">
+          Si un compte existe avec l'adresse <b className="strong-text">{email}</b>, un lien de
           réinitialisation vient d'être envoyé (valable 1 heure). Vérifie aussi tes spams.
         </p>
       </div>
@@ -34,18 +34,18 @@ export default function ForgotPasswordForm() {
 
   return (
     <>
-      <h1 style={{ fontSize: 26, marginBottom: 24 }}>Mot de passe oublié</h1>
-      <form onSubmit={submit} className="card" style={{ display: "grid", gap: 14 }}>
+      <h1 className="auth-heading">Mot de passe oublié</h1>
+      <form onSubmit={submit} className="card form-card auth-form">
         <div>
           <label>Email de ton compte</label>
-          <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
         </div>
         <button className="btn btn-primary" disabled={loading}>
           {loading ? "Envoi..." : "Envoyer le lien de réinitialisation"}
         </button>
       </form>
-      <p style={{ marginTop: 16, fontSize: 14 }}>
-        <Link href="/compte/connexion" style={{ color: "var(--cyan)" }}>← Retour à la connexion</Link>
+      <p className="auth-links">
+        <Link href="/compte/connexion" className="link-inline">← Retour à la connexion</Link>
       </p>
     </>
   );

@@ -6,7 +6,7 @@ export default function ResetPasswordPage({ searchParams }: { searchParams: { to
   return (
     <>
       <Header />
-      <section className="container" style={{ padding: "60px 0", maxWidth: 420 }}>
+      <section className="container auth-section w-420">
         <ResetPasswordForm token={searchParams.token || ""} />
       </section>
       <Footer />

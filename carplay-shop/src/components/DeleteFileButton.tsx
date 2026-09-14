@@ -17,20 +17,7 @@ export default function DeleteFileButton({ url, label = "Supprimer" }: { url: st
   }
 
   return (
-    <button
-      type="button"
-      onClick={handleDelete}
-      disabled={loading}
-      style={{
-        background: "none",
-        border: "none",
-        color: "var(--danger)",
-        fontSize: 12,
-        cursor: "pointer",
-        padding: "2px 6px",
-        textDecoration: "underline",
-      }}
-    >
+    <button type="button" onClick={handleDelete} disabled={loading} className="link-danger">
       {loading ? "..." : label}
     </button>
   );

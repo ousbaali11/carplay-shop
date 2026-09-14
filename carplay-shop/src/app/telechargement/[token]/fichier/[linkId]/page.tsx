@@ -10,9 +10,9 @@ function Message({ icon, title, children }: { icon: string; title: string; child
   return (
     <>
       <Header />
-      <section className="container" style={{ padding: "80px 0", maxWidth: 480, textAlign: "center" }}>
-        <div style={{ fontSize: 44, marginBottom: 16 }}>{icon}</div>
-        <h1 style={{ fontSize: 22, marginBottom: 10 }}>{title}</h1>
+      <section className="container status-section w-480">
+        <div className="status-icon sm">{icon}</div>
+        <h1 className="status-title xs">{title}</h1>
         {children}
       </section>
       <Footer />

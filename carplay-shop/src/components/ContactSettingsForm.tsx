@@ -40,7 +40,7 @@ export default function ContactSettingsForm({
   }
 
   return (
-    <div className="card" style={{ display: "grid", gap: 14, maxWidth: 480 }}>
+    <div className="card form-card w-480">
       <div>
         <label>Email de contact (affiché sur l'accueil)</label>
         <input type="email" value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} />
@@ -53,12 +53,12 @@ export default function ContactSettingsForm({
         <label>Lien WhatsApp (laisse vide pour masquer le bouton)</label>
         <input type="url" value={whatsappUrl} onChange={(e) => setWhatsappUrl(e.target.value)} placeholder="https://wa.me/33612345678" />
       </div>
-      {error && <p style={{ color: "var(--danger)", fontSize: 13 }}>{error}</p>}
-      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+      {error && <p className="form-error">{error}</p>}
+      <div className="form-actions">
         <button className="btn btn-primary" onClick={save} disabled={saving}>
           {saving ? "Enregistrement..." : "Enregistrer"}
         </button>
-        {saved && <span style={{ color: "var(--success)", fontSize: 13 }}>✓ Enregistré</span>}
+        {saved && <span className="form-success">✓ Enregistré</span>}
       </div>
     </div>
   );

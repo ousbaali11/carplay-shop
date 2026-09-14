@@ -22,28 +22,28 @@ export default async function AdminVehiclesPage({ searchParams }: { searchParams
   return (
     <div className="admin-layout">
       <AdminSidebar active="vehicules" />
-      <div style={{ flex: 1, padding: "36px 40px" }}>
+      <div className="admin-main">
         {searchParams.cree && (
-          <div className="card" style={{ borderColor: "var(--success)", marginBottom: 20, padding: "14px 18px" }}>
-            <span style={{ color: "var(--success)" }}>✓</span>{" "}
-            <span style={{ color: "var(--text)" }}>Véhicule "{decodeURIComponent(searchParams.cree)}" créé avec succès.</span>
+          <div className="notice notice-success">
+            <span className="notice-icon">✓</span>{" "}
+            <span className="notice-text">Véhicule "{decodeURIComponent(searchParams.cree)}" créé avec succès.</span>
           </div>
         )}
 
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
-          <h1 style={{ fontSize: 26 }}>Véhicules ({vehicles.length})</h1>
+        <div className="page-header-row">
+          <h1 className="page-title">Véhicules ({vehicles.length})</h1>
           <Link href="/admin/vehicules/nouveau" className="btn btn-primary">+ Ajouter un véhicule</Link>
         </div>
 
-        <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+        <div className="card table-card">
           <div className="table-scroll">
           <table>
             <thead>
               <tr>
                 <th></th>
                 <th>Véhicule</th>
-                <th>Prix fichiers</th>
-                <th>Prix carte</th>
+                <th className="num">Prix fichiers</th>
+                <th className="num">Prix carte</th>
                 <th>Fichiers</th>
                 <th>Visible</th>
                 <th></th>
@@ -55,27 +55,27 @@ export default async function AdminVehiclesPage({ searchParams }: { searchParams
                 return (
                 <tr key={v.id}>
                   <td>
-                    <div style={{ width: 44, height: 32, borderRadius: 4, overflow: "hidden", background: "var(--bg-elevated)" }}>
+                    <div className="thumb-cell">
                       {v.images[0] ? (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={`/api/vehicules/image/${v.images[0].id}`} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                        <img src={`/api/vehicules/image/${v.images[0].id}`} alt="" />
                       ) : null}
                     </div>
                   </td>
-                  <td>{v.title}</td>
-                  <td>{eur(v.priceFilesCents)}</td>
-                  <td>{eur(v.pricePhysicalCents)}</td>
-                  <td style={{ fontSize: 12 }}>
+                  <td className="cell-strong">{v.title}</td>
+                  <td className="num">{eur(v.priceFilesCents)}</td>
+                  <td className="num">{eur(v.pricePhysicalCents)}</td>
+                  <td className="cell-xs">
                     {v._count.images} photo{v._count.images !== 1 ? "s" : ""}<br/>
                     F2: {physicalCount} PDF
                   </td>
                   <td><ToggleActiveButton vehicleId={v.id} active={v.active} /></td>
-                  <td><Link href={`/admin/vehicules/${v.id}`} style={{ color: "var(--cyan)", fontSize: 13 }}>Modifier</Link></td>
+                  <td className="cell-action"><Link href={`/admin/vehicules/${v.id}`} className="link-accent">Modifier</Link></td>
                 </tr>
                 );
               })}
               {vehicles.length === 0 && (
-                <tr><td colSpan={7} style={{ color: "var(--text-muted)", textAlign: "center", padding: 24 }}>
+                <tr><td colSpan={7} className="table-empty">
                   Aucun véhicule au catalogue. Cliquez sur "+ Ajouter un véhicule" pour commencer.
                 </td></tr>
               )}

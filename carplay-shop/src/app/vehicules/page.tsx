@@ -23,10 +23,10 @@ export default async function VehiclesPage() {
   return (
     <>
       <Header />
-      <section className="container" style={{ padding: "50px 0" }}>
+      <section className="container page-section">
         <p className="eyebrow">Nos annonces</p>
-        <h1 style={{ fontSize: 30, margin: "10px 0 8px" }}>Choisissez votre véhicule</h1>
-        <p style={{ marginBottom: 32, maxWidth: 560 }}>
+        <h1 className="page-title-lg">Choisissez votre véhicule</h1>
+        <p className="page-intro">
           Sélectionnez l'annonce correspondant à votre véhicule : vous choisirez ensuite la formule
           (fichiers seuls ou carte physique) sur la page suivante.
         </p>

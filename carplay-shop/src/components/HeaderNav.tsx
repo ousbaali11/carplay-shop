@@ -18,14 +18,14 @@ export default function HeaderNav() {
     <>
       <nav className="desktop-nav">
         {LINKS.map((l) => (
-          <Link key={l.href} href={l.href} style={{ fontSize: 14, textDecoration: "none", color: "var(--text-muted)" }}>
+          <Link key={l.href} href={l.href} className="nav-link">
             {l.label}
           </Link>
         ))}
         <UserAvatar />
       </nav>
 
-      <button className="mobile-menu-btn" aria-label="Menu" onClick={() => setOpen((o) => !o)}>
+      <button className="mobile-menu-btn" aria-label="Menu" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
         {open ? (
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M6 6L18 18M6 18L18 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
         ) : (
@@ -34,13 +34,13 @@ export default function HeaderNav() {
       </button>
 
       {open && (
-        <div className="mobile-nav-panel open" style={{ position: "absolute", top: 72, left: 0, right: 0 }}>
+        <div className="mobile-nav-panel open">
           {LINKS.map((l) => (
-            <Link key={l.href} href={l.href} onClick={() => setOpen(false)} style={{ fontSize: 15, textDecoration: "none", color: "var(--text)", padding: "10px 0" }}>
+            <Link key={l.href} href={l.href} onClick={() => setOpen(false)} className="nav-link">
               {l.label}
             </Link>
           ))}
-          <div style={{ marginTop: 8 }}>
+          <div className="mobile-nav-avatar">
             <UserAvatar />
           </div>
         </div>

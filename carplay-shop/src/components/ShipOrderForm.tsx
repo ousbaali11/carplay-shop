@@ -21,7 +21,7 @@ export default function ShipOrderForm({ orderId }: { orderId: string }) {
   }
 
   return (
-    <form onSubmit={submit} style={{ display: "grid", gap: 10 }}>
+    <form onSubmit={submit} className="form-grid">
       <div>
         <label>Numéro de suivi (optionnel)</label>
         <input value={tracking} onChange={(e) => setTracking(e.target.value)} placeholder="ex: 6A00012345678" />

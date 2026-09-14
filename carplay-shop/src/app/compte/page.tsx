@@ -41,26 +41,26 @@ export default async function AccountPage() {
   return (
     <>
       <Header />
-      <section className="container" style={{ padding: "50px 0" }}>
-        <div style={{ marginBottom: 28 }}>
+      <section className="container page-section">
+        <div className="mb-28">
           <p className="eyebrow">Espace client</p>
-          <h1 style={{ fontSize: 26, marginTop: 6 }}>Bonjour {session?.user?.name}</h1>
+          <h1 className="page-title-md">Bonjour {session?.user?.name}</h1>
         </div>
 
-        <Link href="/vehicules" className="btn btn-primary" style={{ marginBottom: 36, display: "inline-block" }}>
+        <Link href="/vehicules" className="btn btn-primary inline-block mb-36">
           Parcourir les annonces
         </Link>
 
-        <h3 style={{ marginBottom: 14 }}>Mes commandes</h3>
+        <h3 className="section-title-sm">Mes commandes</h3>
         {orders.length === 0 ? (
           <>
             <p>Vous n'avez pas encore de commande passée avec ce compte.</p>
-            <p style={{ fontSize: 13, marginTop: 6 }}>
+            <p className="text-13 mt-6">
               Une commande passée sans être connecté reste accessible via le lien personnel reçu par email.
             </p>
           </>
         ) : (
-          <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+          <div className="card table-card">
             <div className="table-scroll">
             <table>
               <thead>
@@ -68,7 +68,7 @@ export default async function AccountPage() {
                   <th>Commande</th>
                   <th>Véhicule</th>
                   <th>Type</th>
-                  <th>Montant</th>
+                  <th className="num">Montant</th>
                   <th>Statut</th>
                   <th>Fichiers</th>
                   {invoicesEnabled && <th>Facture</th>}
@@ -86,29 +86,29 @@ export default async function AccountPage() {
                   return (
                     <tr key={o.id}>
                       <td className="mono">{o.orderNumber}</td>
-                      <td>{o.vehicleTitle} <span style={{ color: "var(--text-muted)" }}>({o.vehicleYear})</span></td>
-                      <td style={{ fontSize: 13 }}>{o.formula === "PHYSICAL_CARD" ? "Carte physique" : "Fichiers seuls"}</td>
-                      <td>{eur(o.priceCents)}</td>
+                      <td>{o.vehicleTitle} <span className="text-muted">({o.vehicleYear})</span></td>
+                      <td className="cell-sm">{o.formula === "PHYSICAL_CARD" ? "Carte physique" : "Fichiers seuls"}</td>
+                      <td className="num">{eur(o.priceCents)}</td>
                       <td><span className={`badge ${s.cls}`}>{s.label}</span></td>
                       <td>
                         {canDownload ? (
-                          <Link href={`/telechargement/${o.downloadToken}`} style={{ color: "var(--cyan)", fontSize: 13 }}>
+                          <Link href={`/telechargement/${o.downloadToken}`} className="link-accent">
                             Accéder
                           </Link>
                         ) : filesPending ? (
-                          <span style={{ color: "var(--amber)", fontSize: 13 }}>En préparation</span>
+                          <span className="text-amber cell-sm">En préparation</span>
                         ) : (
-                          <span style={{ color: "var(--text-muted)", fontSize: 13 }}>—</span>
+                          <span className="text-muted cell-sm">—</span>
                         )}
                       </td>
                       {invoicesEnabled && (
                         <td>
                           {canDownload ? (
-                            <a href={`/api/download/${o.downloadToken}/facture`} style={{ color: "var(--cyan)", fontSize: 13 }}>
+                            <a href={`/api/download/${o.downloadToken}/facture`} className="link-accent">
                               Télécharger
                             </a>
                           ) : (
-                            <span style={{ color: "var(--text-muted)", fontSize: 13 }}>—</span>
+                            <span className="text-muted cell-sm">—</span>
                           )}
                         </td>
                       )}
@@ -145,7 +145,7 @@ export default async function AccountPage() {
           </div>
         )}
 
-        <h3 style={{ margin: "40px 0 14px" }}>Sécurité</h3>
+        <h3 className="section-title-sm spaced">Sécurité</h3>
         <ChangePasswordForm />
       </section>
       <Footer />

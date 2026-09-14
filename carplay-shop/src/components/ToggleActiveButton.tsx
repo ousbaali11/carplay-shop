@@ -19,8 +19,7 @@ export default function ToggleActiveButton({ vehicleId, active }: { vehicleId: s
     <button
       onClick={toggle}
       disabled={loading}
-      className={`badge ${active ? "badge-paid" : "badge-canceled"}`}
-      style={{ border: "none", cursor: "pointer" }}
+      className={`badge badge-btn ${active ? "badge-paid" : "badge-canceled"}`}
       title="Cliquer pour changer"
     >
       {loading ? "..." : active ? "Visible" : "Masqué"}

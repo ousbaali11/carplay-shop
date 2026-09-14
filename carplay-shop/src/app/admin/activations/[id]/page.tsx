@@ -16,52 +16,68 @@ export default async function EditActivationTypePage({ params, searchParams }: {
   return (
     <div className="admin-layout">
       <AdminSidebar active="activations" />
-      <div style={{ flex: 1, padding: "36px 40px", maxWidth: 560 }}>
-        <h1 style={{ fontSize: 26, marginBottom: 8 }}>{t.name}</h1>
-        <p style={{ marginBottom: 24, fontSize: 13 }}>
-          Utilisé par {t._count.vehicles} véhicule{t._count.vehicles !== 1 ? "s" : ""}.
-        </p>
+      <div className="admin-main narrow-sm">
+        <div className="page-header">
+          <h1 className="page-title">{t.name}</h1>
+          <p className="page-lead sm">
+            Utilisé par {t._count.vehicles} véhicule{t._count.vehicles !== 1 ? "s" : ""}.
+          </p>
+        </div>
 
         {searchParams.enregistre && (
-          <div className="card" style={{ borderColor: "var(--success)", marginBottom: 20, padding: "14px 18px" }}>
-            <span style={{ color: "var(--success)" }}>✓</span> <span style={{ color: "var(--text)" }}>Modifications enregistrées.</span>
+          <div className="notice notice-success">
+            <span className="notice-icon">✓</span> <span className="notice-text">Modifications enregistrées.</span>
           </div>
         )}
 
         {searchParams.erreur && (
-          <div className="card" style={{ borderColor: "var(--danger)", marginBottom: 20, padding: "14px 18px" }}>
-            <span style={{ color: "var(--danger)" }}>✕</span> <span style={{ color: "var(--text)" }}>{searchParams.erreur}</span>
+          <div className="notice notice-error">
+            <span className="notice-icon">✕</span> <span className="notice-text">{searchParams.erreur}</span>
           </div>
         )}
 
-        <form action={`/api/admin/activation-types/${t.id}`} method="POST" encType="multipart/form-data" className="card" style={{ display: "grid", gap: 14, marginBottom: 20 }}>
-          <div>
-            <label>Nom (la clé)</label>
-            <input name="name" required defaultValue={t.name} />
+        <form action={`/api/admin/activation-types/${t.id}`} method="POST" encType="multipart/form-data" className="card form-card sectioned mb-20">
+          <div className="form-section">
+            <div className="form-section-header">
+              <p className="form-section-title">Identité</p>
+              <p className="form-section-desc">Le nom apparaît dans la liste déroulante des fiches véhicule.</p>
+            </div>
+            <div>
+              <label>Nom (la clé)</label>
+              <input name="name" required defaultValue={t.name} />
+            </div>
           </div>
 
-          <div>
-            <label>PDF actuels ({t.pdfs.length})</label>
-            {t.pdfs.length > 0 && (
-              <ul style={{ margin: "0 0 10px", padding: 0, listStyle: "none", display: "grid", gap: 6 }}>
-                {t.pdfs.map((p) => (
-                  <li key={p.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 13, background: "var(--bg-elevated)", padding: "6px 10px", borderRadius: 6 }}>
-                    <span>{p.fileName}</span>
-                    <DeleteFileButton url={`/api/admin/activation-types/${t.id}/pdfs/${p.id}`} />
-                  </li>
-                ))}
-              </ul>
-            )}
-            <label style={{ fontSize: 12 }}>Ajouter d'autres PDF (ou remplacer une mise à jour : ajoute la nouvelle version, puis supprime l'ancienne ci-dessus)</label>
-            <input name="pdfs" type="file" accept="application/pdf" multiple />
+          <div className="form-section">
+            <div className="form-section-header">
+              <p className="form-section-title">Guides PDF</p>
+              <p className="form-section-desc">Pour remplacer un guide : ajoute la nouvelle version, puis supprime l'ancienne.</p>
+            </div>
+            <div>
+              <label>PDF actuels ({t.pdfs.length})</label>
+              {t.pdfs.length > 0 && (
+                <ul className="file-list">
+                  {t.pdfs.map((p) => (
+                    <li key={p.id} className="file-item row">
+                      <span>{p.fileName}</span>
+                      <DeleteFileButton url={`/api/admin/activation-types/${t.id}/pdfs/${p.id}`} />
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <label className="label-sub">Ajouter d'autres PDF (ou remplacer une mise à jour : ajoute la nouvelle version, puis supprime l'ancienne ci-dessus)</label>
+              <input name="pdfs" type="file" accept="application/pdf" multiple />
+            </div>
           </div>
 
-          <button className="btn btn-primary" style={{ justifySelf: "start" }}>Enregistrer</button>
+          <div className="form-actions">
+            <button className="btn btn-primary">Enregistrer</button>
+          </div>
         </form>
 
-        <div className="card">
-          <p className="eyebrow" style={{ marginBottom: 10, color: "var(--danger)" }}>Zone dangereuse</p>
-          <p style={{ fontSize: 13, marginBottom: 12 }}>
+        <div className="card danger-zone">
+          <p className="eyebrow text-danger mb-10">Zone dangereuse</p>
+          <p className="note mb-12">
             Supprime définitivement ce type d'activation et ses PDF. Les véhicules qui l'utilisaient
             perdent simplement l'association (ils ne sont pas supprimés).
           </p>

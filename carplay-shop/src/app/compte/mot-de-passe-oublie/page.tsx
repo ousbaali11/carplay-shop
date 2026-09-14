@@ -6,7 +6,7 @@ export default function ForgotPasswordPage() {
   return (
     <>
       <Header />
-      <section className="container" style={{ padding: "60px 0", maxWidth: 420 }}>
+      <section className="container auth-section w-420">
         <ForgotPasswordForm />
       </section>
       <Footer />

@@ -42,9 +42,9 @@ export default function ResetPasswordForm({ token }: { token: string }) {
   if (!token) {
     return (
       <div className="card">
-        <p style={{ color: "var(--danger)" }}>Lien invalide. Refais une demande de réinitialisation.</p>
-        <p style={{ marginTop: 12 }}>
-          <Link href="/compte/mot-de-passe-oublie" style={{ color: "var(--cyan)" }}>Mot de passe oublié</Link>
+        <p className="text-danger">Lien invalide. Refais une demande de réinitialisation.</p>
+        <p className="mt-12">
+          <Link href="/compte/mot-de-passe-oublie" className="link-inline">Mot de passe oublié</Link>
         </p>
       </div>
     );
@@ -53,25 +53,25 @@ export default function ResetPasswordForm({ token }: { token: string }) {
   if (success) {
     return (
       <div className="card">
-        <p style={{ color: "var(--success)", fontWeight: 600 }}>✓ Mot de passe mis à jour</p>
-        <p style={{ fontSize: 14, marginTop: 8 }}>Redirection vers la connexion...</p>
+        <p className="text-success strong">✓ Mot de passe mis à jour</p>
+        <p className="text-14 mt-8">Redirection vers la connexion...</p>
       </div>
     );
   }
 
   return (
     <>
-      <h1 style={{ fontSize: 26, marginBottom: 24 }}>Nouveau mot de passe</h1>
-      <form onSubmit={submit} className="card" style={{ display: "grid", gap: 14 }}>
+      <h1 className="auth-heading">Nouveau mot de passe</h1>
+      <form onSubmit={submit} className="card form-card auth-form">
         <div>
           <label>Nouveau mot de passe (8 caractères min.)</label>
-          <PasswordInput required  minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} />
+          <PasswordInput required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="new-password" />
         </div>
         <div>
           <label>Confirmer le mot de passe</label>
-          <PasswordInput required  minLength={8} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+          <PasswordInput required minLength={8} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} autoComplete="new-password" />
         </div>
-        {error && <p style={{ color: "var(--danger)", fontSize: 14 }}>{error}</p>}
+        {error && <p className="form-error form-error-md">{error}</p>}
         <button className="btn btn-primary" disabled={loading}>{loading ? "..." : "Réinitialiser mon mot de passe"}</button>
       </form>
     </>

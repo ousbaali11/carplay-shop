@@ -13,6 +13,18 @@ const OPTIONS: { value: string; label: string }[] = [
   { value: "REFUNDED", label: "Remboursée" },
 ];
 
+// Classe de couleur (badge) correspondant à chaque statut, utilisée en Premium
+// pour colorer le sélecteur comme un badge. Sans effet en Standard.
+const TONE: Record<string, string> = {
+  PENDING_PAYMENT: "tone-pending",
+  PAID: "tone-paid",
+  PREPARING: "tone-pending",
+  SHIPPED: "tone-shipped",
+  COMPLETED: "tone-paid",
+  CANCELED: "tone-canceled",
+  REFUNDED: "tone-canceled",
+};
+
 // Changement de statut directement depuis la ligne du tableau, sans ouvrir le
 // détail de la commande. Le changement est immédiatement visible côté client
 // (même colonne "status" en base, lue en direct par /compte).
@@ -40,7 +52,7 @@ export default function InlineStatusSelect({ orderId, status }: { orderId: strin
       value={status}
       disabled={loading}
       onChange={(e) => change(e.target.value)}
-      style={{ fontSize: 12, padding: "4px 8px", width: "auto" }}
+      className={`select-inline ${TONE[status] || ""}`}
       aria-label="Changer le statut de la commande"
     >
       {OPTIONS.map((o) => (

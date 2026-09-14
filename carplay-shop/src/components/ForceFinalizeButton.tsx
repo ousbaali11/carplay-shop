@@ -23,15 +23,15 @@ export default function ForceFinalizeButton({ orderId }: { orderId: string }) {
   }
 
   return (
-    <div className="card" style={{ borderColor: "var(--amber)", marginBottom: 20 }}>
-      <p className="eyebrow" style={{ color: "var(--amber)", marginBottom: 10 }}>Commande bloquée</p>
-      <p style={{ fontSize: 13, marginBottom: 12 }}>
+    <div className="card warning-card mb-20">
+      <p className="eyebrow text-amber mb-10">Commande bloquée</p>
+      <p className="note mb-12">
         Aucun lien de téléchargement n'a été généré pour cette commande — le paiement a probablement
         été reçu, mais la confirmation n'a jamais abouti côté serveur (souci de connexion ponctuel).
         Ce bouton refait cette étape manuellement : génère le lien, attache les fichiers, envoie
         l'email au client.
       </p>
-      {error && <p style={{ color: "var(--danger)", fontSize: 13, marginBottom: 10 }}>{error}</p>}
+      {error && <p className="form-error mb-10">{error}</p>}
       <button className="btn btn-primary" onClick={run} disabled={loading}>
         {loading ? "..." : "Forcer la finalisation"}
       </button>

@@ -7,8 +7,8 @@ export default async function AdminRootLayout({ children }: { children: React.Re
 
   return (
     <div>
-      <header style={{ borderBottom: "1px solid var(--line)", background: "var(--bg)" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", height: 72, padding: "0 24px" }}>
+      <header className="admin-topbar">
+        <div className="admin-topbar-inner">
           <SiteBrand siteName={settings.siteName} logoUrl={settings.logoUrl} logoHeight={settings.logoHeight} href="/admin" />
           <UserAvatar context="admin" />
         </div>

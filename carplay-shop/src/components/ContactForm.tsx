@@ -28,33 +28,33 @@ export default function ContactForm() {
 
   if (sent) {
     return (
-      <div className="card" style={{ maxWidth: 480, marginTop: 28 }}>
-        <p style={{ color: "var(--success)", fontWeight: 600 }}>✓ Message envoyé</p>
-        <p style={{ fontSize: 14, marginTop: 6 }}>Nous te répondrons dès que possible, à l'adresse indiquée.</p>
+      <div className="card w-480 mt-28">
+        <p className="text-success strong">✓ Message envoyé</p>
+        <p className="text-14 mt-6">Nous te répondrons dès que possible, à l'adresse indiquée.</p>
       </div>
     );
   }
 
   return (
-    <form onSubmit={submit} className="card" style={{ maxWidth: 480, marginTop: 28, display: "grid", gap: 14 }}>
-      <p style={{ color: "var(--text)", fontWeight: 600 }}>Ou écris-nous directement</p>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+    <form onSubmit={submit} className="card form-card w-480 mt-28">
+      <p className="form-title">Ou écris-nous directement</p>
+      <div className="form-grid-2">
         <div>
           <label>Prénom</label>
-          <input required value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} />
+          <input required value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} autoComplete="given-name" />
         </div>
         <div>
           <label>Nom</label>
-          <input required value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} />
+          <input required value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} autoComplete="family-name" />
         </div>
       </div>
       <div>
         <label>Email</label>
-        <input required type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+        <input required type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} autoComplete="email" />
       </div>
       <div>
         <label>Téléphone (optionnel)</label>
-        <input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+        <input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} autoComplete="tel" />
       </div>
       <div>
         <label>Objet</label>
@@ -64,8 +64,8 @@ export default function ContactForm() {
         <label>Message</label>
         <textarea required rows={4} value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} />
       </div>
-      {error && <p style={{ color: "var(--danger)", fontSize: 13 }}>{error}</p>}
-      <button className="btn btn-primary" disabled={loading} style={{ justifySelf: "start" }}>
+      {error && <p className="form-error">{error}</p>}
+      <button className="btn btn-primary self-start" disabled={loading}>
         {loading ? "Envoi..." : "Envoyer le message"}
       </button>
     </form>

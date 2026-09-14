@@ -33,23 +33,23 @@ export default function LoginForm() {
 
   return (
     <>
-      <h1 style={{ fontSize: 26, marginBottom: 24 }}>Connexion</h1>
-      <form onSubmit={submit} className="card" style={{ display: "grid", gap: 14 }}>
+      <h1 className="auth-heading">Connexion</h1>
+      <form onSubmit={submit} className="card form-card auth-form">
         <div>
           <label>Email</label>
-          <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
         </div>
         <div>
           <label>Mot de passe</label>
-          <PasswordInput required  value={password} onChange={(e) => setPassword(e.target.value)} />
+          <PasswordInput required value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" />
         </div>
-        {error && <p style={{ color: "var(--danger)", fontSize: 14 }}>{error}</p>}
+        {error && <p className="form-error form-error-md">{error}</p>}
         <button className="btn btn-primary" disabled={loading}>{loading ? "Connexion..." : "Se connecter"}</button>
       </form>
-      <p style={{ marginTop: 16, fontSize: 14 }}>
-        Pas encore de compte ? <Link href="/compte/inscription" style={{ color: "var(--cyan)" }}>Créer un compte</Link>
+      <p className="auth-links">
+        Pas encore de compte ? <Link href="/compte/inscription" className="link-inline">Créer un compte</Link>
         {" · "}
-        <Link href="/compte/mot-de-passe-oublie" style={{ color: "var(--cyan)" }}>Mot de passe oublié ?</Link>
+        <Link href="/compte/mot-de-passe-oublie" className="link-inline">Mot de passe oublié ?</Link>
       </p>
     </>
   );

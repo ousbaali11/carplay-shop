@@ -61,10 +61,10 @@ export default function HeroVideoSettingsForm({ currentUrl }: { currentUrl: stri
   const busy = uploading || saving;
 
   return (
-    <div className="card" style={{ display: "grid", gap: 20, maxWidth: 520 }}>
+    <div className="card form-card gap-20 w-520">
       <div>
-        <p style={{ color: "var(--text)", fontWeight: 600, marginBottom: 4 }}>Envoyer un fichier (jusqu'à 30 Mo)</p>
-        <p style={{ fontSize: 13, marginBottom: 10 }}>
+        <p className="field-title">Envoyer un fichier (jusqu'à 30 Mo)</p>
+        <p className="field-desc">
           Le fichier est envoyé directement, sans passer par le code du site — donc
           pas de limite de 4 Mo ici.
         </p>
@@ -74,27 +74,27 @@ export default function HeroVideoSettingsForm({ currentUrl }: { currentUrl: stri
           disabled={busy}
           onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0])}
         />
-        {uploading && <p style={{ fontSize: 13, color: "var(--cyan)", marginTop: 8 }}>Envoi en cours... {progress}%</p>}
+        {uploading && <p className="form-info mt-8">Envoi en cours... {progress}%</p>}
       </div>
 
-      <div style={{ borderTop: "1px solid var(--line)", paddingTop: 18 }}>
-        <p style={{ color: "var(--text)", fontWeight: 600, marginBottom: 4 }}>Ou coller un lien externe</p>
-        <p style={{ fontSize: 13, marginBottom: 10 }}>
+      <div className="form-subsection">
+        <p className="field-title">Ou coller un lien externe</p>
+        <p className="field-desc">
           Vidéo déjà hébergée ailleurs (Cloudinary, lien direct .mp4, etc.).
         </p>
         <input value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)} placeholder="https://.../ma-video.mp4" disabled={busy} />
-        <button className="btn btn-primary" onClick={() => persistUrl(videoUrl)} disabled={busy || !videoUrl.trim()} style={{ marginTop: 10 }}>
+        <button className="btn btn-primary mt-10" onClick={() => persistUrl(videoUrl)} disabled={busy || !videoUrl.trim()}>
           {saving ? "..." : "Enregistrer ce lien"}
         </button>
       </div>
 
-      {error && <p style={{ color: "var(--danger)", fontSize: 13 }}>{error}</p>}
-      {saved && <p style={{ color: "var(--success)", fontSize: 13 }}>✓ Enregistré</p>}
+      {error && <p className="form-error">{error}</p>}
+      {saved && <p className="form-success">✓ Enregistré</p>}
 
-      <div style={{ borderTop: "1px solid var(--line)", paddingTop: 14, fontSize: 13 }}>
+      <div className="form-status">
         Statut actuel : {currentUrl ? "vidéo configurée" : "aucune vidéo (animation par défaut affichée)"}
         {currentUrl && (
-          <button onClick={removeVideo} className="btn btn-secondary" style={{ marginLeft: 12, padding: "4px 10px", fontSize: 12 }} disabled={busy}>
+          <button onClick={removeVideo} className="btn btn-secondary btn-sm ml-12" disabled={busy}>
             Revenir à l'animation par défaut
           </button>
         )}

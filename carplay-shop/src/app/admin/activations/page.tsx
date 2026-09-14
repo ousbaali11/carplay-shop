@@ -13,11 +13,11 @@ export default async function ActivationTypesListPage() {
   return (
     <div className="admin-layout">
       <AdminSidebar active="activations" />
-      <div style={{ flex: 1, padding: "36px 40px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
-          <div>
-            <h1 style={{ fontSize: 26, marginBottom: 8 }}>Types d'activation</h1>
-            <p style={{ maxWidth: 520 }}>
+      <div className="admin-main">
+        <div className="page-header-row">
+          <div className="page-header">
+            <h1 className="page-title">Types d'activation</h1>
+            <p className="page-lead">
               Guides communs, réutilisables sur plusieurs véhicules (ex: "MST2 Volkswagen Delphi").
               Une fois créés, sélectionnables depuis la fiche d'un véhicule — leurs PDF sont alors
               envoyés automatiquement en plus des fichiers propres à ce véhicule, pour les deux formules.
@@ -26,7 +26,7 @@ export default async function ActivationTypesListPage() {
           <Link href="/admin/activations/nouveau" className="btn btn-primary">+ Nouveau type</Link>
         </div>
 
-        <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+        <div className="card table-card">
           <div className="table-scroll">
             <table>
               <thead>
@@ -40,14 +40,14 @@ export default async function ActivationTypesListPage() {
               <tbody>
                 {types.map((t) => (
                   <tr key={t.id}>
-                    <td>{t.name}</td>
+                    <td className="cell-strong">{t.name}</td>
                     <td>{t._count.pdfs}</td>
                     <td>{t._count.vehicles}</td>
-                    <td><Link href={`/admin/activations/${t.id}`} style={{ color: "var(--cyan)", fontSize: 13 }}>Gérer</Link></td>
+                    <td className="cell-action"><Link href={`/admin/activations/${t.id}`} className="link-accent">Gérer</Link></td>
                   </tr>
                 ))}
                 {types.length === 0 && (
-                  <tr><td colSpan={4} style={{ color: "var(--text-muted)", textAlign: "center", padding: 24 }}>Aucun type d'activation pour le moment.</td></tr>
+                  <tr><td colSpan={4} className="table-empty">Aucun type d'activation pour le moment.</td></tr>
                 )}
               </tbody>
             </table>

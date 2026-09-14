@@ -96,36 +96,42 @@ export default function CheckoutClient({
   return (
     <div className="checkout-grid">
       <div>
+        {/* Indicateur d'étapes : affiché uniquement en interface Premium */}
+        <ol className="checkout-steps premium-only" aria-label="Étapes de la commande">
+          <li className={step === "form" ? "is-current" : "is-done"}><span className="checkout-step-num">1</span> Vos coordonnées</li>
+          <li className={step === "paiement" ? "is-current" : ""}><span className="checkout-step-num">2</span> Paiement</li>
+        </ol>
+
         {step === "form" && (
-          <form onSubmit={submitForm} className="card" style={{ display: "grid", gap: 16 }}>
-            <h3 style={{ marginBottom: 4 }}>Vos coordonnées</h3>
-            <p style={{ fontSize: 13, marginBottom: 8 }}>
+          <form onSubmit={submitForm} className="card form-card gap-16">
+            <h3 className="form-title-h3">Vos coordonnées</h3>
+            <p className="form-intro">
               Nécessaires pour vous envoyer votre facture et vos fichiers par email
               {isPhysical ? ", et pour l'expédition postale de votre carte mémoire." : "."}
             </p>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div className="form-grid-2">
               <div>
                 <label>Prénom</label>
-                <input required value={form.firstName} onChange={(e) => update("firstName", e.target.value)} />
+                <input required value={form.firstName} onChange={(e) => update("firstName", e.target.value)} autoComplete="given-name" />
               </div>
               <div>
                 <label>Nom</label>
-                <input required value={form.lastName} onChange={(e) => update("lastName", e.target.value)} />
+                <input required value={form.lastName} onChange={(e) => update("lastName", e.target.value)} autoComplete="family-name" />
               </div>
             </div>
 
             <div>
               <label>Email (votre facture et vos fichiers y seront envoyés)</label>
-              <input required type="email" value={form.email} onChange={(e) => update("email", e.target.value)} />
+              <input required type="email" value={form.email} onChange={(e) => update("email", e.target.value)} autoComplete="email" />
             </div>
 
             <div>
               <label>Téléphone</label>
-              <input required type="tel" value={form.phone} onChange={(e) => update("phone", e.target.value)} />
+              <input required type="tel" value={form.phone} onChange={(e) => update("phone", e.target.value)} autoComplete="tel" />
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div className="form-grid-2">
               <div>
                 <label>Année de véhicule</label>
                 <input required value={form.vehicleYear} onChange={(e) => update("vehicleYear", e.target.value)} placeholder="ex: 2020" />
@@ -140,30 +146,30 @@ export default function CheckoutClient({
               <>
                 <div>
                   <label>Adresse postale</label>
-                  <input required value={form.address} onChange={(e) => update("address", e.target.value)} placeholder="Numéro et rue" />
+                  <input required value={form.address} onChange={(e) => update("address", e.target.value)} placeholder="Numéro et rue" autoComplete="address-line1" />
                 </div>
                 <div>
                   <label>Complément d'adresse (optionnel)</label>
-                  <input value={form.addressComp} onChange={(e) => update("addressComp", e.target.value)} />
+                  <input value={form.addressComp} onChange={(e) => update("addressComp", e.target.value)} autoComplete="address-line2" />
                 </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 12 }}>
+                <div className="form-grid-1-2">
                   <div>
                     <label>Code postal</label>
-                    <input required value={form.postalCode} onChange={(e) => update("postalCode", e.target.value)} />
+                    <input required value={form.postalCode} onChange={(e) => update("postalCode", e.target.value)} autoComplete="postal-code" />
                   </div>
                   <div>
                     <label>Ville</label>
-                    <input required value={form.city} onChange={(e) => update("city", e.target.value)} />
+                    <input required value={form.city} onChange={(e) => update("city", e.target.value)} autoComplete="address-level2" />
                   </div>
                 </div>
                 <div>
                   <label>Pays</label>
-                  <input required value={form.country} onChange={(e) => update("country", e.target.value)} />
+                  <input required value={form.country} onChange={(e) => update("country", e.target.value)} autoComplete="country-name" />
                 </div>
               </>
             )}
 
-            {error && <p style={{ color: "var(--danger)", fontSize: 14 }}>{error}</p>}
+            {error && <p className="form-error form-error-md">{error}</p>}
 
             <button className="btn btn-primary" type="submit" disabled={loading}>
               {loading ? "Chargement..." : "Continuer vers le paiement"}
@@ -172,12 +178,12 @@ export default function CheckoutClient({
         )}
 
         {step === "paiement" && (
-          <div className="card" style={{ display: "grid", gap: 20 }}>
+          <div className="card form-card gap-20">
             <h3>Choisissez votre moyen de paiement</h3>
-            {error && <p style={{ color: "var(--danger)", fontSize: 14 }}>{error}</p>}
+            {error && <p className="form-error form-error-md">{error}</p>}
 
             {!stripeEnabled && !paypalReady && (
-              <p style={{ color: "var(--amber)", fontSize: 14 }}>
+              <p className="form-warning md">
                 Aucun moyen de paiement n'est disponible pour le moment. Contactez-nous directement pour finaliser votre commande.
               </p>
             )}
@@ -229,7 +235,7 @@ export default function CheckoutClient({
                 />
               </PayPalScriptProvider>
             ) : paypalEnabled ? (
-              <p style={{ fontSize: 12, color: "var(--text-muted)" }}>
+              <p className="note-xs">
                 PayPal est activé mais pas encore configuré (identifiants manquants dans /admin/integrations).
               </p>
             ) : null}
@@ -241,16 +247,21 @@ export default function CheckoutClient({
         )}
       </div>
 
-      <div className="card" style={{ height: "fit-content" }}>
-        <p className="eyebrow" style={{ marginBottom: 12 }}>Récapitulatif</p>
-        <p style={{ color: "var(--text)", fontWeight: 600, marginBottom: 4 }}>{vehicle.title}</p>
-        <p style={{ fontSize: 13, marginBottom: 20 }}>
+      <div className="card summary-card">
+        <p className="eyebrow mb-12">Récapitulatif</p>
+        <p className="summary-title">{vehicle.title}</p>
+        <p className="summary-desc">
           {isPhysical ? "Carte mémoire + guide(s) PDF, envoyée par la poste" : "Fichier d'activation + guide(s) PDF envoyés par email"}
         </p>
-        <div style={{ borderTop: "1px solid var(--line)", paddingTop: 16, display: "flex", justifyContent: "space-between" }}>
-          <span style={{ color: "var(--text-muted)" }}>Total</span>
-          <span style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 20 }}>{eur(priceCents)}</span>
+        <div className="summary-total">
+          <span className="text-muted">Total</span>
+          <span className="summary-amount">{eur(priceCents)}</span>
         </div>
+        <ul className="trust-list premium-only" aria-label="Garanties">
+          <li>Paiement sécurisé par Stripe ou PayPal</li>
+          <li>Facture envoyée par email</li>
+          <li>{isPhysical ? "Expédition suivie via Mondial Relais" : "Fichiers livrés par lien personnel"}</li>
+        </ul>
       </div>
     </div>
   );

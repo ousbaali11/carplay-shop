@@ -24,18 +24,18 @@ export default function InvoiceSettingsForm({ initialEnabled }: { initialEnabled
   }
 
   return (
-    <div className="card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", maxWidth: 480 }}>
+    <div className="card toggle-card w-480">
       <div>
-        <p style={{ color: "var(--text)", fontWeight: 600 }}>Factures automatiques</p>
-        <p style={{ fontSize: 13, marginTop: 4 }}>
+        <p className="field-title">Factures automatiques</p>
+        <p className="field-desc-inline">
           {enabled
             ? "Le client reçoit sa facture par email et peut la retélécharger depuis son espace."
             : "Aucune facture n'est générée : l'email de confirmation part sans pièce jointe, et le lien facture disparaît de l'espace client."}
         </p>
-        {saved && <p style={{ color: "var(--success)", fontSize: 12, marginTop: 6 }}>✓ Enregistré</p>}
+        {saved && <p className="form-success sm">✓ Enregistré</p>}
       </div>
-      <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
-        <input type="checkbox" checked={enabled} disabled={saving} onChange={(e) => save(e.target.checked)} style={{ width: 20, height: 20 }} />
+      <label className="switch-label">
+        <input type="checkbox" checked={enabled} disabled={saving} onChange={(e) => save(e.target.checked)} className="switch-input" />
       </label>
     </div>
   );

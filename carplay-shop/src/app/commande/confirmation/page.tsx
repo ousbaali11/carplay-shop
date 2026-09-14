@@ -51,24 +51,24 @@ export default async function ConfirmationPage({
   return (
     <>
       <Header />
-      <section className="container" style={{ padding: "80px 0", maxWidth: 560, textAlign: "center" }}>
+      <section className="container status-section w-560">
         {isPaid ? (
           <>
-            <div style={{ fontSize: 48, marginBottom: 16 }}>✅</div>
-            <h1 style={{ fontSize: 28, marginBottom: 12 }}>Merci pour votre commande !</h1>
-            <p style={{ marginBottom: 24 }}>
-              Un email de confirmation vient d'être envoyé à <b style={{ color: "var(--text)" }}>{order?.email}</b>
+            <div className="status-icon">✅</div>
+            <h1 className="status-title">Merci pour votre commande !</h1>
+            <p className="mb-24">
+              Un email de confirmation vient d'être envoyé à <b className="strong-text">{order?.email}</b>
               {order?.formula === "FILES_ONLY"
                 ? " avec votre facture. Vos fichiers d'activation vous seront envoyés séparément dès qu'ils seront prêts."
                 : " avec votre facture et le lien pour accéder à vos fichiers."}
             </p>
-            <p className="mono" style={{ fontSize: 13, marginBottom: 32 }}>N° de commande : {order?.orderNumber}</p>
+            <p className="mono order-ref">N° de commande : {order?.orderNumber}</p>
             <Link href="/" className="btn btn-primary">Retour à l'accueil</Link>
           </>
         ) : (
           <>
-            <div style={{ fontSize: 48, marginBottom: 16 }}>⏳</div>
-            <h1 style={{ fontSize: 24, marginBottom: 12 }}>Confirmation du paiement en cours...</h1>
+            <div className="status-icon">⏳</div>
+            <h1 className="status-title sm">Confirmation du paiement en cours...</h1>
             <p>Actualisez cette page dans quelques instants. Vous recevrez un email dès que le paiement sera confirmé.</p>
           </>
         )}

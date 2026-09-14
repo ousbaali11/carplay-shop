@@ -38,38 +38,38 @@ export default function RegisterForm() {
 
   return (
     <>
-      <h1 style={{ fontSize: 26, marginBottom: 24 }}>Créer un compte</h1>
-      <form onSubmit={submit} className="card" style={{ display: "grid", gap: 14 }}>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+      <h1 className="auth-heading">Créer un compte</h1>
+      <form onSubmit={submit} className="card form-card auth-form">
+        <div className="form-grid-2">
           <div>
             <label>Prénom</label>
-            <input required value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} />
+            <input required value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} autoComplete="given-name" />
           </div>
           <div>
             <label>Nom</label>
-            <input required value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} />
+            <input required value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} autoComplete="family-name" />
           </div>
         </div>
         <div>
           <label>Email</label>
-          <input required type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+          <input required type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} autoComplete="email" />
         </div>
         <div>
           <label>Téléphone</label>
-          <input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+          <input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} autoComplete="tel" />
         </div>
         <div>
           <label>Mot de passe (8 caractères minimum)</label>
-          <PasswordInput required  minLength={8} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
+          <PasswordInput required minLength={8} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} autoComplete="new-password" />
         </div>
-        {error && <p style={{ color: "var(--danger)", fontSize: 14 }}>{error}</p>}
+        {error && <p className="form-error form-error-md">{error}</p>}
         <button className="btn btn-primary" disabled={loading}>{loading ? "Création..." : "Créer mon compte"}</button>
       </form>
-      <p style={{ marginTop: 16, fontSize: 14 }}>
-        Déjà un compte ? <Link href="/compte/connexion" style={{ color: "var(--cyan)" }}>Se connecter</Link>
+      <p className="auth-links">
+        Déjà un compte ? <Link href="/compte/connexion" className="link-inline">Se connecter</Link>
       </p>
-      <p style={{ marginTop: 8, fontSize: 13 }}>
-        Vous pouvez aussi <Link href="/#produits" style={{ color: "var(--cyan)" }}>commander sans créer de compte</Link>.
+      <p className="auth-links sm">
+        Vous pouvez aussi <Link href="/#produits" className="link-inline">commander sans créer de compte</Link>.
       </p>
     </>
   );

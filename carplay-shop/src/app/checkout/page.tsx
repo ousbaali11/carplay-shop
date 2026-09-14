@@ -25,8 +25,8 @@ export default async function CheckoutPage({
   return (
     <>
       <Header />
-      <section className="container" style={{ padding: "50px 0" }}>
-        <h1 style={{ fontSize: 28, marginBottom: 28 }}>Finaliser ma commande</h1>
+      <section className="container page-section">
+        <h1 className="checkout-title">Finaliser ma commande</h1>
         <CheckoutClient
           vehicle={{
             id: vehicle.id,

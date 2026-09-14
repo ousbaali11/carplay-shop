@@ -72,9 +72,9 @@ export default function BrandSettingsForm({
   const busy = uploading || saving;
 
   return (
-    <div className="card" style={{ display: "grid", gap: 20, maxWidth: 480 }}>
-      <div style={{ padding: 12, background: "var(--bg-elevated)", borderRadius: 8 }}>
-        <p style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 8 }}>Aperçu</p>
+    <div className="card form-card gap-20 w-480">
+      <div className="brand-preview">
+        <p className="preview-label">Aperçu</p>
         <SiteBrand siteName={siteName} logoUrl={logoUrl || null} logoHeight={logoHeight} />
       </div>
 
@@ -86,9 +86,9 @@ export default function BrandSettingsForm({
       <div>
         <label>Logo (image — laisse vide pour garder le logo par défaut)</label>
         <input type="file" accept="image/png,image/jpeg,image/svg+xml,image/webp" disabled={busy} onChange={(e) => e.target.files?.[0] && handleLogoUpload(e.target.files[0])} />
-        {uploading && <p style={{ fontSize: 13, color: "var(--cyan)", marginTop: 6 }}>Envoi en cours...</p>}
+        {uploading && <p className="form-info mt-6">Envoi en cours...</p>}
         {logoUrl && (
-          <button onClick={removeLogo} className="btn btn-secondary" style={{ marginTop: 8, padding: "4px 10px", fontSize: 12 }} disabled={busy}>
+          <button onClick={removeLogo} className="btn btn-secondary btn-sm mt-8" disabled={busy}>
             Revenir au logo par défaut
           </button>
         )}
@@ -105,17 +105,17 @@ export default function BrandSettingsForm({
           onChange={(e) => setLogoHeight(Number(e.target.value))}
           onMouseUp={() => save()}
           onTouchEnd={() => save()}
-          style={{ width: "100%" }}
+          className="range-full"
         />
-        <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 4 }}>
+        <p className="field-hint">
           S'applique au logo uploadé comme au logo par défaut, partout sur le site.
         </p>
       </div>
 
-      {error && <p style={{ color: "var(--danger)", fontSize: 13 }}>{error}</p>}
-      {saved && <p style={{ color: "var(--success)", fontSize: 13 }}>✓ Enregistré</p>}
+      {error && <p className="form-error">{error}</p>}
+      {saved && <p className="form-success">✓ Enregistré</p>}
 
-      <button className="btn btn-primary" onClick={() => save()} disabled={busy} style={{ justifySelf: "start" }}>
+      <button className="btn btn-primary self-start" onClick={() => save()} disabled={busy}>
         {saving ? "..." : "Enregistrer le nom"}
       </button>
     </div>

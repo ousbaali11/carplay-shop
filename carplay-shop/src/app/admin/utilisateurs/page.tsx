@@ -13,10 +13,10 @@ export default async function AdminUsersPage() {
   return (
     <div className="admin-layout">
       <AdminSidebar active="utilisateurs" />
-      <div style={{ flex: 1, padding: "36px 40px" }}>
-        <h1 style={{ fontSize: 26, marginBottom: 24 }}>Utilisateurs ({users.length})</h1>
+      <div className="admin-main">
+        <h1 className="page-title mb-24">Utilisateurs ({users.length})</h1>
 
-        <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+        <div className="card table-card">
           <div className="table-scroll">
           <table>
             <thead>
@@ -32,7 +32,7 @@ export default async function AdminUsersPage() {
             <tbody>
               {users.map((u) => (
                 <tr key={u.id}>
-                  <td>{u.firstName} {u.lastName}</td>
+                  <td className="cell-strong">{u.firstName} {u.lastName}</td>
                   <td>{u.email}</td>
                   <td>
                     {u.role === "ADMIN" ? (
@@ -42,12 +42,12 @@ export default async function AdminUsersPage() {
                     )}
                   </td>
                   <td>{u._count.orders}</td>
-                  <td style={{ fontSize: 13 }}>{u.createdAt.toLocaleDateString("fr-FR")}</td>
-                  <td>{u.role !== "ADMIN" && <DeleteUserButton userId={u.id} label={`${u.firstName} ${u.lastName}`} />}</td>
+                  <td className="cell-sm">{u.createdAt.toLocaleDateString("fr-FR")}</td>
+                  <td className="cell-action">{u.role !== "ADMIN" && <DeleteUserButton userId={u.id} label={`${u.firstName} ${u.lastName}`} />}</td>
                 </tr>
               ))}
               {users.length === 0 && (
-                <tr><td colSpan={6} style={{ textAlign: "center", color: "var(--text-muted)", padding: 24 }}>Aucun utilisateur.</td></tr>
+                <tr><td colSpan={6} className="table-empty">Aucun utilisateur.</td></tr>
               )}
             </tbody>
           </table>

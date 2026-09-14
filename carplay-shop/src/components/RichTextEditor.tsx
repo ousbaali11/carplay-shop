@@ -31,18 +31,9 @@ function ToolbarButton({
         onAction();
       }}
       aria-label={label}
+      aria-pressed={!!active}
       title={label}
-      style={{
-        border: "1px solid var(--line)",
-        background: active ? "var(--cyan)" : "var(--bg-card)",
-        color: active ? "#06080a" : "var(--text)",
-        borderRadius: 6,
-        padding: "6px 10px",
-        fontSize: 13,
-        cursor: "pointer",
-        fontWeight: 600,
-        lineHeight: 1,
-      }}
+      className={`rte-btn${active ? " is-active" : ""}`}
     >
       {children}
     </button>
@@ -75,19 +66,7 @@ export default function RichTextEditor({ name, initialValue }: { name: string; i
     <div>
       <input type="hidden" name={name} value={html} />
 
-      <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: 6,
-          alignItems: "center",
-          padding: 8,
-          background: "var(--bg-elevated)",
-          borderRadius: "8px 8px 0 0",
-          border: "1px solid var(--line)",
-          borderBottom: "none",
-        }}
-      >
+      <div className="rte-toolbar">
         <ToolbarButton onAction={() => editor.chain().focus().toggleBold().run()} active={editor.isActive("bold")} label="Gras">
           <b>G</b>
         </ToolbarButton>
@@ -104,7 +83,7 @@ export default function RichTextEditor({ name, initialValue }: { name: string; i
           1. Numéros
         </ToolbarButton>
 
-        <div style={{ display: "flex", gap: 5, alignItems: "center", paddingLeft: 8, marginLeft: 2, borderLeft: "1px solid var(--line)" }}>
+        <div className="rte-colors">
           {COLORS.map((c) => (
             <button
               key={c}
@@ -115,7 +94,8 @@ export default function RichTextEditor({ name, initialValue }: { name: string; i
               }}
               aria-label={`Couleur ${c}`}
               title="Couleur du texte"
-              style={{ width: 20, height: 20, borderRadius: "50%", background: c, border: "1px solid var(--line)", cursor: "pointer", padding: 0 }}
+              className="rte-color"
+              style={{ background: c }}
             />
           ))}
           <button
@@ -125,27 +105,18 @@ export default function RichTextEditor({ name, initialValue }: { name: string; i
               editor.chain().focus().unsetColor().run();
             }}
             title="Couleur par défaut"
-            style={{ fontSize: 12, color: "var(--text-muted)", background: "none", border: "none", cursor: "pointer", padding: "0 4px" }}
+            aria-label="Couleur par défaut"
+            className="rte-color-reset"
           >
             ✕
           </button>
         </div>
       </div>
 
-      <div
-        onClick={() => editor.chain().focus().run()}
-        style={{
-          border: "1px solid var(--line)",
-          borderRadius: "0 0 8px 8px",
-          padding: "12px 14px",
-          minHeight: 160,
-          background: "var(--bg-elevated)",
-          cursor: "text",
-        }}
-      >
+      <div onClick={() => editor.chain().focus().run()} className="rte-area">
         <EditorContent editor={editor} />
       </div>
-      <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 6 }}>
+      <p className="rte-hint">
         Sélectionne (surligne) le texte à modifier avant de cliquer sur un bouton — comme dans Word.
         Dans une liste, Tab pour indenter une ligne, Maj+Tab pour la remonter.
       </p>
