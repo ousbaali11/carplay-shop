@@ -593,6 +593,13 @@
 [data-ui="premium"] .hero-count { font-family: var(--font-body); font-size: 13px; color: var(--text-soft); margin-top: 18px; }
 [data-ui="premium"] .hero-trust { display: flex; flex-wrap: wrap; gap: 8px 20px; margin: 26px 0 0; padding: 0; list-style: none; font-size: 13px; color: var(--text-muted); }
 [data-ui="premium"] .hero-trust li::before { content: "✓"; color: var(--success); font-weight: 700; margin-right: 6px; }
+/* Cartes média (vidéo d'accueil, galerie de la fiche, cartes d'annonces) : le
+   padding de .card est remis à zéro (comme pour .table-card) pour que l'image
+   ou la vidéo aille bord à bord et soit découpée par les coins arrondis du
+   conteneur (overflow: hidden hérité de globals.css). isolation: isolate
+   garantit ce découpage même pendant la transition transform du survol. */
+[data-ui="premium"] .card.hero-media,
+[data-ui="premium"] .card.vehicle-card { padding: 0; overflow: hidden; isolation: isolate; }
 [data-ui="premium"] .hero-media { border-radius: 16px; box-shadow: var(--shadow-lg); }
 [data-ui="premium"] .hi-bg { fill: #eef1f7; }
 [data-ui="premium"] .hi-frame { fill: #ffffff; stroke: #d9dee8; }
@@ -632,6 +639,9 @@
 }
 [data-ui="premium"] .step-title { font-size: 16px; margin-bottom: 6px; }
 [data-ui="premium"] .step-desc { font-size: 14px; }
+/* Même cause que .hero-media / .vehicle-card : le padding de .card écrasait le
+   padding: 0 de la petite carte d'icône (56 px) et serrait l'icône. */
+[data-ui="premium"] .card.icon-card { padding: 0; }
 [data-ui="premium"] .icon-card { border-radius: 12px; transition: box-shadow 0.15s ease, transform 0.15s ease; }
 [data-ui="premium"] .icon-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
 
