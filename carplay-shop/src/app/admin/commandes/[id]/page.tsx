@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import AdminSidebar from "@/components/AdminSidebar";
+import { requireAdminPage } from "@/lib/admin";
 import ShipOrderForm from "@/components/ShipOrderForm";
 import OrderStatusActions from "@/components/OrderStatusActions";
 import ForceFinalizeButton from "@/components/ForceFinalizeButton";
@@ -23,6 +24,7 @@ function eur(cents: number) {
 }
 
 export default async function AdminOrderDetail({ params }: { params: { id: string } }) {
+  await requireAdminPage();
   const order = await prisma.order.findUnique({
     where: { id: params.id },
     include: { activationLinks: { orderBy: { position: "asc" } } },

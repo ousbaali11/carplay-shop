@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import AdminSidebar from "@/components/AdminSidebar";
+import { requireAdminPage } from "@/lib/admin";
 import DeleteVehicleButton from "@/components/DeleteVehicleButton";
 import DeleteFileButton from "@/components/DeleteFileButton";
 import RichTextEditor from "@/components/RichTextEditor";
@@ -8,6 +9,7 @@ import { notFound } from "next/navigation";
 export const dynamic = "force-dynamic";
 
 export default async function EditVehiclePage({ params, searchParams }: { params: { id: string }; searchParams: { enregistre?: string; cree?: string; erreur?: string } }) {
+  await requireAdminPage();
   const [v, activationTypes] = await Promise.all([
     prisma.vehicle.findUnique({
       where: { id: params.id },

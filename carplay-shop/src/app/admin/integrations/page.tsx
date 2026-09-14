@@ -1,10 +1,12 @@
 import AdminSidebar from "@/components/AdminSidebar";
+import { requireAdminPage } from "@/lib/admin";
 import IntegrationsSettingsForm from "@/components/IntegrationsSettingsForm";
 import { getPaymentSettings, getSiteSettings } from "@/lib/orders";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminIntegrationsPage() {
+  await requireAdminPage();
   const payment = await getPaymentSettings();
   const site = await getSiteSettings();
 

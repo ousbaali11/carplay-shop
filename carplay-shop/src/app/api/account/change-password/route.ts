@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { requireUser } from "@/lib/admin";
+import { rateLimit, tooManyRequests, MINUTE } from "@/lib/rate-limit";
 
 // Utilisée à la fois par l'espace client (/compte) et l'espace admin (/admin) :
 // n'importe quel utilisateur connecté peut changer SON PROPRE mot de passe, en
@@ -11,6 +12,11 @@ export async function POST(req: Request) {
   if (!user) {
     return NextResponse.json({ error: "Non connecté" }, { status: 401 });
   }
+
+  // Un attaquant ayant volé une session ne doit pas pouvoir deviner le mot de
+  // passe actuel par essais répétés.
+  const limit = rateLimit(`change-password:user:${user.id}`, 5, 15 * MINUTE);
+  if (!limit.ok) return tooManyRequests(limit.retryAfterSec);
 
   const body = await req.json().catch(() => null);
   const currentPassword = body?.currentPassword;

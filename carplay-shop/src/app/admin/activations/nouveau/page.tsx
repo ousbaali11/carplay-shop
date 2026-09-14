@@ -1,6 +1,10 @@
 import AdminSidebar from "@/components/AdminSidebar";
+import { requireAdminPage } from "@/lib/admin";
 
-export default function NewActivationTypePage({ searchParams }: { searchParams: { erreur?: string } }) {
+export const dynamic = "force-dynamic";
+
+export default async function NewActivationTypePage({ searchParams }: { searchParams: { erreur?: string } }) {
+  await requireAdminPage();
   return (
     <div className="admin-layout">
       <AdminSidebar active="activations" />

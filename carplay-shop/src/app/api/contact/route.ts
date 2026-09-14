@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { sendContactFormEmail } from "@/lib/email";
+import { rateLimit, getClientIp, tooManyRequests, MINUTE } from "@/lib/rate-limit";
 
 const schema = z.object({
   firstName: z.string().trim().min(1).max(80),
@@ -15,6 +16,11 @@ const schema = z.object({
 });
 
 export async function POST(req: Request) {
+  // Anti-spam : au plus 5 messages par quart d'heure et par adresse IP.
+  const ip = getClientIp(req.headers);
+  const limit = rateLimit(`contact:ip:${ip}`, 5, 15 * MINUTE);
+  if (!limit.ok) return tooManyRequests(limit.retryAfterSec, "Trop de messages envoyés. Réessaie dans quelques minutes.");
+
   const body = await req.json().catch(() => null);
   const parsed = schema.safeParse(body);
   if (!parsed.success) {

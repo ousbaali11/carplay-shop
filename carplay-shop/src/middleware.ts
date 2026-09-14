@@ -18,6 +18,24 @@ export default withAuth(
     // API admin : réponse JSON 403 (pas de redirection HTML vers une page de connexion).
     if (path.startsWith("/api/admin")) {
       if (!isAdmin) return NextResponse.json({ error: "Non autorisé" }, { status: 403 });
+      // Anti-CSRF (deuxième barrière, en plus du cookie SameSite=Lax) : une
+      // requête d'écriture venant d'un autre site (en-tête Origin différent de
+      // notre hôte) est refusée, même si elle portait un cookie valide.
+      if (req.method !== "GET" && req.method !== "HEAD") {
+        const origin = req.headers.get("origin");
+        const host = req.headers.get("x-forwarded-host") || req.headers.get("host");
+        if (origin && host) {
+          let originHost: string | null = null;
+          try {
+            originHost = new URL(origin).host;
+          } catch {
+            originHost = null;
+          }
+          if (originHost !== host) {
+            return NextResponse.json({ error: "Origine de la requête non autorisée" }, { status: 403 });
+          }
+        }
+      }
       return NextResponse.next();
     }
 

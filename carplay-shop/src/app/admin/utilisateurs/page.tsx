@@ -1,10 +1,12 @@
 import { prisma } from "@/lib/prisma";
 import AdminSidebar from "@/components/AdminSidebar";
+import { requireAdminPage } from "@/lib/admin";
 import DeleteUserButton from "@/components/DeleteUserButton";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminUsersPage() {
+  await requireAdminPage();
   const users = await prisma.user.findMany({
     orderBy: { createdAt: "desc" },
     include: { _count: { select: { orders: true } } },

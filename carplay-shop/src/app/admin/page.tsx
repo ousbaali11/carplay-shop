@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import AdminSidebar from "@/components/AdminSidebar";
+import { requireAdminPage } from "@/lib/admin";
 import InlineStatusSelect from "@/components/InlineStatusSelect";
 import Link from "next/link";
 
@@ -64,6 +65,7 @@ function OrdersTable({ orders, showFilesSent }: { orders: any[]; showFilesSent: 
 }
 
 export default async function AdminDashboard() {
+  await requireAdminPage();
   const allOrders = await prisma.order.findMany({
     where: { status: { not: "PENDING_PAYMENT" } },
     orderBy: { createdAt: "desc" },

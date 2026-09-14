@@ -1,10 +1,12 @@
 import { prisma } from "@/lib/prisma";
 import AdminSidebar from "@/components/AdminSidebar";
+import { requireAdminPage } from "@/lib/admin";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
 export default async function ActivationTypesListPage() {
+  await requireAdminPage();
   const types = await prisma.activationType.findMany({
     orderBy: { name: "asc" },
     include: { _count: { select: { pdfs: true, vehicles: true } } },

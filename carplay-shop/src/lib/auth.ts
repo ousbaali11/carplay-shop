@@ -2,6 +2,17 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+import { rateLimit, getClientIp, MINUTE } from "@/lib/rate-limit";
+
+// Hash factice comparé quand l'email n'existe pas : le temps de réponse est
+// ainsi le même qu'avec un compte existant (pas de fuite d'existence d'un
+// compte par mesure du temps de réponse).
+const DUMMY_HASH = bcrypt.hashSync("mot-de-passe-factice-anti-timing", 10);
+
+// Limites de tentatives de connexion : par adresse IP et par email.
+const LOGIN_MAX_PER_IP = 20;
+const LOGIN_MAX_PER_EMAIL = 8;
+const LOGIN_WINDOW = 15 * MINUTE;
 
 // Reproduit le nom de cookie standard de NextAuth (avec le préfixe "__Secure-"
 // utilisé automatiquement en HTTPS), pour rester compatible avec son
@@ -46,16 +57,24 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "email" },
         password: { label: "Mot de passe", type: "password" },
       },
-      async authorize(credentials) {
+      async authorize(credentials, req) {
         if (!credentials?.email || !credentials?.password) return null;
+        if (credentials.email.length > 254 || credentials.password.length > 200) return null;
 
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email.toLowerCase().trim() },
-        });
-        if (!user) return null;
+        const email = credentials.email.toLowerCase().trim();
 
-        const valid = await bcrypt.compare(credentials.password, user.passwordHash);
-        if (!valid) return null;
+        // Limitation des tentatives (force brute) : même réponse qu'un mauvais
+        // mot de passe, pour ne rien révéler.
+        const ip = getClientIp((req?.headers as Record<string, string> | undefined) ?? {});
+        if (!rateLimit(`login:ip:${ip}`, LOGIN_MAX_PER_IP, LOGIN_WINDOW).ok) return null;
+        if (!rateLimit(`login:email:${email}`, LOGIN_MAX_PER_EMAIL, LOGIN_WINDOW).ok) return null;
+
+        const user = await prisma.user.findUnique({ where: { email } });
+
+        // Comparaison systématique (hash réel ou factice) : temps de réponse
+        // identique que le compte existe ou non.
+        const valid = await bcrypt.compare(credentials.password, user?.passwordHash ?? DUMMY_HASH);
+        if (!user || !valid) return null;
 
         return {
           id: user.id,

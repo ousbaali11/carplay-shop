@@ -1,9 +1,11 @@
 import AdminSidebar from "@/components/AdminSidebar";
+import { requireAdminPage } from "@/lib/admin";
 import ChangePasswordForm from "@/components/ChangePasswordForm";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
 export default async function AdminAccountPage() {
+  await requireAdminPage();
   const session = await getServerSession(authOptions);
 
   return (

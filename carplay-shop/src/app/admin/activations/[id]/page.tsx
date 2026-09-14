@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import AdminSidebar from "@/components/AdminSidebar";
+import { requireAdminPage } from "@/lib/admin";
 import DeleteFileButton from "@/components/DeleteFileButton";
 import DeleteActivationTypeButton from "@/components/DeleteActivationTypeButton";
 import { notFound } from "next/navigation";
@@ -7,6 +8,7 @@ import { notFound } from "next/navigation";
 export const dynamic = "force-dynamic";
 
 export default async function EditActivationTypePage({ params, searchParams }: { params: { id: string }; searchParams: { enregistre?: string; erreur?: string } }) {
+  await requireAdminPage();
   const t = await prisma.activationType.findUnique({
     where: { id: params.id },
     include: { pdfs: { orderBy: { position: "asc" } }, _count: { select: { vehicles: true } } },

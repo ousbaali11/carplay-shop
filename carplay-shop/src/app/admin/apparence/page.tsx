@@ -1,4 +1,5 @@
 import AdminSidebar from "@/components/AdminSidebar";
+import { requireAdminPage } from "@/lib/admin";
 import ContactSettingsForm from "@/components/ContactSettingsForm";
 import HeroVideoSettingsForm from "@/components/HeroVideoSettingsForm";
 import BrandSettingsForm from "@/components/BrandSettingsForm";
@@ -12,6 +13,7 @@ import { resolveEffectiveInterfaceVersion } from "@/lib/ui-server";
 export const dynamic = "force-dynamic";
 
 export default async function AdminApparencePage() {
+  await requireAdminPage();
   const settings = await getSiteSettings();
   // Réglage enregistré (ce que le sélecteur affiche comme choix courant)...
   const storedUi = normalizeInterfaceVersion(settings.interfaceVersion);

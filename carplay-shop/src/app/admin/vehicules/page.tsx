@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import AdminSidebar from "@/components/AdminSidebar";
+import { requireAdminPage } from "@/lib/admin";
 import ToggleActiveButton from "@/components/ToggleActiveButton";
 import Link from "next/link";
 
@@ -10,6 +11,7 @@ function eur(cents: number) {
 }
 
 export default async function AdminVehiclesPage({ searchParams }: { searchParams: { cree?: string } }) {
+  await requireAdminPage();
   const vehicles = await prisma.vehicle.findMany({
     orderBy: { title: "asc" },
     include: {

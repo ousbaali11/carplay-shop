@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { rateLimit, getClientIp, tooManyRequests, HOUR } from "@/lib/rate-limit";
 
 const schema = z.object({
   email: z.string().trim().email("Email invalide").max(254),
@@ -12,6 +13,12 @@ const schema = z.object({
 });
 
 export async function POST(req: Request) {
+  // Limite les créations de comptes en rafale (spam) et rend impraticable
+  // l'énumération d'emails via la réponse "compte existant".
+  const ip = getClientIp(req.headers);
+  const limit = rateLimit(`register:ip:${ip}`, 5, HOUR);
+  if (!limit.ok) return tooManyRequests(limit.retryAfterSec);
+
   const body = await req.json().catch(() => null);
   const parsed = schema.safeParse(body);
   if (!parsed.success) {

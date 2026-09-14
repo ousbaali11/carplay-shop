@@ -1,10 +1,12 @@
 import AdminSidebar from "@/components/AdminSidebar";
+import { requireAdminPage } from "@/lib/admin";
 import RichTextEditor from "@/components/RichTextEditor";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
 export default async function NewVehiclePage({ searchParams }: { searchParams: { erreur?: string } }) {
+  await requireAdminPage();
   const activationTypes = await prisma.activationType.findMany({ orderBy: { name: "asc" } });
 
   return (

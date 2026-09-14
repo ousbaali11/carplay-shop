@@ -1,8 +1,15 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { rateLimit, getClientIp, tooManyRequests, MINUTE } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
+  // Le token fait 48 caractères aléatoires : impossible à deviner, mais on
+  // limite quand même les essais pour couper court à toute tentative.
+  const ip = getClientIp(req.headers);
+  const limit = rateLimit(`reset:ip:${ip}`, 10, 15 * MINUTE);
+  if (!limit.ok) return tooManyRequests(limit.retryAfterSec);
+
   const body = await req.json().catch(() => null);
   const token = body?.token;
   const newPassword = body?.newPassword;
